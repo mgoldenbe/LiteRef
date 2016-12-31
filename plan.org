@@ -1,0 +1,13 @@
+* The daemon
+** On creation of a file in bib/
+*** If extension is bib, rename to reflect the whole key.
+Parse .bib file using a specialized library.
+*** Extract the url entry and point the browser to it.
+*** Get abstract from pdf when it’s downloaded (so, need to watch pdf/ as well)
+*** Create the corresponding file in papers/.
+* TODO Document using AutoAPI (already installed)
+http://autoapi.readthedocs.io/
+* TODO Create directories automatically with mkdir -p when running daemon 
+* Nice-to-have features:
+** Handle a file being moved from outside into the LiteRef directories.
+Moving a file is not the same event as creating a file.
