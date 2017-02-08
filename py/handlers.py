@@ -1,5 +1,6 @@
 import config
 import os
+from time import sleep
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.customization import *
@@ -75,3 +76,20 @@ def handleNewPdf(fileName):
                       newPdf = paperDir + "/paper.pdf") 
     os.system(command)
     return
+
+def handleNewFile(fileName):
+    # Make sure it's not a short-lived temporary file, e.g. of sed
+    sleep(0.1)
+    if not os.path.isfile(fileName):
+        return      
+    name, ext = os.path.splitext(fileName)
+    if ext == '.crdownload': return
+    if ext != '.bib' and ext != '.pdf':
+        print "LiteRef Error: the new file " + fileName + \
+            " is neither a .bib nor a .pdf file."
+        return
+    sleep(0.1) # Make sure that the file is fully written
+    if ext == '.bib':
+        handleNewBib(fileName);
+    if ext == '.pdf':
+        handleNewPdf(fileName);
