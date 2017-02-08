@@ -1,15 +1,11 @@
 ROOT_DIR = '/home/meir/Dropbox/Parnasa/Research/LiteRef/'
-BIB_DIR = ROOT_DIR + "bib/"
-PDF_DIR = ROOT_DIR + "pdf/"
+PAPERS_DIR = ROOT_DIR + "papers/"
+NOTES_DIR = ROOT_DIR + "notes/"
+DROP_DIR = ROOT_DIR + "drop/"
 BROWSER = 'chrome'
 PDF_SOURCE = 'scholar.google.com/scholar?q='
 
 def isDir(s, d):
     return s[:len(d)] == d
 
-def isBibDir(s):
-    return isDir(s, BIB_DIR)
-
-def isPdfDir(s):
-    return isDir(s, PDF_DIR)
     

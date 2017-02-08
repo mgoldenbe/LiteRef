@@ -27,7 +27,7 @@ def authors(entry):
     return res
 
 def keyExists(key):
-    command = "find {dir} -name {key}.bib | wc -l".format(dir=config.BIB_DIR, key=key)
+    command = "find {dir} | grep {key}/paper.bib | wc -l".format(dir=config.PAPERS_DIR, key=key)
     output = subprocess.check_output(command, shell=True)
     return int(output) > 0
 
@@ -45,24 +45,33 @@ def key(entry):
 
 def replaceKey(fileName, entry):
     """
-    Replace the key and move the bib file
+    Compute and replace the key, return the new key.
     """
     oldKey = entry['ID'].replace('/', '\\/')
-    myKey = key(entry)
-    command = "sed -i 's/{old}/{new}/g' {fileName};". \
-              format(old = oldKey, new = myKey, fileName = fileName)
-    command += "mv {old} {new}". \
-               format(old = fileName, \
-                      new = os.path.dirname(fileName) + "/" + myKey + ".bib") 
+    newKey = key(entry)
+    command = "sed -i 's/{old}/{new}/g' {fileName}". \
+              format(old = oldKey, new = newKey, fileName = fileName)
     os.system(command)
+    return newKey
         
-def handleBibCreated(fileName):
-    name, ext = os.path.splitext(fileName)
-    if ext != '.bib':
-        if ext == '.crdownload': return
-        print "LiteRef Error: the new file " + fileName + " is not a .bib file"
-        return
+def handleNewBib(fileName):
     entry = readBib(fileName)
-    replaceKey(fileName, entry)
+    newKey = replaceKey(fileName, entry)
+    paperDir = config.PAPERS_DIR + newKey
+    os.system("mkdir -p " + paperDir)
+    command = "mv {old} {newBib}; touch {newOrg}". \
+               format(old = fileName, \
+                      newBib = paperDir + "/paper.bib", \
+                      newOrg = paperDir + "/paper.org") 
+    os.system(command)
     getPdf(entry)
 
+def handleNewPdf(fileName):
+    command = "ls -t {dir}/*/*.bib | head -n 1".format(dir=config.PAPERS_DIR, key=key)
+    bibFile = subprocess.check_output(command, shell=True)
+    paperDir = os.path.dirname(bibFile)
+    command = "mv {old} {newPdf}". \
+               format(old = fileName, \
+                      newPdf = paperDir + "/paper.pdf") 
+    os.system(command)
+    return

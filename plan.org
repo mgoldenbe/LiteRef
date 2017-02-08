@@ -7,7 +7,7 @@ Parse .bib file using a specialized library.
 *** Create the corresponding file in papers/.
 * TODO Document using AutoAPI (already installed)
 http://autoapi.readthedocs.io/
-* TODO Create directories automatically with mkdir -p when running daemon 
+* TODO Create directories automatically with mkdir -p and touch the auxiliary files when running daemon 
 * Nice-to-have features:
 ** Handle a file being moved from outside into the LiteRef directories.
 Moving a file is not the same event as creating a file.

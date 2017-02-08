@@ -2,4 +2,4 @@ Installation dependencies:
 
 - pyinotify
 - BibtexParser
-- xdotool
+- easygui
