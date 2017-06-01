@@ -12,9 +12,15 @@
   "A modification of bibtex-completion-insert-reference. 
 
 Works with a single reference and does not add extra stuff."
-  (insert (s-word-wrap fill-column
-		       (bibtex-completion-apa-format-reference
-			(car keys)))))
+  (let*
+      ((key (car keys))
+       (file (concat lite-ref-directory "/papers/" key "paper.org"))
+       (text key)
+       (help (bibtex-completion-apa-format-reference key))
+       (beg-pos (point)))
+    (insert (concat "[[file:" file "][" text "]]"))
+    (let ((end-pos (point)))
+      (add-text-properties beg-pos end-pos '(help-echo ,"aaa")))))
 
 (helm-bibtex-helmify-action literef-insert-reference literef-insert-reference-helmified)
 

@@ -6,6 +6,7 @@ import handlers
 # Source: http://github.com/seb-m/pyinotify/wiki/Tutorial
 import pyinotify
 import os
+import Tkinter as tk
 
 wm = pyinotify.WatchManager()  # Watch Manager
 
@@ -16,6 +17,8 @@ def init():
     os.system("mkdir -p " + DROP_DIR)
     os.system("mkdir -p " + PAPERS_DIR)
     os.system("mkdir -p " + NOTES_DIR)
+    root = tk.Tk()
+    root.withdraw()
 
 class EventHandler(pyinotify.ProcessEvent):
     # Note that this event can be generated on modify as well, since
