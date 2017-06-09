@@ -10,8 +10,7 @@
 ;;;; BEGIN: Set the bibliogaphy sources -------------------------
 (defun literef-bib-files (&optional _arg)
   "Compute the list of bib files"
-  (file-expand-wildcards (concat literef-papers-directory "*/paper.bib"))
-  )
+  (sort (file-expand-wildcards (concat literef-papers-directory "*/paper.bib")) 'string<))
 
 (defun literef-set-default-bibliography(&optional _orig-fun)
   "Set the default bibliography."
