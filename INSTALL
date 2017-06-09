@@ -1,5 +1,8 @@
 Installation dependencies:
 
-- pyinotify
-- BibtexParser
-- easygui
+- pyinotify (sudo pip install pyinotify)
+- PybTex (sudo pip install pybtex)
+- pyperclip (sudo pip install pyperclip)
+- Tkinter (should be installed with Python)
+
+Optional: Link Klipper for Chrome

@@ -4,19 +4,28 @@ The plan is to develop LiteRef, a python daemon and an extension to org-ref that
 Since I would like to get to the actual literature survey as soon as possible, I am going to develop only the most important features and then continue development on the go. At some point, I may decide that the system is ripe enough to be sold.
 
 * Features
-** Daemon (to be filled in)
-- Automatic assignment of a descriptive key.
-- A check whether the key already exists.
+** Daemon
+*** DONE Automatic assignment of a descriptive key.
+*** DONE A check whether the key already exists.
   + Remains to implement questioning the user whether the entry should be added in any case.
-- Get rid of the proceeding/journal and the cross-reference.
-  + It looks like I will need to use a more powerful library for dealing with bibtex files from python.
-  + https://stackoverflow.com/a/30769042/2725810 recommends Pybtex.
-  + Another simple example is at https://stackoverflow.com/a/14061849/2725810.
-  + Python API is described at https://docs.pybtex.org/api/index.html.
-- Splitting .bib file containing more than one entry into several files.
+*** DONE Get rid of the proceeding/journal and the cross-reference.
+*** DONE Splitting .bib file containing more than one entry into several files.
+*** DONE Handling .csv files produced using Link Klipper
 ** org-ref-literef
 *** Inserting a citation
 **** DONE Reading bib entries from literef-directory.
+**** DONE The new keys are in the clipboard.
 *** Following citation.
 **** DONE Going to the right notes file.
 CLOSED: [2017-05-29 Mon 17:24]
+*** Export
+**** TODO Export without the need for specifying bibliography files.
+*** Inter-connection between papers.
+**** TODO Inserting commands to include background literature etc. for the last citation. :advanced:
+*** TODO Opening and getting PDF
+**** DONE Opening and basic getting of PDF 
+CLOSED: [2017-06-09 Fri 15:36]
+The pdf can be opened by either cursor on citation or by being in the notes or bib of a paper.
+**** TODO Chrome extension to get the first pdf right away      :advanced:
+*** DONE Defining key bindings.
+CLOSED: [2017-06-09 Fri 16:07]

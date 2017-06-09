@@ -3,20 +3,18 @@ from utils import *
 import os
 import re
 from time import sleep
-from pybtex.database import parse_file, BibliographyData, Entry, OrderedCaseInsensitiveDict
 import subprocess
-from get_pdf import getPdf
 from string import ascii_lowercase
-import tkMessageBox
 import pdb
 
-Modes = enum('REGULAR', 'PERSIST_SKIP', 'PERSIST_CREATE') 
+from pybtex.database import parse_file, BibliographyData, Entry, OrderedCaseInsensitiveDict
+from pybtex import errors as pybtexErrors
+import tkMessageBox
+import pyperclip
+from get_pdf import getPdf
 
-# https://bibtexparser.readthedocs.io/en/v0.6.2/tutorial.html#parsing-the-file-into-a-bibliographic-database-object
-def _customizations(record):
-    record = type(record)
-    record = author(record)
-    return record
+
+Modes = enum('REGULAR', 'PERSIST_SKIP', 'PERSIST_CREATE') 
 
 def saveEntry(key, entry, fileName, appendFlag = False):
     try:
@@ -152,6 +150,8 @@ def duplicateCheck(key, mode, askPersist):
     return (unduplicateKey(key), mode)
     
 def handleNewBib(fileName):
+    clipboard = ""
+    pybtexErrors.set_strict_mode(False) # do not exit on an exception
     bib_data = readBib(fileName)
     mode = Modes.REGULAR
     index = -1; count = len(bib_data.entries)
@@ -183,6 +183,8 @@ def handleNewBib(fileName):
             saveEntry(newKey, entry, bibFileName)
             os.system("touch " + orgFileName) # create the org file
             os.system("rm -f " + fileName)     # remove the bib file in drop/
+            clipboard += newKey + ','
+            pyperclip.copy(clipboard[:-1])
         except:
             tkMessageBox.showerror(
             'LiteRef Error',
@@ -191,15 +193,60 @@ def handleNewBib(fileName):
             
     #getPdf(entry)
 
-def handleNewPdf(fileName):
-    command = "ls -t {dir}/*/*.bib | head -n 1".format(dir=config.PAPERS_DIR, key=key)
-    bibFile = subprocess.check_output(command, shell=True)
-    paperDir = os.path.dirname(bibFile)
-    command = "mv {old} {newPdf}". \
-               format(old = fileName, \
-                      newPdf = paperDir + "/paper.pdf") 
+def handleNewCsv(fileName):
+    command = "mkdir {tempDir}; origDir=`pwd`;cd {tempDir}; " \
+              "wget `grep \"BibTeX\" {fileName} | colrm 1 1 | sed -e 's/\", BibTeX/.bib/g' | sed -e 's/rec\/bibtex/rec\/bib1/g'`; " \
+              "cd $origDir; cat {tempDir}/*.bib >> {dropDir}/mybib.bib; " \
+              "rm -rf {tempDir}". \
+              format(fileName = fileName,
+                     tempDir = config.DROP_DIR + 'temp/',
+                     dropDir = config.DROP_DIR)
     os.system(command)
-    return
+    os.system("rm -f " + fileName + " ")     
+
+## Read request created from Emacs session.
+def readRequest(fileName):
+    with open(fileName, "r") as myfile:
+        request = myfile.readline().split()
+    return request
+
+def requestCode(request):
+    return request[0]
+
+def requestKey(request):
+    return request[1]
+
+## Handle request created from Emacs session.
+def handleRequest(fileName):
+    request = readRequest(fileName)
+    try:
+        if requestCode(request) == "getPdf":
+            key = requestKey(request)
+            paperDir = config.PAPERS_DIR + key
+            bibFileName = paperDir + "/paper.bib"
+            bibData = readBib(bibFileName) 
+            getPdf(bibData.entries[key])
+    except:
+        tkMessageBox.showerror('LiteRef Error', "Bad request: " + fileName)
+        
+def handleNewPdf(fileName):
+    # Currently simply decide that it is the last request.
+    #pdb.set_trace()
+    command = "ls -t {dir}/*.rqt | head -n 1".format(dir=config.DROP_DIR)
+    reqFile = subprocess.check_output(command, shell=True)
+    if reqFile == "":
+        tkMessageBox.showerror('LiteRef Error', 'No request, abandoning the new PDF.')
+        return
+    if reqFile[-1] == '\n': reqFile = reqFile[:-1]
+    request = readRequest(reqFile)
+    paperDir = config.PAPERS_DIR + requestKey(request)
+    newPdfFile = paperDir + "/paper.pdf"
+    command = "mv {old} {newPdfFile}". \
+               format(old = fileName, \
+                      newPdfFile = newPdfFile) 
+    os.system(command)
+    os.system("rm -f " + reqFile)
+    os.system("evince " + newPdfFile)
 
 def handleNewFile(fileName):
     # Make sure it's not a short-lived temporary file, e.g. of sed
@@ -208,15 +255,17 @@ def handleNewFile(fileName):
         return      
     name, ext = os.path.splitext(fileName)
     if ext == '.crdownload': return
-    if ext != '.bib' and ext != '.pdf':
-        tkMessageBox.showerror(
-            'LiteRef Error',
-            'The new file ' + fileName + 'is neither a .bib nor a .pdf file.\n'
-            'Abandoning this file.')
-        return
-    sleep(0.1) # Make sure that the file is fully written
-    if ext == '.bib':
-        handleNewBib(fileName);
-    if ext == '.pdf':
-        handleNewPdf(fileName);
+    try:
+        handler = {'.bib': handleNewBib,
+                   '.csv':handleNewCsv,
+                   '.pdf':handleNewPdf,
+                   '.rqt':handleRequest}[ext]
+    except:
+        handler = None
+        tkMessageBox.showerror('LiteRef Error', 'Unknown file extension')
+
+    if handler != None:
+        sleep(0.1) # Make sure that the file is fully written
+        handler(fileName)
+
 
