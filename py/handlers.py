@@ -11,7 +11,7 @@ from pybtex.database import parse_file, BibliographyData, Entry, OrderedCaseInse
 from pybtex import errors as pybtexErrors
 import tkMessageBox
 import pyperclip
-from get_pdf import getPdf
+from get_pdf import getPdfAutomated, getPdfManual
 
 
 Modes = enum('REGULAR', 'PERSIST_SKIP', 'PERSIST_CREATE') 
@@ -202,7 +202,7 @@ def handleNewCsv(fileName):
                      tempDir = config.DROP_DIR + 'temp/',
                      dropDir = config.DROP_DIR)
     os.system(command)
-    os.system("rm -f " + fileName + " ")     
+    os.system("rm -f " + fileName)     
 
 ## Read request created from Emacs session.
 def readRequest(fileName):
@@ -224,8 +224,12 @@ def handleRequest(fileName):
             key = requestKey(request)
             paperDir = config.PAPERS_DIR + key
             bibFileName = paperDir + "/paper.bib"
-            bibData = readBib(bibFileName) 
-            getPdf(bibData.entries[key])
+            bibData = readBib(bibFileName)
+            entry = bibData.entries[key]
+            if getPdfAutomated(entry, paperDir):
+                os.system("rm -f " + fileName)
+            else:
+                getPdfManual(entry)
     except:
         tkMessageBox.showerror('LiteRef Error', "Bad request: " + fileName)
         

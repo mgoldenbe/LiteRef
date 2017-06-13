@@ -7,6 +7,18 @@
 (defcustom literef-pdf-viewer "evince"
   "The pdf viewer to be used")
 
+(defcustom literef-split-cite-action
+  (lambda () (progn
+	       (org-meta-return)
+	       (org-metaright)
+	       (org-ctrl-c-minus)
+	       (end-of-visual-line)
+	       (insert "Develops:")
+	       (org-meta-return)
+	       (insert "Competes:")
+	       (insert "\n")))
+  "The action to be performed after inserting each citation line.")
+
 ;;;; BEGIN: Set the bibliogaphy sources -------------------------
 (defun literef-bib-files (&optional _arg)
   "Compute the list of bib files"
@@ -109,7 +121,8 @@ Splits the first citation of multiple sources found on the current line, so that
 
 	;; insert a line for each key
 	(dolist (key keys nil)
-	  (insert prefix key postfix "\n"))
+	  (insert prefix key postfix "\n")
+	  (funcall literef-split-cite-action))
 
 	;; restore the point
 	(goto-char save-point)

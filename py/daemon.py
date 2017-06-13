@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from config import *
+import config
 import handlers
 
 # Source: http://github.com/seb-m/pyinotify/wiki/Tutorial
@@ -14,11 +14,12 @@ wm = pyinotify.WatchManager()  # Watch Manager
 mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE |  pyinotify.IN_MODIFY
 
 def init():
-    os.system("mkdir -p " + DROP_DIR)
-    os.system("mkdir -p " + PAPERS_DIR)
-    os.system("mkdir -p " + NOTES_DIR)
-    root = tk.Tk()
-    root.withdraw()
+    os.system("mkdir -p " + config.DROP_DIR)
+    os.system("mkdir -p " + config.PAPERS_DIR)
+    os.system("mkdir -p " + config.NOTES_DIR)
+    config.root = tk.Tk()
+    # config.root.option_add('*Dialog.msg.font', 'Helvetica 12')
+    config.root.withdraw()
 
 class EventHandler(pyinotify.ProcessEvent):
     # Note that this event can be generated on modify as well, since
@@ -35,6 +36,6 @@ class EventHandler(pyinotify.ProcessEvent):
 init()
 handler = EventHandler()
 notifier = pyinotify.Notifier(wm, handler)
-wdd = wm.add_watch(DROP_DIR, mask, rec=True)
+wdd = wm.add_watch(config.DROP_DIR, mask, rec=True)
 
 notifier.loop()
