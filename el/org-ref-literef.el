@@ -7,17 +7,17 @@
 (defcustom literef-pdf-viewer "evince"
   "The pdf viewer to be used")
 
-(defcustom literef-split-cite-action
-  (lambda () (progn
-	       (org-meta-return)
-	       (org-metaright)
-	       (org-ctrl-c-minus)
-	       (end-of-visual-line)
-	       (insert "Develops:")
-	       (org-meta-return)
-	       (insert "Competes:")
-	       (insert "\n")))
-  "The action to be performed after inserting each citation line.")
+;; (defcustom literef-split-cite-action
+;;   (lambda () (progn
+;; 	       (org-meta-return)
+;; 	       (org-metaright)
+;; 	       (org-ctrl-c-minus)
+;; 	       (end-of-visual-line)
+;; 	       (insert "Develops:")
+;; 	       (org-meta-return)
+;; 	       (insert "Competes:")
+;; 	       (insert "\n")))
+;;   "The action to be performed after inserting each citation line.")
 
 ;;;; BEGIN: Set the bibliogaphy sources -------------------------
 (defun literef-bib-files (&optional _arg)
@@ -99,8 +99,8 @@ If there the visited folder does not correspond to a key, returns nil."
 
 ;;;; END --------------------------------------------------------
 
-(defun literef-split-cite()
-  "Split citation of multiple sources
+(defun literef-split-cite-raw(insert-title-author)
+  "Split citation of multiple sources. Insert information about title and author before the key if INSERT-TITLE-AUTHOR is not nil.
   
 Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line"
   (interactive)
@@ -108,7 +108,7 @@ Splits the first citation of multiple sources found on the current line, so that
 	 (postfix-end (progn (end-of-line) (point)))
 	 (prefix-begin (progn (beginning-of-line) (point)))
 	 (prefix-end (progn (search-forward "cite:" postfix-end t) (point)))
-	 (prefix (buffer-substring prefix-begin prefix-end)))
+	 (prefix (buffer-substring prefix-begin (- prefix-end 5))))
     (if (= prefix-begin prefix-end) 
 	(message "No citation on this line")
       (let* ((cite (org-element-context))
@@ -121,14 +121,35 @@ Splits the first citation of multiple sources found on the current line, so that
 
 	;; insert a line for each key
 	(dolist (key keys nil)
-	  (insert prefix key postfix "\n")
-	  (funcall literef-split-cite-action))
+	  ;; get title and authors
+	  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+		 (entry (bibtex-completion-get-entry key))
+		 (title (bibtex-completion-apa-get-value "title" entry))
+		 (authors (bibtex-completion-apa-get-value "author" entry))
+		 (title-author (and insert-title-author (concat  "\"" title "\" by " authors))))
+	    (insert prefix " " (concat title-author) postfix " cite:" key "\n")))))
+	  
+	  ; (funcall literef-split-cite-action))
 
 	;; restore the point
-	(goto-char save-point)
-	))))
+    (goto-char save-point)))
+
+(defun literef-split-cite-title-author()
+  "Split citation of multiple sources. Insert information about title and author before the key.
+  
+Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line."
+  (interactive)
+  (literef-split-cite-raw t))
+
+(defun literef-split-cite()
+  "Split citation of multiple sources.
+  
+Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line."
+  (interactive)
+  (literef-split-cite-raw nil))
 
 ;;;; BEGIN: Key bindings ----------------------------------------
 (define-key global-map "\C-co" 'literef-open-pdf)
-(define-key global-map "\C-cs" 'literef-split-cite)
+(define-key global-map "\C-cs" 'literef-split-cite-title-author)
+(define-key global-map "\C-cd" 'literef-split-cite)
 ;;;; END --------------------------------------------------------
