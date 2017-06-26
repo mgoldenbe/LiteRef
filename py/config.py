@@ -4,7 +4,7 @@ NOTES_DIR = ROOT_DIR + "survey/"
 DROP_DIR = ROOT_DIR + "drop/"
 
 PDF_AUTOMATED_SOURCES = ['https://semanticscholar.org/search?q=']
-PDF_MANUAL_SOURCE = 'scholar.google.com/scholar?q='
+PDF_MANUAL_SOURCE = 'google.com/search?q='
 BROWSER = 'chrome'
 EVINCE_STARTUP_DELAY = 3
 

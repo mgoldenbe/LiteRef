@@ -69,6 +69,8 @@ def keygen(entry):
     
     # Add the first author's last name
     res = myAuthors[0].last_names[0]
+    # In case that the name is composed of several words, e.g. De Some join them
+    res = res.replace('{', '').replace('}','').replace(' ','')
 
     # Add the first letter of the last name
     # of each of the remaining authors
@@ -115,6 +117,7 @@ def keygen(entry):
     nWords = 2
     nAdded = 0
     for word in re.sub(r'[.!,;?-]', ' ', entry.fields['title']).split():
+        word = word.capitalize()
         if ignoreTitleWord(word): continue
         res += '-' + abbreviateWord(word)
         nAdded += 1

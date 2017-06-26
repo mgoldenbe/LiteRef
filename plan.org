@@ -6,26 +6,24 @@ Since I would like to get to the actual literature survey as soon as possible, I
 * Features
 ** Daemon
 *** DONE Automatic assignment of a descriptive key.
-*** DONE A check whether the key already exists.
-  + Remains to implement questioning the user whether the entry should be added in any case.
-*** DONE Get rid of the proceeding/journal and the cross-reference.
 *** DONE Splitting .bib file containing more than one entry into several files.
+*** DONE A check whether the key already exists. Can apply the same action to the other entries in the new .bib file.
+*** DONE The newly added keys are in the clipboard.
+*** TODO Get rid of the proceeding/journal and the cross-reference.
+**** TODO Update this feature, so this is done before asking whether to apply choice (in the case of repeated key) for remaining entries.
 *** DONE Handling .csv files produced using Link Klipper
+Currently only from DBLP.
+*** DONE Handling of request to download PDF. Sources are configurable. Automated download with fall-back on manual. 
 ** org-ref-literef
-*** Inserting a citation
-**** DONE Reading bib entries from literef-directory.
-**** DONE The new keys are in the clipboard.
-*** Following citation.
-**** DONE Going to the right notes file.
-CLOSED: [2017-05-29 Mon 17:24]
-*** Export
-**** TODO Export without the need for specifying bibliography files.
-*** Inter-connection between papers.
-**** TODO Inserting commands to include background literature etc. for the last citation. :advanced:
-*** TODO Opening and getting PDF
-**** DONE Opening and basic getting of PDF 
-CLOSED: [2017-06-09 Fri 15:36]
-The pdf can be opened by either cursor on citation or by being in the notes or bib of a paper.
-**** TODO Chrome extension to get the first pdf right away      :advanced:
-*** DONE Defining key bindings.
-CLOSED: [2017-06-09 Fri 16:07]
+*** DONE Inserting a citation.
+*** TODO Following citation by going to the right notes file.
+This needs to work as soon as the paper is added, so no re-reading of sources should be required.
+*** DONE Opening and getting PDF from citation or notes/bib file.
+*** TODO Export without the need for specifying bibliography files.
+*** TODO Latex Total export: each paper’s notes become a section, citations accompanied by section reference.
+*** TODO HTML Total export: each paper’s notes become a section, citations accompanied by section reference.
+*** TODO Annotation of citations.
+*** TODO Commands related to annotations:
+**** TODO All papers for which the current paper is a background.
+**** TODO All background papers of a given paper.
+*** TODO Command to put current paper into clipboard. 

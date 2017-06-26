@@ -153,3 +153,17 @@ Splits the first citation of multiple sources found on the current line, so that
 (define-key global-map "\C-cs" 'literef-split-cite-title-author)
 (define-key global-map "\C-cd" 'literef-split-cite)
 ;;;; END --------------------------------------------------------
+
+
+(defun annotation-help-echo(window object position)
+  (save-excursion
+    (goto-char position)
+    (goto-char (org-element-property :end (org-element-context)))
+    (format "%s %s %s" "The current paper" (match-string 2) "the ideas of the cited one.")))
+    
+(org-link-set-parameters
+ "annotation"
+ :follow (lambda (path) (message "%s %s %s" "The current paper" path "the ideas of the cited one."))
+ :export (lambda (path desc backend) "") ; ignore the link
+ :face '(:foreground "red")
+ :help-echo 'annotation-help-echo)
