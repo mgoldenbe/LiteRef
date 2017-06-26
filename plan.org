@@ -15,9 +15,9 @@ Since I would like to get to the actual literature survey as soon as possible, I
 Currently only from DBLP.
 *** DONE Handling of request to download PDF. Sources are configurable. Automated download with fall-back on manual. 
 ** org-ref-literef
-*** DONE Inserting a citation.
-*** TODO Following citation by going to the right notes file.
-This needs to work as soon as the paper is added, so no re-reading of sources should be required.
+*** DONE Constant bib entry look-up (for whatever purpose) based on key.
+*** DONE Inserting a citation. This computes the list of .bib files.
+*** DONE Following citation by going to the right notes file.
 *** DONE Opening and getting PDF from citation or notes/bib file.
 *** TODO Export without the need for specifying bibliography files.
 *** TODO Latex Total export: each paper’s notes become a section, citations accompanied by section reference.
