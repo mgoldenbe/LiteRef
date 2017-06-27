@@ -1,3 +1,4 @@
+#+STARTUP: nologdone
 
 The plan is to develop LiteRef, a python daemon and an extension to org-ref that make things much more convenient and faster.
 
@@ -19,6 +20,8 @@ Currently only from DBLP.
 *** DONE Inserting a citation. This computes the list of .bib files.
 *** DONE Following citation by going to the right notes file.
 *** DONE Opening and getting PDF from citation or notes/bib file.
+*** DONE Command to put /current/ key into clipboard. 
+*** DONE Intelligent yanking.
 *** TODO Export without the need for specifying bibliography files.
 *** TODO Latex Total export: each paper’s notes become a section, citations accompanied by section reference.
 *** TODO HTML Total export: each paper’s notes become a section, citations accompanied by section reference.
@@ -26,4 +29,3 @@ Currently only from DBLP.
 *** TODO Commands related to annotations:
 **** TODO All papers for which the current paper is a background.
 **** TODO All background papers of a given paper.
-*** TODO Command to put current paper into clipboard. 
