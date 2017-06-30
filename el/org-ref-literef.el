@@ -129,35 +129,36 @@ If there the visited folder does not correspond to a key, returns nil."
   (let ((key (literef-current-key)))
     (when key (kill-new key))))
 
-(defun literef-yank (orig-fun &rest args)
-  "The version of yank that handles the keys being yanked intelligently.
+(defun literef-insert-for-yank (orig-fun string)
+  "The version of insert-for-yank that handles the keys being yanked intelligently.
 
-The algorithm is as follows: 
+The string to be yanked is preceeded by the prefix computed as follows:
 
-1. Split the contents being yanked based on commas and analyze the first entry. If it is not a valid key, we call the regular yank. Otherwise, proceed to step 2. 
+1. Split the contents being yanked based on commas and analyze the first entry. If it is not a valid key, the prefix is empty. Otherwise, proceed to step 2. 
 
-2. If the point is right after 'cite:', the key is inserted as is. Otherwise, proceed to step 3. 
+2. If the point is right after 'cite:', the prefix is empty. Otherwise, proceed to step 3. 
 
-3. If the point is over a key, insert a comma and the key. Otherwise, proceed to step 4.
-
-4. Insert 'cite:' followed by the key."
-  (let* ((contents (car kill-ring))
-	 (key (car (split-string contents ","))))
-    (if (literef-key-exists key)
-	(cond ((and
+3. If the point is over a key, the prefix is ','. Otherwise, the prefix is 'cite:'"
+  
+  (let* ((key (car (split-string string ",")))
+	 (prefix 
+	  (if (literef-key-exists key)
+	      (cond ((and
 		(> (point) 4)
 		(string= (buffer-substring (- (point) 5) (point)) "cite:"))
-	       ; We are after 'cite:'
-	       (insert key))
-	      ((literef-get-bibtex-key-under-cursor)
-	       ; We are over a key
-	       (insert "," key))
-	      (t
-	       ; Else
-	       (insert "cite:" key)))
-      (apply orig-fun args))))
+		     ;; We are after 'cite:'
+		     "")
+		    ((literef-get-bibtex-key-under-cursor)
+		     ;; We are over a key
+		     ",")
+		    (t
+		     ;; Else
+		     "cite:"))
+	    "")))
+    (funcall orig-fun (concat prefix string))
+    ))
 
-(advice-add 'yank :around #'literef-yank)
+(advice-add 'insert-for-yank :around #'literef-insert-for-yank)
 ;;;; END --------------------------------------------------------
 
 ;;;; BEGIN: Splitting a citation --------------------------------
