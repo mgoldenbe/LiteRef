@@ -212,11 +212,28 @@ Splits the first citation of multiple sources found on the current line, so that
   (literef-split-cite-raw nil))
 ;;;; END --------------------------------------------------------
 
+;;;; BEGIN: Searches --------------------------------------------
+(defun literef-search-pdfs(string)
+  "Yank the citation links obtained by searching for a given string in the first page of the paper PDFs.
+
+The function relies on the `pdfgrep` shell command. The string pattern must be a valid pattern for that command."
+  (interactive "sSearch pattern: ")
+  (let* ((command (concat "pdfgrep -Hno -m 1" " " string " " literef-papers-directory "*/paper.pdf | grep '1:'"))
+	 (raw-output (substring (shell-command-to-string command) 0 -1))
+	 (output (split-string raw-output "\n")))
+    (dolist (line output nil)
+      (let* ((prefix-length (length literef-papers-directory))
+	     (line-no-prefix (substring line prefix-length))
+	     (key (car (split-string line-no-prefix "/"))))
+	(insert-for-yank key)))))
+;;;; END --------------------------------------------------------
+
 ;;;; BEGIN: Key bindings ----------------------------------------
 (define-key global-map "\C-cw" 'literef-copy-current-key)
 (define-key global-map "\C-co" 'literef-open-pdf)
 (define-key global-map "\C-cs" 'literef-split-cite-title-author)
 (define-key global-map "\C-cd" 'literef-split-cite)
+(define-key global-map "\C-cp" 'literef-search-pdfs)
 ;;;; END --------------------------------------------------------
 
 

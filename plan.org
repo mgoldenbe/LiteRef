@@ -22,6 +22,7 @@ Currently only from DBLP.
 *** DONE Opening and getting PDF from citation or notes/bib file.
 *** DONE Command to put /current/ key into clipboard. 
 *** DONE Intelligent yanking.
+*** DONE Search for pdfs based on string, e.g. "Toronto". Search based on the contents of the first page.
 *** TODO Export without the need for specifying bibliography files.
 *** TODO Latex Total export: each paper’s notes become a section, citations accompanied by section reference.
 *** TODO HTML Total export: each paper’s notes become a section, citations accompanied by section reference.

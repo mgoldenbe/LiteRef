@@ -4,5 +4,6 @@ Installation dependencies:
 - PybTex (sudo pip install pybtex)
 - pyperclip (sudo pip install pyperclip)
 - Tkinter (should be installed with Python)
+- pdfgrep (sudo apt-get install pdfgrep)
 
 Optional: Link Klipper for Chrome
