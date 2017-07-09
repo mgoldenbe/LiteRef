@@ -24,6 +24,7 @@ Currently only from DBLP.
 *** DONE Intelligent yanking.
 *** DONE Search for pdfs based on string, e.g. "Toronto". Search based on the contents of the first page.
 *** TODO Export without the need for specifying bibliography files.
+Asked whether I can change only the export part of the cite link definition. If so, I might be able to produce the bib file with only the used citations.
 *** TODO Latex Total export: each paper’s notes become a section, citations accompanied by section reference.
 *** TODO HTML Total export: each paper’s notes become a section, citations accompanied by section reference.
 *** TODO Annotation of citations.

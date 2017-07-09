@@ -228,6 +228,20 @@ The function relies on the `pdfgrep` shell command. The string pattern must be a
 	(insert-for-yank key)))))
 ;;;; END --------------------------------------------------------
 
+;;;; BEGIN: Export ----------------------------------------------
+(defun literef-export-to-file(orig-fun type &rest args)
+  "Export to latex that adds bibliography."
+  (save-excursion
+    (goto-char (point-max))
+    (set-mark-command (point))
+    (insert (concat "\n" "bibliographystyle:" "plain" "\n"
+		    "bibliography:" "all.bib"))
+    (apply orig-fun (cons type args))
+    (delete-region (mark) (point))))
+  
+(advice-add 'org-export-to-file :around #'literef-export-to-file)
+;;;; END --------------------------------------------------------
+
 ;;;; BEGIN: Key bindings ----------------------------------------
 (define-key global-map "\C-cw" 'literef-copy-current-key)
 (define-key global-map "\C-co" 'literef-open-pdf)
