@@ -68,9 +68,9 @@ def keygen(entry):
         return ""
     
     # Add the first author's last name
-    res = myAuthors[0].last_names[0]
-    # In case that the name is composed of several words, e.g. De Some join them
-    res = res.replace('{', '').replace('}','').replace(' ','')
+    # Remove all non-alphanumeric characters.
+    # See https://stackoverflow.com/a/25183802/2725810
+    res = re.sub('\W+','', myAuthors[0].last_names[0])
 
     # Add the first letter of the last name
     # of each of the remaining authors

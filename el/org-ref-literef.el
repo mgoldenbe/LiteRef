@@ -229,17 +229,43 @@ The function relies on the `pdfgrep` shell command. The string pattern must be a
 ;;;; END --------------------------------------------------------
 
 ;;;; BEGIN: Export ----------------------------------------------
-(defun literef-export-to-file(orig-fun type &rest args)
+(defun literef-make-bib-file(&rest _args)
+  "Make the bibliography file containing only the entries for the used keys."
+  (with-temp-file bib-file
+    (dolist (key (delete-dups (sort exported-keys 'string<)) nil)
+      (let ((cur-bib (literef-bib-filename key)))
+	(and
+	 (file-exists-p cur-bib)
+	 (insert-file-contents cur-bib)))
+      (goto-char (point-max))
+      (insert "\n"))))
+  
+(defun literef-export-to-file(orig-fun type file &rest args)
   "Export to latex that adds bibliography."
   (save-excursion
-    (goto-char (point-max))
-    (set-mark-command (point))
-    (insert (concat "\n" "bibliographystyle:" "plain" "\n"
-		    "bibliography:" "all.bib"))
-    (apply orig-fun (cons type args))
-    (delete-region (mark) (point))))
-  
+    (with-silent-modifications
+      (let* ((bib-file (concat (substring file 0 -3) "bib"))
+	     (exported-keys nil)
+	     (beg (point-max))
+	     (append-text (concat "\n" "bibliographystyle:" "plain" "\n"
+				  "bibliography:" bib-file))
+	     (end (+ beg (length append-text))))
+	(when (file-exists-p bib-file) (delete-file bib-file))
+	(goto-char beg)
+	(insert append-text)
+	(apply orig-fun (cons type (cons file args)))
+	(delete-region beg end)
+        ;; if there was no post-processing in 'orig-fun,
+	;; so that the bib file was not created, then create it now.
+	(when (not (file-exists-p bib-file)) (literef-make-bib-file))))))
+
+(defun literef-cite-export(key desc backend)
+  "The function for exporting a citation link."
+  (setq exported-keys (cons key exported-keys)))
+
 (advice-add 'org-export-to-file :around #'literef-export-to-file)
+(advice-add 'org-latex-compile :before #'literef-make-bib-file)
+(advice-add (org-link-get-parameter "cite" :export) :after #'literef-cite-export)
 ;;;; END --------------------------------------------------------
 
 ;;;; BEGIN: Key bindings ----------------------------------------
