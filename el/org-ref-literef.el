@@ -1,3 +1,5 @@
+(require 'latex-map)
+
 (defcustom literef-directory "/home/meir/LiteRef/"
   "The root directory of the bibliography")
 
@@ -6,18 +8,6 @@
 
 (defcustom literef-pdf-viewer "evince"
   "The pdf viewer to be used")
-
-;; (defcustom literef-split-cite-action
-;;   (lambda () (progn
-;; 	       (org-meta-return)
-;; 	       (org-metaright)
-;; 	       (org-ctrl-c-minus)
-;; 	       (end-of-visual-line)
-;; 	       (insert "Develops:")
-;; 	       (org-meta-return)
-;; 	       (insert "Competes:")
-;; 	       (insert "\n")))
-;;   "The action to be performed after inserting each citation line.")
 
 ;;;; BEGIN: Set the bibliogaphy sources -------------------------
 (defun literef-bib-files (&optional _arg)
@@ -187,14 +177,16 @@ Splits the first citation of multiple sources found on the current line, so that
 	  ;; get title and authors
 	  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
 		 (entry (bibtex-completion-get-entry key))
-		 (title (bibtex-completion-apa-get-value "title" entry))
-		 (authors (bibtex-completion-apa-get-value "author" entry))
+		 (authors
+		  (literef-translate-latex
+		   (bibtex-completion-apa-get-value "author" entry)))
+		 (title
+		  (literef-translate-latex
+		   (bibtex-completion-get-value "title" entry)))
 		 (title-author (and insert-title-author (concat  "\"" title "\" by " authors))))
-	    (insert prefix " " (concat title-author) postfix " cite:" key "\n")))))
+	    (unless (string= key (car keys)) (insert "\n"))
+	    (insert prefix (concat title-author) postfix " cite:" key)))))
 	  
-	  ; (funcall literef-split-cite-action))
-
-	;; restore the point
     (goto-char save-point)))
 
 (defun literef-split-cite-title-author()

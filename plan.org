@@ -5,8 +5,6 @@ The plan is to develop LiteRef, a python daemon and an extension to org-ref that
 Since I would like to get to the actual literature survey as soon as possible, I am going to develop only the most important features and then continue development on the go. At some point, I may decide that the system is ripe enough to be sold.
 
 * Current issues
-** Two exports required for citations to go through.
-** Titles transferred directly from /bib/ into the body produce errors of /latex/.
 * Features
 ** Daemon
 *** DONE Automatic assignment of a descriptive key.
@@ -23,6 +21,7 @@ Currently only from DBLP.
 *** DONE Inserting a citation. This computes the list of .bib files.
 *** DONE Following citation by going to the right notes file.
 *** DONE Opening and getting PDF from citation or notes/bib file.
+*** DONE Splitting citations. The special characters are correctly handled. 
 *** DONE Command to put /current/ key into clipboard. 
 *** DONE Intelligent yanking.
 *** DONE Search for pdfs based on string, e.g. "Toronto". Search based on the contents of the first page.
