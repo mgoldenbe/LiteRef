@@ -1,9 +1,0 @@
-* An example of forming bibtex entry text for online sources
-- =biblio-insert-result= actually forms the string.
-  + =biblio-insert-result= is called by =biblio-dissemin--pretty-print=, which is called by =biblio-dissemin--print-results=, called by =biblio-dissemin--callback=, called by =biblio-dissemin-lookup=.
-    * These functions take DOI as argument. This is probably why this nice formatting is used only for online sources.
-- =biblio-dissemin-lookup= has an alias =dissemin-lookup= called from =biblio-dissemin--lookup-record=
-* Things that may prove to be useful
-- (bibtex-completion-parse-bibliography) – Parse the BibTeX entries listed in the current buffer and return a list of entries in the order in which they appeared in the BibTeX file. Also do some preprocessing of the entries.
-- See how files are handled (in particular, how temp buffers are formed) in (bibtex-completion-candidates)
-

@@ -1724,4 +1724,4 @@
 (advice-add 'bibtex-completion-apa-get-value :around
 	    #'literef-bibtex-completion-get-value)
 
-(provide 'latex-map)
+(provide 'literef-latex-map)
