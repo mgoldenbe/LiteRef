@@ -36,8 +36,7 @@ When =literef-export-with-notes= is enabled:
 - When =literef-export-with-notes-recursive= is enabled, the papers cited in the notes are included and treated just like those in the exported file itself. This is done recursively. When =literef-export-with-notes-depth= is not =nil=, the depth of the recursion is limited.
 - Narrowing to any level of sub-tree is correctly handled.
 - A section may or may not be created for the exported buffer. Not creating a section is particularly useful when one wants to join several files by using INCLUDE. 
-*** TODO HTML Total export: each paper’s notes become a section, citations accompanied by section reference.
-*** TODO Annotation of citations.
+*** DONE Annotation of citations.
 *** TODO Commands related to annotations:
 **** TODO All papers for which the current paper is a background.
 **** TODO All background papers of a given paper.

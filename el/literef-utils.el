@@ -1,3 +1,22 @@
+(defun literef-is-citation-link(link)
+  "Return t if the link is a citation and nil otherwise"
+  (let ((type (org-element-property :type link)))
+    (and type (>= (length type) 4) (string= (substring type 0 4) "cite"))))
+
+(defun literef-link-end(link)
+  "The actual end of the LINK without spaces after it."
+  (save-excursion
+    (goto-char (org-element-property :end link))
+    (1+ (search-backward-regexp "[^[:space:]]"))))
+
+(defun literef-link-keys(link)
+  "Extract keys from the link."
+  (split-string (org-element-property :path link) ","))
+
+(defun literef-link-path-keys(path)
+  "Extract keys from the link path."
+  (split-string path ","))
+
 (defun literef-bib-files (&optional _arg)
   "Compute the list of bib files."
   (sort (file-expand-wildcards (concat literef-papers-directory "*/paper.bib")) 'string<))

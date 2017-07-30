@@ -2,6 +2,7 @@
 (require 'literef-utils)
 (require 'literef-latex-map)
 (require 'literef-export)
+(require 'literef-annotations)
 
 ;; advice org-ref-helm-insert-cite-link to begin by re-reading the default bibliography,
 ;; since entries could be added/removed.
@@ -137,18 +138,3 @@ The function relies on the `pdfgrep` shell command. The string pattern must be a
 	(insert-for-yank key)))))
 ;;;; END --------------------------------------------------------
 
-
-;;;; BEGIN: Annotations -----------------------------------------
-(defun annotation-help-echo(window object position)
-  (save-excursion
-    (goto-char position)
-    (goto-char (org-element-property :end (org-element-context)))
-    (format "%s %s %s" "The current paper" (match-string 2) "the ideas of the cited one.")))
-    
-(org-link-set-parameters
- "annotation"
- :follow (lambda (path) (message "%s %s %s" "The current paper" path "the ideas of the cited one."))
- :export (lambda (path desc backend) "") ; ignore the link
- :face '(:foreground "red")
- :help-echo 'annotation-help-echo)
-;;;; END --------------------------------------------------------

@@ -27,20 +27,6 @@
   "Predicate that checks whether notes are to be exported."
   (not (and literef-export-depth (= literef-export-depth 0))))
 
-;; Functions related to getting the list of links are based on this reply
-;; https://emacs.stackexchange.com/a/16914/16048
-(defun literef-is-citation-link(link)
-  "Return t if the link is a citation and nil otherwise"
-  (string= (substring (org-element-property :type link) 0 4) "cite"))
-
-(defun literef-link-keys(link)
-  "Extract keys from the link."
-  (split-string (org-element-property :path link) ","))
-
-(defun literef-link-path-keys(path)
-  "Extract keys from the link path."
-  (split-string path ","))
-
 (defun literef-all-keys()
   "Compute the list of all keys cited in the current buffer"
   (let (res)
@@ -63,12 +49,8 @@
 	(when (literef-is-citation-link link)
 	  (let* ((path (org-element-property :path link))
 		 (begin (org-element-property :begin link))
-		 (end (org-element-property :end link))
-		 (actual-end
-		  (progn
-		    (goto-char end)
-		    (1+ (search-backward-regexp "[^[:space:]]")))))
-	    (setq res (cons (list path begin actual-end) res))))))
+		 (end (literef-link-end link))))		  
+	    (setq res (cons (list path begin end) res)))))
     (sort (copy-seq res) #'literef-citation-link<)))
 
 (defun literef-reference-text(link)

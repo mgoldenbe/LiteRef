@@ -10,6 +10,15 @@
 (defcustom literef-bibliography-style "plain"
   "The bibliography-style to be used for exports.")
 
+(defcustom literef-annotation-link "f"
+  "The link name for annotations.")
+
+(defcustom literef-annotation-color "red"
+  "The color of annotation links.")
+
+(defcustom literef-citation-functions '("develops" "compares")
+  "Kinds of citation functions used for annotation.")
+
 ;; Headlines are always sections, no matter the level.
 ;; (otherwise, when sections are deeply nested,
 ;; Latex creates numbered lists using alphabet, which may result
@@ -22,6 +31,7 @@
 
 ;;;; BEGIN: Key bindings ----------------------------------------
 (define-key global-map "\C-cw" 'literef-copy-current-key)
+(define-key global-map "\C-cf" 'literef-annotate)
 (define-key global-map "\C-co" 'literef-open-pdf)
 (define-key global-map "\C-cs" 'literef-split-cite-title-author)
 (define-key global-map "\C-cd" 'literef-split-cite)
