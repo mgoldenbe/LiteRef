@@ -1,0 +1,60 @@
+# -*- org-edit-src-content-indentation: 0; -*-
+#+TITLE: LiteRef: a Framework for Managing Knowledge of Research Literature
+
+# An example of Wiki is here: https://raw.githubusercontent.com/jkitchin/org-ref/master/README.org
+
+* Introduction
+Managing knowledge of related literature is an important activity for both graduate students and researchers. A central piece of this activity is maintaining notes both about individual research papers and, more importantly, about whole branches of research. Notes that cover branches of research are extremely useful. These notes are tools for uncovering connections between the papers and discovering venues for new research. The purpose of =LiteRef= is to provide a thin layer of software that would make it natural and easy to collect papers, maintain notes about both individual papers and whole branches, explore connections between papers and export all or part of this body of knowledge into a coherent document.  
+
+There are many software packages for reference management out there. However, reference management software is centered around maintaining the database of bibliography entries. In contrast, the main focus =LiteREf= is on providing the researcher with tools that would aid him in growing his /understanding/ of the research field. Therefore, I was looking to make the tasks related to maintaining the raw database of bibliography entries occupy as little of the researcher’s attention as possible. For example, there is no user interface for creating a =BibTex= entry. A new entry is simply downloaded or copied or whatever into the file system, upon which event =BibTeX= cares for the rest automatically („the rest“ includes assigning a unique descriptive key to the entry, absorbing the entry into the database and making it immediately available for being cited in the notes). The commands of the user interface are reserved for the tasks related to maintaining notes and discovering knowledge.
+
+The following sections describe both the overall design of =LiteRef= and its features. Each feature is accompanied by a movie to demonstrate the feature’s usage. 
+  
+* The overall design
+
+A paper’s life in =LiteRef= begins with adding the paper’s =BibTeX= entry.
+* Features
+** Adding papers
+- Downloading a .bib file for a single key (the daemon must be running).
+  + The special =drop/= folder.
+  + Directory with files is created, allowing easy and constant-time access.
+  + Automatic assignment of a descriptive key.
+- Downloading a .bib file with multiple keys.
+  + Splitting .bib file containing more than one entry into several files.
+  + A check whether the key already exists. Can apply the same action to the other entries in the new .bib file.
+- Copying a .bib file.
+- Handling .csv files produced using Link Klipper, currently from DBLP.
+** Working with Citations
+*** Adding a citation
+- The newly added keys are in the clipboard.
+  + =org-ref= citations are used, so that various citations can be used and are correctly exported to =LaTeX=.
+- Keys for citation can be chosen using helm. Multiple keys can be chosen.
+- Keys can be sorted on key, author, title, venue, date of publication or date of addition (files added within a two seconds of each other are considered to be added at the same time) or combination of these.
+*** Splitting citations.
+- Option to add title and author
+- Option to create an active task.
+*** Copying and pasting citations.
+** Working with PDF
+*** Getting PDF
+*** Integration with PDF Tools for annotations and linking to them.
+*** Searching in PDF
+** Switching to notes
+- The power of org-mode.
+** Export
+*** Basic export, handling of narrowing.
+*** Recursion
+*** Handling of INCLUDE
+*** Option to create a section
+** Working with annotations
+*** Motivation
+Citation of a paper on citation functions
+*** Querying for outgoing citations
+*** Querying for incoming citations
+*** A graph of citation relationships
+* Installation
+* Version and license information
+* Bug reports and future work
+- Beginning an entry with PDF
+- Associating comments with 
+
+

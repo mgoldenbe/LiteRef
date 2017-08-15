@@ -11,7 +11,7 @@ import Tkinter as tk
 wm = pyinotify.WatchManager()  # Watch Manager
 
 # Watched events, see https://github.com/seb-m/pyinotify/wiki/Events-types
-mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE |  pyinotify.IN_MODIFY
+mask = pyinotify.ALL_EVENTS
 
 def init():
     os.system("mkdir -p " + config.DROP_DIR)
@@ -26,12 +26,6 @@ class EventHandler(pyinotify.ProcessEvent):
     # applications may choose to just overwrite the file with a new one.
     def process_IN_CREATE(self, event):  
         handlers.handleNewFile(event.pathname)
-
-    def process_IN_DELETE(self, event):
-        print "Removing:", event.pathname
-
-    def process_IN_MODIFY(self, event):
-        print "Modifying:", event.pathname
 
 init()
 handler = EventHandler()

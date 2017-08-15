@@ -1,7 +1,60 @@
-(defun literef-is-citation-link(link)
-  "Return t if the link is a citation and nil otherwise"
-  (let ((type (org-element-property :type link)))
-    (and type (>= (length type) 4) (string= (substring type 0 4) "cite"))))
+(defun literef-number-or-nil-p(string)
+  "Determines whether STRING is number or nil."
+  (let ((converted (string-to-number string)))
+    (if (= converted 0)
+	(if (or (string= string "0") (string= string "nil"))  t nil)
+      t)))
+
+(defun literef-number-or-nil(string)
+  "Convert STRING to number or nil. The string is assumed to be one of the two."
+  (if (string= string "nil") nil (string-to-number string)))
+
+(defun literef-read-number-or-nil(prompt default)
+  "Read either number or nil from the user."
+  (let ((res "error"))
+    (while (not (literef-number-or-nil-p res))
+      (setq res (read-string prompt nil nil default)))
+    (floor (literef-number-or-nil res))))
+
+;; Source: https://emacs.stackexchange.com/a/34665/16048
+(defun literef-replace-in-string-whole-words(what with in)
+  "Like 'replace-in-string, but replaces whole words."
+  (replace-regexp-in-string (concat "\\b" what "\\b")  with in))
+
+(defun literef-join-strings(strings separator)
+  "Join the list STRINGS of strings putting the SEPARATOR string between them."
+  (let ((remain (length strings))
+	(res ""))
+    (dolist (s strings res)
+      (setq res (concat res s))
+      (setq remain (1- remain))
+      (when (> remain 0) (setq res (concat res separator))))))
+
+;; Source: https://emacs.stackexchange.com/a/19878/16048
+(defun literef-eval-string (string)
+  "Evaluate elisp code stored in a string."
+  (eval (car (read-from-string string))))
+
+;; Based on: http://ergoemacs.org/emacs/elisp_hash_table.html
+(defun literef-hash-keys-to-list (hash)
+  "Return a list of keys in HASH."
+  (let (res)
+    (maphash (lambda (k _v) (push k res)) hash)
+    res))
+
+(defun literef-hash-pairs-to-list (hash)
+  "Return a list of keys in HASH."
+  (let (res)
+    (maphash (lambda (k v) (push (list k v) res)) hash)
+    res))
+
+(defun literef-link-type(link)
+  "The type of the LINK."
+  (org-element-property :type link))
+
+(defun literef-link-begin(link)
+  "The beginning of the LINK."
+  (org-element-property :begin link))
 
 (defun literef-link-end(link)
   "The actual end of the LINK without spaces after it."
@@ -9,17 +62,70 @@
     (goto-char (org-element-property :end link))
     (1+ (search-backward-regexp "[^[:space:]]"))))
 
-(defun literef-link-keys(link)
-  "Extract keys from the link."
-  (split-string (org-element-property :path link) ","))
+(defun literef-link-path(link)
+  "The path in the LINK."
+  (org-element-property :path link))
 
-(defun literef-link-path-keys(path)
+(defun literef-backward-adjacent-org-element(link)
+  "The org-element adjacent and before the given LINK."
+  (save-excursion
+    (goto-char (literef-link-begin link))
+    (let ((pos (search-backward-regexp "[^[:space:]]")))
+      (if pos (org-element-context) nil))))
+
+(defun literef-link-path-components(link)
   "Extract keys from the link path."
-  (split-string path ","))
+  (split-string (literef-link-path link) ","))
+
+(defun literef-citation-link< (link1 link2)
+  "Compare two citation links."
+  (< (literef-link-begin link1) (literef-link-begin link2)))
+
+(defun literef-all-links(predicate)
+  "Compute the list of all citation links in the current buffer that satisfy a given PREDICATE (if PREDICATE is nil, all links are included). The links are sorted by the begin position." 
+  (let (res)
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(when (or (not predicate) (funcall predicate link))
+	  (setq res (cons link res)))))
+    (sort (copy-seq res) #'literef-citation-link<)))
+
+(defun literef-citation-link-p(link)
+  "Return t if the link is a citation and nil otherwise"
+  (let ((type (literef-link-type link)))
+    (and type (>= (length type) 4) (string= (substring type 0 4) "cite"))))
+
+(defun literef-annotation-link-p(link)
+  "Return t if the link is a citation annotation and nil otherwise"
+  (string= (literef-link-type link) literef-annotation-link))
+
+(defun literef-citation-links()
+  "Compute the list of all citation links in the current buffer, sorted by the begin position."
+  (literef-all-links #'literef-citation-link-p))
+
+(defun literef-annotation-links()
+  "Compute the list of all annotation links in the current buffer, sorted by the begin position."
+  (literef-all-links #'literef-annotation-link-p))
+
+(defun literef-buffer-keys()
+  "Compute the list of all keys cited in the current buffer, sorted and with duplicates removed."
+  (let (res)
+    (dolist (link (literef-citation-links) nil)
+      (dolist (key (literef-link-path-components link) nil)
+	(setq res (cons key res))))
+    (delete-dups (sort res 'string<))))
+
+(defun literef-all-keys()
+  "Compute the list of all keys."
+  (let (res)
+    (dolist (key (directory-files literef-papers-directory) nil)
+      (when (literef-key-exists key) (push key res)))
+    (sort res 'string<)))
 
 (defun literef-bib-files (&optional _arg)
   "Compute the list of bib files."
-  (sort (file-expand-wildcards (concat literef-papers-directory "*/paper.bib")) 'string<))
+  (sort (file-expand-wildcards
+	 (concat literef-papers-directory "*/paper.bib")) 'string<))
 
 (defun literef-set-default-bibliography(&optional _orig-fun)
   "Set the default bibliography."

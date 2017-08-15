@@ -7,36 +7,57 @@ Since I would like to get to the actual literature survey as soon as possible, I
 * Current issues
 * Features
 ** Daemon
-*** DONE Automatic assignment of a descriptive key.
-*** DONE Splitting .bib file containing more than one entry into several files.
-*** DONE A check whether the key already exists. Can apply the same action to the other entries in the new .bib file.
-*** DONE The newly added keys are in the clipboard.
-*** TODO Get rid of the proceeding/journal and the cross-reference.
-**** TODO Update this feature, so this is done before asking whether to apply choice (in the case of repeated key) for remaining entries.
-*** DONE Handling .csv files produced using Link Klipper
+- DONE Automatic assignment of a descriptive key.
+- DONE Splitting .bib file containing more than one entry into several files.
+- DONE A check whether the key already exists. Can apply the same action to the other entries in the new .bib file.
+- DONE The newly added keys are in the clipboard.
+- TODO Get rid of the proceeding/journal and the cross-reference.
+  + TODO Update this feature, so this is done before asking whether to apply choice (in the case of repeated key) for remaining entries.
+- DONE Handling .csv files produced using Link Klipper
 Currently only from DBLP.
-*** DONE Handling of request to download PDF. Sources are configurable. Automated download with fall-back on manual. 
-*** DONE Venue query.
+- DONE Handling of request to download PDF. Sources are configurable. Automated download with fall-back on manual. 
+- DONE Venue query. *EXCLUDED FROM CURRENT RELEASE*
 ** org-ref-literef
-*** DONE Constant bib entry look-up (for whatever purpose) based on key.
-*** DONE Inserting a citation. This computes the list of .bib files.
-*** DONE Following citation by going to the right notes file.
-*** DONE Opening and getting PDF from citation or notes/bib file.
-*** DONE Splitting citations. The special characters are correctly handled. 
-*** DONE Command to put /current/ key into clipboard. 
-*** DONE Intelligent yanking.
-*** DONE Search for pdfs based on string, e.g. "Toronto". Search based on the contents of the first page.
-*** DONE Export without the need for specifying bibliography files.
-*** DONE Export with notes
-**** Requirements
-When =literef-export-with-notes= is enabled:
-- The non-empty notes for each cited paper is included in the export.
-- Each paper’s notes becomes a sub-section in the section with the notes. The exported file itself becomes a section as well.
-- Each citation is accompanied by section reference.
-- When =literef-export-with-notes-recursive= is enabled, the papers cited in the notes are included and treated just like those in the exported file itself. This is done recursively. When =literef-export-with-notes-depth= is not =nil=, the depth of the recursion is limited.
-- Narrowing to any level of sub-tree is correctly handled.
-- A section may or may not be created for the exported buffer. Not creating a section is particularly useful when one wants to join several files by using INCLUDE. 
-*** DONE Annotation of citations.
-*** TODO Commands related to annotations:
-**** TODO All papers for which the current paper is a background.
-**** TODO All background papers of a given paper.
+- DONE Constant bib entry look-up (for whatever purpose) based on key.
+- DONE Inserting a citation. This computes the list of .bib files.
+  + TODO Keys can be sorted on key, author, title, venue, date of publication or date of addition (files added within a two seconds of each other are considered to be added at the same time) or combination of these.
+- DONE Following citation by going to the right notes file.
+- DONE Opening and getting PDF from citation or notes/bib file.
+- DONE Splitting citations. The special characters are correctly handled.
+  + TODO Support active tasks.
+- DONE Command to put /current/ key into clipboard. 
+- DONE Intelligent yanking.
+- DONE Search for pdfs based on string, e.g. "Toronto". Search based on the contents of the first page.
+- DONE Export without the need for specifying bibliography files.
+- DONE Export with notes
+  + Recursion
+  + Narrowing
+  + Optionally creating a section for the buffer
+  + INCLUDE is handled
+- DONE Annotation of citations.
+- DONE Commands related to annotations.
+- TODO Integration with PDF Tools (https://github.com/politza/pdf-tools) for referring to annotations (or at least pages) inside PDF. See https://emacs.stackexchange.com/a/24502/16048.
+- TODO A graph of citation relationships using GraphViz DOT evaluation as shown here: https://vxlabs.com/2014/12/04/inline-graphviz-dot-evaluation-for-graphs-using-emacs-org-mode-and-org-babel/
+  Simply create a temporary buffer, in which to evaluate the program.
+* Creating on-line description + video
+|----------------------------------------------------+---------|
+| *Implementation*                                   | *NDays* |
+|----------------------------------------------------+---------|
+| Implementation of copying                          |    DONE |
+| Implementation of sorting keys in helm             |       2 |
+| Support of active tasks                            |       1 |
+| Integration with PDF Tools                         |       2 |
+| Implementation of graph of citation relashionships |       2 |
+|----------------------------------------------------+---------|
+| *Writing + video*                                  |         |
+|----------------------------------------------------+---------|
+| Motivation                                         |    DONE |
+| Overall design                                     |         |
+| Adding papers                                      |         |
+| Working with citations                             |         |
+| Working with PDF                                   |         |
+| Switching to notes                                 |         |
+| Export                                             |         |
+| Working with annotations                           |         |
+| Installation, Version etc., future work etc.       |         |
+|----------------------------------------------------+---------|

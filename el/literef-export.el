@@ -5,60 +5,16 @@
 
 (setq literef-section-name-history nil)
 
-(defun literef-number-or-nil-p(string)
-  "Determines whether STRING is number or nil."
-  (let ((converted (string-to-number string)))
-    (if (= converted 0)
-	(if (or (string= string "0") (string= string "nil"))  t nil)
-      t)))
-
-(defun literef-number-or-nil(string)
-  "Convert STRING to number or nil. The string is assumed to be one of the two."
-  (if (string= string "nil") nil (string-to-number string)))
-
-(defun literef-read-number-or-nil(prompt default)
-  "Read either number or nil from the user."
-  (let ((res "error"))
-    (while (not (literef-number-or-nil-p res))
-      (setq res (read-string prompt nil nil default)))
-    (floor (literef-number-or-nil res))))
-
 (defun literef-export-notes-p()
   "Predicate that checks whether notes are to be exported."
   (not (and literef-export-depth (= literef-export-depth 0))))
 
-(defun literef-all-keys()
-  "Compute the list of all keys cited in the current buffer"
-  (let (res)
-    (org-element-map (org-element-parse-buffer) 'link
-      (lambda (link)
-	(when (literef-is-citation-link link)
-	  (dolist (key (literef-link-keys link) nil)
-	    (setq res (cons key res))))))
-    res))
-
-(defun literef-citation-link< (link1 link2)
-  "Compare two citation links."
-  (< (elt link1 1) (elt link2 1)))
-
-(defun literef-citation-links()
-  "Compute the list of all citation links with begin and end positions."
-  (let (res)
-    (org-element-map (org-element-parse-buffer) 'link
-      (lambda (link)
-	(when (literef-is-citation-link link)
-	  (let* ((path (org-element-property :path link))
-		 (begin (org-element-property :begin link))
-		 (end (literef-link-end link))))		  
-	    (setq res (cons (list path begin end) res)))))
-    (sort (copy-seq res) #'literef-citation-link<)))
-
-(defun literef-reference-text(link)
-  "Compute text for the reference for the given LINK."
+(defun literef-reference-text(keys)
+  "Compute text for the reference for the given KEYS."
 
   (let* ((keys ;; only the keys whos notes are exported.
 	  (let (res)
-	    (dolist (key (literef-link-path-keys path) nil)
+	    (dolist (key keys nil)
 	      (when (and (literef-key-notes-p key) (member key parsed-keys))
 		(setq res (cons key res))))
 	    (reverse res)))
@@ -83,20 +39,11 @@
   (interactive)
   (let ((shift 0))
     (dolist (link (literef-citation-links) nil)
-      (let* ((path (elt link 0))
-	     (end (elt link 2))
-	     (reference (literef-reference-text path)))
-	(goto-char (+ end shift))
+      (let* ((keys (literef-link-path-components link))
+	     (reference (literef-reference-text keys)))
+	(goto-char (+ (literef-link-end link) shift))
 	(insert reference)
-	(setq shift (+ shift (length reference))))))
-  nil)
-    
-;; Source: http://ergoemacs.org/emacs/elisp_hash_table.html
-(defsubst hash-table-keys (hash-table)
-  "Return a list of keys in HASH-TABLE."
-  (let ((keys '()))
-    (maphash (lambda (k _v) (push k keys)) hash-table)
-    keys))
+	(setq shift (+ shift (length reference)))))))
 
 (defun literef-add-to-next-iter(key)
   "Perform duplicate detection on KEY and then add it to the list of exported keys and to the list of keys for the next iteration."
@@ -118,7 +65,7 @@ The open lists for the current and the next depth are maintained in a combinatio
 	(next-iter-list) (next-iter-hash (make-hash-table))
 	(exported-keys (make-hash-table))
 	parsed-keys)
-    (dolist (key (literef-all-keys) nil)
+    (dolist (key (literef-buffer-keys) nil)
       (literef-add-to-next-iter key))
     (while ;; there are keys for next iteration depth not exceeded
 	(and
@@ -138,10 +85,10 @@ The open lists for the current and the next depth are maintained in a combinatio
 	    (dolist (key
 		     (with-temp-buffer
 		       (insert-file-contents (literef-notes-filename key))
-		       (literef-all-keys))
+		       (literef-buffer-keys))
 		     nil)
 	      (literef-add-to-next-iter key))))))
-    (list (hash-table-keys exported-keys) parsed-keys)))
+    (list (literef-hash-keys-to-list exported-keys) parsed-keys)))
 
 ;; Source: https://emacs.stackexchange.com/a/31763/16048
 (defmacro with-cloned-buffer(&rest body)

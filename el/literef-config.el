@@ -16,7 +16,7 @@
 (defcustom literef-annotation-color "red"
   "The color of annotation links.")
 
-(defcustom literef-citation-functions '("develops" "compares")
+(defcustom literef-citation-functions '("develops" "compares" "some1" "some2" "some3")
   "Kinds of citation functions used for annotation.")
 
 ;; Headlines are always sections, no matter the level.
