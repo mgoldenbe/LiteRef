@@ -19,6 +19,9 @@
 (defcustom literef-citation-functions '("develops" "compares" "some1" "some2" "some3")
   "Kinds of citation functions used for annotation.")
 
+(defcustom literef-equal-timestamps 5
+  "The number of seconds, within which entries for two papers as candidates in helm are considered to have been created at the same time.")
+
 ;; Headlines are always sections, no matter the level.
 ;; (otherwise, when sections are deeply nested,
 ;; Latex creates numbered lists using alphabet, which may result

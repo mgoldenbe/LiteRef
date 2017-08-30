@@ -1,12 +1,16 @@
+(require 'bibtex-completion)
+
 (require 'literef-config)
 (require 'literef-utils)
+(require 'literef-helm)
 (require 'literef-latex-map)
 (require 'literef-export)
 (require 'literef-annotations)
 
 ;; advice org-ref-helm-insert-cite-link to begin by re-reading the default bibliography,
 ;; since entries could be added/removed.
-(advice-add 'org-ref-helm-insert-cite-link :before #'literef-set-default-bibliography)
+;; (advice-add 'org-ref-helm-insert-cite-link :before #'literef-set-default-bibliography)
+(advice-add 'org-ref-helm-cite :before #'literef-set-default-bibliography)
 
 ;; override bibtex-completion-fallback-candidates to not offer adding an entry to each bib file.
 (defun bibtex-completion-fallback-candidates ()
@@ -15,17 +19,6 @@
 
 ; Open notes of the paper when its citation link is clicked. 
 (setq org-ref-cite-onclick-function (lambda(_key) (literef-open-notes)))
-
-(defun literef-open-pdf()
-  "Open the pdf for the citation under cursor or for the paper of the current notes file."
-  (interactive)
-  (let ((key (literef-current-key)))
-    (when key
-      (let ((filename (literef-pdf-filename key)))
-	(if (file-exists-p filename)
-	    (shell-command (concat literef-pdf-viewer " " filename))
-	  (with-temp-file (literef-request-filename)
-	    (insert (concat "getPdf" " " key))))))))
 
 ;;;; BEGIN: Copying and pasting key(s) --------------------------
 (defun literef-copy-current-key()

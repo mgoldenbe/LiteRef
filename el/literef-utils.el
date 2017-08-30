@@ -168,6 +168,12 @@ Returns nil if neither of these ways produces a key."
   "Compute name of the .bib file based on the key and the extension"
   (literef-filename key "bib"))
 
+(defun literef-creation-timestamp(key)
+  "Compute the creation timestamp of the KEY as a floating-point number of seconds. It uses the modification timestamp of the bib file, since, in general, the creation timestamp might not be stored by the operating system and accessing the creation date for ext4 is not trivial."
+  (let* ((bibfile-name (literef-bib-filename key))
+	 (attribute (elt (file-attributes bibfile-name) 5)))
+    (time-to-seconds attribute))) 
+
 (defun literef-notes-filename(key)
   "Compute name of the notes file based on the key and the extension"
   (literef-filename key "org"))
@@ -179,12 +185,33 @@ Returns nil if neither of these ways produces a key."
 (defun literef-request-filename()
   "Compute name of the request file"
   (concat literef-drop-directory "request." (number-to-string (float-time)) ".rqt"))
-  
+
+(defun literef-open-key-notes(key)
+  "Open notes for KEY."
+  (let ((filename (literef-notes-filename key)))
+    (find-file-other-window filename)))
+
 (defun literef-open-notes()
   "Open notes for the cite link under cursor"
-  (let*  ((key (org-ref-get-bibtex-key-under-cursor))
-	  (filename (literef-notes-filename key)))
-    (find-file-other-window filename)))
+  (let ((key (org-ref-get-bibtex-key-under-cursor)))
+    (literef-open-key-notes key)))
+
+(defun literef-open-key-pdf(key)
+  "Open the pdf for KEY."
+  (let ((filename (literef-pdf-filename key)))
+    (if (file-exists-p filename)
+	(shell-command (concat literef-pdf-viewer " " filename))
+      (with-temp-file (literef-request-filename)
+	(message "The PDF is not found. Sending query to the daemon (make it's running!)")
+	(run-with-timer 3 nil (lambda () (message nil)))
+	(insert (concat "getPdf" " " key))))))
+
+(defun literef-open-pdf()
+  "Open the pdf for the citation under cursor or for the paper of the current notes file."
+  (interactive)
+  (let ((key (literef-current-key)))
+    (when key
+      (literef-open-key-pdf key))))
 
 (defun literef-current-folder-key()
   "Compute key based on the folder in which the file being visited is located.
