@@ -45,15 +45,15 @@
 	(insert reference)
 	(setq shift (+ shift (length reference)))))))
 
-(defun literef-add-to-next-iter(key)
-  "Perform duplicate detection on KEY and then add it to the list of exported keys and to the list of keys for the next iteration."
-  (unless (or
-	   (gethash key cur-iter-hash nil)
-	   (gethash key next-iter-hash nil)
-	   (gethash key exported-keys nil))
-    (setq next-iter-list (cons key next-iter-list))
-    (puthash key t next-iter-hash)
-    (puthash key t exported-keys)))
+;; (defun literef-add-to-next-iter(key)
+;;   "Perform duplicate detection on KEY and then add it to the list of exported keys and to the list of keys for the next iteration."
+;;   (unless (or
+;; 	   (gethash key cur-iter-hash nil)
+;; 	   (gethash key next-iter-hash nil)
+;; 	   (gethash key exported-keys nil))
+;;     (setq next-iter-list (cons key next-iter-list))
+;;     (puthash key t next-iter-hash)
+;;     (puthash key t exported-keys)))
 
 (defun literef-exported-keys()
   "Performs uniform-cost search to compute the list of exported keys and the list of keys whose notes have been parsed.

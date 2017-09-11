@@ -1,9 +1,18 @@
-Installation dependencies:
+Installation dependencies outside of emacs:
 
 - pyinotify (sudo pip install pyinotify)
 - PybTex (sudo pip install pybtex)
 - pyperclip (sudo pip install pyperclip)
 - Tkinter (should be installed with Python)
 - pdfgrep (sudo apt-get install pdfgrep)
+- Graph::Easy (sudo apt-get install libgraph-easy-perl)
 
 Optional: Link Klipper for Chrome
+
+Emacs packages:
+
+- org
+- org-ref
+- interleave (currently not used)
+- org-attach-screenshot
+- pdf-tools (after installing the package from the package manager, need to run pdf-tools-install.

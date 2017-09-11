@@ -4,20 +4,26 @@
 (setq literef-papers-directory (concat literef-directory "papers/"))
 (setq literef-drop-directory (concat literef-directory "drop/"))
 
-(defcustom literef-pdf-viewer "evince"
-  "The pdf viewer to be used.")
-
 (defcustom literef-bibliography-style "plain"
   "The bibliography-style to be used for exports.")
 
-(defcustom literef-annotation-link "f"
-  "The link name for annotations.")
+(defcustom literef-citation-function-link "f"
+  "The link name for specifying citation function.")
 
-(defcustom literef-annotation-color "red"
-  "The color of annotation links.")
+(defcustom literef-citation-function-color "red"
+  "The color of citation function links.")
 
-(defcustom literef-citation-functions '("develops" "compares" "some1" "some2" "some3")
+(defcustom literef-pdf-annotation-link "annot"
+  "The link name for citing a pdf annotation.")
+
+(defcustom literef-pdf-annotation-color "chocolate"
+  "The color of pdf annotation links.")
+
+(defcustom literef-citation-functions '("develops" "compares")
   "Kinds of citation functions used for annotation.")
+
+(defcustom literef-arc-filter-variables-prefix ""
+  "The prefix used for special variables in the specification of the arc filter.")
 
 (defcustom literef-equal-timestamps 5
   "The number of seconds, within which entries for two papers as candidates in helm are considered to have been created at the same time.")

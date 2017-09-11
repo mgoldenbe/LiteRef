@@ -40,29 +40,40 @@ Currently only from DBLP.
 - TODO A graph of citation relationships using GraphViz DOT evaluation as shown here: https://vxlabs.com/2014/12/04/inline-graphviz-dot-evaluation-for-graphs-using-emacs-org-mode-and-org-babel/
   Simply create a temporary buffer, in which to evaluate the program.
 * Creating on-line description + video
-|------------------------------------------------------+---------|
-| *Implementation*                                     | *NDays* |
-|------------------------------------------------------+---------|
-| Implementation of copying                            |    DONE |
-| Implementation of custome sorting in helm-bitex      |       2 |
-| Support of active tasks                              |       1 |
-| Integration with PDF Tools                           |       2 |
-| Implementation of graph of citation relashionships   |       2 |
-| Implementation of annotations of references to tags. |       2 |
-|------------------------------------------------------+---------|
-| *Writing + video*                                    |         |
-|------------------------------------------------------+---------|
-| Motivation                                           |    DONE |
-| Overall design                                       |         |
-| Adding papers                                        |         |
-| Working with citations                               |         |
-| Working with PDF                                     |         |
-| Switching to notes                                   |         |
-| Export                                               |         |
-| Working with annotations (of citations and of tags)  |         |
-| Installation, Version etc., future work etc.         |         |
-|------------------------------------------------------+---------|
+|----------------------------------------------------------------+---------|
+| *Implementation*                                               | *NDays* |
+|----------------------------------------------------------------+---------|
+| Implementation of copying                                      | DONE    |
+| Implementation of custom sorting in helm-bitex                 | DONE    |
+| Support of inline tasks                                        | DONE    |
+| Integration with PDF Tools                                     | DONE    |
+| Implementation of graph of citation relashionships             | 2       |
+| Implementation of annotations of references to tags.           | 2       |
+| Running the server (past daemon) from emacs, better pdf import | 1       |
+| Insertion of entry from clipboard                              | 1       |
+|----------------------------------------------------------------+---------|
+| *Writing + video*                                              |         |
+|----------------------------------------------------------------+---------|
+| Motivation                                                     | DONE    |
+| Overall design                                                 |         |
+| Adding papers                                                  |         |
+| Working with citations                                         |         |
+| Working with PDF                                               |         |
+| Switching to notes                                             |         |
+| Export                                                         |         |
+| Working with annotations (of citations and of tags)            |         |
+| Installation, Version etc., future work etc.                   |         |
+|----------------------------------------------------------------+---------|
 * Ideas of implementation
+** Working with pdf
+- A command to choose an annotation and link to it. When such a link is clicked, the page is opened and the annotation is activated.
+- Commands I thought about before the above command.
+  + A command to link to the currently open page of the pdf.
+    * It would be nice to remember vertical scroll as well.
+      - See https://emacs.stackexchange.com/q/35221/16048
+  + FUTURE MAY BE A command to take a screenshot and link to the currently open page of the pdf.
+    * Use =org-screenshot= and set the directory for the images to be in the paper’s directory (the one whose pdf is open).
+    * While not clear how to make the screen-shot clickable (https://emacs.stackexchange.com/q/35220/16048), put a separate link to the page of the pdf.
 ** Graph of citation relashionships
 - See https://emacs.stackexchange.com/q/35076/16048
 - Using Graph::Easy perl library to generate ascii representation looks best.

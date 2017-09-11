@@ -30,23 +30,44 @@
       (setq remain (1- remain))
       (when (> remain 0) (setq res (concat res separator))))))
 
+(defun literef-read-char(prompt legal-chars)
+  "Read char until one of the chars in LEGAL-CHARS is entered."
+  (catch 'ok
+    (while t
+      (let ((ans (read-char prompt)))
+      (when (member ans legal-chars) (throw 'ok ans))))))
+
 ;; Source: https://emacs.stackexchange.com/a/19878/16048
 (defun literef-eval-string (string)
   "Evaluate elisp code stored in a string."
   (eval (car (read-from-string string))))
 
+(defun literef-hash-empty-p (hash)
+  "Return t if hash is empty and nil otherwise."
+  (eq (hash-table-count hash) 0))
+
 ;; Based on: http://ergoemacs.org/emacs/elisp_hash_table.html
 (defun literef-hash-keys-to-list (hash)
   "Return a list of keys in HASH."
-  (let (res)
-    (maphash (lambda (k _v) (push k res)) hash)
-    res))
+  (if hash
+      (let (res)
+	(maphash (lambda (k _v) (push k res)) hash)
+	res)
+    nil))
 
 (defun literef-hash-pairs-to-list (hash)
-  "Return a list of keys in HASH."
+  "Return a list of key-value pairs in HASH."
+  (if hash
+      (let (res)
+	(maphash (lambda (k v) (push (list k v) res)) hash)
+	res)
+    nil))
+
+(defun literef-hash-keys-minus(hash1 hash2)
+  "Return a list of keys that are present in HASH1, but not in HASH2."
   (let (res)
-    (maphash (lambda (k v) (push (list k v) res)) hash)
-    res))
+    (dolist (key (literef-hash-keys-to-list hash1) res)
+      (unless (gethash key hash2 nil) (push key res)))))
 
 (defun literef-link-type(link)
   "The type of the LINK."
@@ -95,17 +116,17 @@
   (let ((type (literef-link-type link)))
     (and type (>= (length type) 4) (string= (substring type 0 4) "cite"))))
 
-(defun literef-annotation-link-p(link)
+(defun literef-citation-function-link-p(link)
   "Return t if the link is a citation annotation and nil otherwise"
-  (string= (literef-link-type link) literef-annotation-link))
+  (string= (literef-link-type link) literef-citation-function-link))
 
 (defun literef-citation-links()
   "Compute the list of all citation links in the current buffer, sorted by the begin position."
   (literef-all-links #'literef-citation-link-p))
 
-(defun literef-annotation-links()
+(defun literef-citation-function-links()
   "Compute the list of all annotation links in the current buffer, sorted by the begin position."
-  (literef-all-links #'literef-annotation-link-p))
+  (literef-all-links #'literef-citation-function-link-p))
 
 (defun literef-buffer-keys()
   "Compute the list of all keys cited in the current buffer, sorted and with duplicates removed."
@@ -153,7 +174,7 @@ Also, this version does not affect point"
 
 Returns nil if neither of these ways produces a key."
   (or (literef-get-bibtex-key-under-cursor)
-      (literef-current-folder-key)))
+      (literef-current-buffer-key)))
 
 (defun literef-key-exists(key)
   "Return t if key exists and nil otherwise."
@@ -200,7 +221,7 @@ Returns nil if neither of these ways produces a key."
   "Open the pdf for KEY."
   (let ((filename (literef-pdf-filename key)))
     (if (file-exists-p filename)
-	(shell-command (concat literef-pdf-viewer " " filename))
+	(find-file-other-window filename)
       (with-temp-file (literef-request-filename)
 	(message "The PDF is not found. Sending query to the daemon (make it's running!)")
 	(run-with-timer 3 nil (lambda () (message nil)))
@@ -213,13 +234,26 @@ Returns nil if neither of these ways produces a key."
     (when key
       (literef-open-key-pdf key))))
 
-(defun literef-current-folder-key()
-  "Compute key based on the folder in which the file being visited is located.
+;;;; Compute key based on folder, file or buffer
 
-If there the visited folder does not correspond to a key, returns nil."
-  (let ((key (car (last (nbutlast (split-string (file-name-directory buffer-file-name) "/"))))))
+(defun literef-folder-key(folder)
+  "Compute key or nil based on FOLDER."
+
+  (let ((key (car (last (nbutlast (split-string folder "/"))))))
     (if (file-directory-p (concat literef-papers-directory key))
 	key
       nil)))
+
+(defun literef-file-key(filename)
+  "Compute key or nil based on FILENAME."
+  (literef-folder-key (file-name-directory filename)))
+
+(defun literef-buffer-key(buffer)
+  "Compute key or nil based on BUFFER."
+  (literef-file-key (buffer-file-name buffer)))
+
+(defun literef-current-buffer-key()
+  "Compute key or nil of the current buffer."
+  (literef-buffer-key (current-buffer)))
 
 (provide 'literef-utils)

@@ -45,7 +45,7 @@
 	    (setq res (concat res "\n" prefix value))))))
     res))
 
-(defun literef-candidate-transformer(candidates &optional)
+(defun literef-candidate-transformer(candidates)
   "Transform the initial candidate list for helm."
   (let (res)
     (dolist (c candidates res)
@@ -53,6 +53,8 @@
     (setq res (reverse res))
     res
     ))
+
+(push '(name . "Literef Helm") org-ref-helm-cite-source)
 
 ;; Filtering wouldn't work correctly unless
 ;; candidates are transformed at the beginning.
@@ -239,5 +241,12 @@
 
 (advice-add 'org-ref-helm-cite-action-transformer
 	    :around #'literef-action-transformer)
-  
+
+
+;;;; Fallback options
+
+;; For now, no fallback options.
+;; Future work -- implement it using the ideas from bibtex-completion.el
+(setq org-ref-helm-cite-fallback-source nil)
+
 (provide 'literef-helm)

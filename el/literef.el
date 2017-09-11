@@ -1,11 +1,13 @@
 (require 'bibtex-completion)
+(require 'org-inlinetask)
 
 (require 'literef-config)
 (require 'literef-utils)
 (require 'literef-helm)
 (require 'literef-latex-map)
-(require 'literef-export)
+(require 'literef-graph)
 (require 'literef-annotations)
+(require 'literef-pdf)
 
 ;; advice org-ref-helm-insert-cite-link to begin by re-reading the default bibliography,
 ;; since entries could be added/removed.
@@ -87,7 +89,22 @@ Splits the first citation of multiple sources found on the current line, so that
 	     (keys-with-commas (org-element-property :path cite))
 	     (keys (org-ref-split-and-strip-string keys-with-commas))
 	     (postfix-begin (+ prefix-end (length keys-with-commas)))
-	     (postfix (buffer-substring postfix-begin postfix-end)))
+	     (postfix (buffer-substring postfix-begin postfix-end))
+	     (inline-tasks-flag
+	      (if (eq (char-after prefix-begin) ?*)
+		  nil
+		(progn
+		  (goto-char save-point)
+		  (unwind-protect
+		      (progn
+			(org-ref-cancel-link-messages)
+			(y-or-n-p "Insert inline tasks?"))
+		    (org-ref-show-link-messages)))
+		  )))
+	;; set the default todo keyword
+	(setq org-inlinetask-default-state
+	      (when org-todo-keywords-1 (car org-todo-keywords-1)))
+	
 	;; remove the original line
 	(kill-region prefix-begin postfix-end)
 
@@ -96,8 +113,10 @@ Splits the first citation of multiple sources found on the current line, so that
 	  ;; get title and authors
 	  (let* ((title-author (and insert-title-author (litered-key-string key))))
 	    (unless (string= key (car keys)) (insert "\n"))
-	    (insert prefix (concat title-author) postfix " cite:" key)))))
-	  
+	    (insert prefix (concat title-author) postfix " cite:" key))
+	  (when inline-tasks-flag
+	    (org-inlinetask-insert-task)
+	    (search-forward "END")))))
     (goto-char save-point)))
 
 (defun literef-split-cite-title-author()
