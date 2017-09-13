@@ -1,3 +1,5 @@
+(require 'smooth-scrolling)
+
 ;;;; Collecting citation links and functions from a buffer or from notes of a key.
 (defun literef-add-citation-and-functions-to-hash
     (citation-link functions hash)
@@ -79,7 +81,7 @@
   (unless graph (setq graph literef-graph))
   (let ((out-neighbors (literef-key-out-neighbors from-key graph))
 	(in-neighbors (literef-key-in-neighbors to-key graph)))
-    (puthash to-key functions out-neighbors)
+    (puthash to-key citation-functions out-neighbors)
     (puthash from-key t in-neighbors)))
 
 (defun literef-init-graph(&optional init-keys)
@@ -123,6 +125,15 @@
     (puthash key
 	     (cons out-neighbors (literef-key-in-neighbors key))
 	     literef-graph)))
+
+(defun literef-save-hook()
+  "Update the graph of keys when notes of a key are saved"
+  (let ((key (literef-current-buffer-key)))
+    (when key
+      (literef-graph-update-key key)
+      (message "The graph of keys is updated. You may want to update the subgraph selection."))))
+
+(add-hook 'after-save-hook 'literef-save-hook)
 
 (defun literef-compute-graph()
   "Compute the graph of keys from scratch."
@@ -212,7 +223,6 @@ This function is re-defined by `literef-make-arc-filter'.")
 
 (defun literef-select-initial-keys()
   "Select initial keys for forming the subgraph."
-  ;; Get initial keys.
   (let* ((current-key (literef-current-key))
 	 (ans (literef-read-char
 	       (concat "Choose the source of initial keys:  "
@@ -220,10 +230,15 @@ This function is re-defined by `literef-make-arc-filter'.")
 		       (when current-key
 			 (concat "  |  " current-key "(c)")))
 	       (if current-key '(?a ?b ?c) '(?a ?b)))))
-    (cond ((eq ans ?a) (literef-all-keys))
+    (cond ((eq ans ?a)
+	   (setq literef-subgraph-source :all-keys)
+	   (literef-all-keys))
 	  ((eq ans ?b)
+	   (setq literef-subgraph-source :buffer)
 	   (literef-hash-keys-to-list (literef-out-citations)))
-	  ((eq ans ?c) (list current-key)))))
+	  ((eq ans ?c)
+	   (setq literef-subgraph-source :current-key)
+	   (list current-key)))))
 
 (defun literef-arc-filter-temp-variable(str)
   "Return the symbol named literef-temp-<prefix><str>."
@@ -317,14 +332,67 @@ This function is re-defined by `literef-make-arc-filter'.")
 (defun literef-select-subgraph()
   "Select subgraph of the graph of keys. Sets `literef-subgraph-keys'."
   (interactive)
-  (let ((initial-keys (literef-select-initial-keys)))
-    (literef-make-arc-filter (literef-read-arc-filter
-			      "Enter a predicate for the arc filter: \n"))
-    (setq literef-subgraph (literef-init-graph initial-keys))
-    (literef-uniform-cost-search initial-keys))
+  (unwind-protect
+      (progn
+	(org-ref-cancel-link-messages)
+	(let ((initial-keys (literef-select-initial-keys)))
+	  (literef-make-arc-filter (literef-read-arc-filter
+				    "Enter a predicate for the arc filter: \n"))
+	  (setq literef-subgraph (literef-init-graph initial-keys))
+	  (when (eq literef-subgraph-source :buffer)
+	    (let ((buffer-node-name
+		   (concat "Buffer \"" (buffer-name) "\"")))
+	      (literef-graph-add-key buffer-node-name literef-subgraph)
+	    (dolist (key initial-keys nil)
+	      (literef-graph-add-arc
+	       buffer-node-name key nil literef-subgraph))))
+	  (literef-uniform-cost-search initial-keys)))
+    (progn
+      (org-ref-show-link-messages)
+      (setq org-ref-show-citation-on-enter t)))
+  (literef-show-graph)
   literef-subgraph)
-	 
+
 ;;;; Operations on the selected subgraph.
+
+(defvar literef-graph-mode-map nil
+  "Key map for literef-graph-mode")
+
+(defun literef-graph-scroll-right()
+  "Handle scrolling right."
+  (interactive)
+  (scroll-left 1))
+
+(defun literef-graph-scroll-left()
+  "Handle scrolling left."
+  (interactive)
+  (scroll-right 1))
+
+(defun literef-graph-scroll-up()
+  "Handle scrolling right."
+  (interactive)
+  (scroll-up 1))
+
+(defun literef-graph-scroll-down()
+  "Handle scrolling left."
+  (interactive)
+  (scroll-down 1))
+
+(progn
+  (setq literef-graph-mode-map (make-sparse-keymap))
+  (define-key literef-graph-mode-map (kbd "M-<right>")
+    'literef-graph-scroll-right)
+  (define-key literef-graph-mode-map (kbd "M-<left>")
+    'literef-graph-scroll-left)
+  (define-key literef-graph-mode-map (kbd "M-<up>")
+    'literef-graph-scroll-up)
+  (define-key literef-graph-mode-map (kbd "M-<down>")
+    'literef-graph-scroll-down)
+  )
+
+(define-minor-mode literef-graph-mode
+  "LiteRef mode for viewing the selected subgraph."
+  nil " LiteRefGraph" literef-graph-mode-map)  
 
 (defun literef-graph-string()
   "Return a string representation of the keys graph."
@@ -336,7 +404,9 @@ This function is re-defined by `literef-make-arc-filter'.")
 		 (literef-hash-pairs-to-list out-neighbors)
 		 nil)
 	  (setq res (concat
-		     res "[ cite:" key " ]"
+		     res "[ "
+		     (when (literef-key-exists key) "cite:")
+		     key " ]"
 		     (let ((functions
 			    (mapcar
 			     (lambda(f) (concat
@@ -354,20 +424,76 @@ This function is re-defined by `literef-make-arc-filter'.")
 (defun literef-show-graph()
   "Show the graph of keys."
   (interactive)
-  (let ((temp-file-name (make-temp-file "foo")))
-    (with-temp-file temp-file-name
-      (insert (literef-graph-string)))
-    (let ((buffer (generate-new-buffer "The graph of keys.")))
-      (switch-to-buffer buffer)
-      (org-mode)
-      ;; Do not wrap lines
-      (setq truncate-lines t)
-      ;; Do not highlight as in tabular mode.
-      ;; https://emacs.stackexchange.com/a/13955/16048
-      (add-to-list 'face-remapping-alist '(org-table . default))
-      (let ((command (concat "graph-easy" " " temp-file-name)))
-	(insert (shell-command-to-string command))))
-    (delete-file temp-file-name))
-  nil)
+  (save-selected-window
+    (let ((temp-file-name (make-temp-file "foo")))
+      (with-temp-file temp-file-name
+	(insert (literef-graph-string)))
+      (let* ((command (concat "graph-easy --boxart" " " temp-file-name))
+	     (graph-layout (shell-command-to-string command)))
+	;; (delete-file temp-file-name)
+	(switch-to-buffer-other-window "The graph of keys.")
+	(org-mode)
+	(literef-graph-mode 1)
+	(setq-local auto-hscroll-mode nil)
+	(smooth-scrolling-mode 1)
+	
+	;; Do not wrap lines
+	(setq-local truncate-lines t)
+
+	;;;; The following settings are for ASCII output. For BoxArt, they are not needed, but are still fine.
+	;; Do not highlight as in tabular mode.
+	;; https://emacs.stackexchange.com/a/13955/16048
+	(setq-local org-enable-table-editor nil)
+	(setq-local face-remapping-alist
+		    (cons '(org-table . default) face-remapping-alist))
+	;; Do not use strike-through.
+	;; https://stackoverflow.com/a/22493885/2725810
+	(setq-local org-emphasis-alist nil)
+
+	;; Make sure nothing remains from the last evaluation.
+	(setq-local buffer-read-only nil)
+	(erase-buffer)
+
+	;; Make sure that the font is monospace.
+	(face-remap-add-relative 'default
+				 :family "Monospace"
+				 :height literef-graph-font-height)
+	
+	;; At last insert the layout.
+	(insert (substring graph-layout 0 -1))
+
+	;; Smooth horizontal scrolling.
+	(setq-local hscroll-margin 0)
+	(setq-local hscroll-step 1)
+	;; Add spaces, so horizontal scrolling is available in all lines.
+	(literef-append-spaces (literef-longest-line-length))
+
+	;; Make the buffer read-only.
+	(setq-local buffer-read-only t)
+	)))
+    nil)
+
+(defun literef-longest-line-length()
+  "Compute the length of the longest line in the buffer."
+  (save-excursion
+    (let ((res 0))
+      (goto-char (point-min))
+      (while (not (eobp))
+	(let ((cur-len (- (line-end-position) (line-beginning-position))))
+	  (setq res (max res cur-len)))
+	(forward-line))
+      res)))
+
+(defun literef-append-spaces(required-length)
+  "Append spaces to all lines, so they become at least the given REQUIRED-LENGTH long."
+  (save-excursion
+    (let ((res 0))
+      (goto-char (point-min))
+      (while (not (eobp))
+	(let ((cur-len (- (line-end-position) (line-beginning-position))))
+	  (goto-char (line-end-position))
+	  (insert (make-string (- required-length cur-len) ?\s)))
+	(forward-line))
+      nil)))
 
 (provide 'literef-graph)

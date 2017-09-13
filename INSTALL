@@ -13,6 +13,5 @@ Emacs packages:
 
 - org
 - org-ref
-- interleave (currently not used)
-- org-attach-screenshot
-- pdf-tools (after installing the package from the package manager, need to run pdf-tools-install.
+- pdf-tools (after installing the package from the package manager, need to run pdf-tools-install).
+- smooth-scrolling

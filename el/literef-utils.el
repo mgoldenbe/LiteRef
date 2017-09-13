@@ -177,7 +177,7 @@ Returns nil if neither of these ways produces a key."
       (literef-current-buffer-key)))
 
 (defun literef-key-exists(key)
-  "Return t if key exists and nil otherwise."
+  "Return t if KEY exists and nil otherwise."
   (let ((filename (literef-bib-filename key)))
     (file-exists-p filename)))
 
@@ -246,7 +246,8 @@ Returns nil if neither of these ways produces a key."
 
 (defun literef-file-key(filename)
   "Compute key or nil based on FILENAME."
-  (literef-folder-key (file-name-directory filename)))
+  (when filename
+    (literef-folder-key (file-name-directory filename))))
 
 (defun literef-buffer-key(buffer)
   "Compute key or nil based on BUFFER."

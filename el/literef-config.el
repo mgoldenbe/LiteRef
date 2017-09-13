@@ -25,6 +25,9 @@
 (defcustom literef-arc-filter-variables-prefix ""
   "The prefix used for special variables in the specification of the arc filter.")
 
+(defcustom literef-graph-font-height 120
+  "The font height used when displaying the current subgraph selection.")
+
 (defcustom literef-equal-timestamps 5
   "The number of seconds, within which entries for two papers as candidates in helm are considered to have been created at the same time.")
 

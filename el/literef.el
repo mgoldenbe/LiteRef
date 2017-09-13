@@ -149,4 +149,3 @@ The function relies on the `pdfgrep` shell command. The string pattern must be a
 	     (key (car (split-string line-no-prefix "/"))))
 	(insert-for-yank key)))))
 ;;;; END --------------------------------------------------------
-
