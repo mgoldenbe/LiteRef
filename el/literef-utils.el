@@ -46,6 +46,10 @@
   "Return t if hash is empty and nil otherwise."
   (eq (hash-table-count hash) 0))
 
+(defun literef-plist-put(plist prop val)
+  "Just a shortcut for (setq plist (plist-put PLIST PROP VAL))."
+  (setq plist (plist-put plist prop val)))
+
 ;; Based on: http://ergoemacs.org/emacs/elisp_hash_table.html
 (defun literef-hash-keys-to-list (hash)
   "Return a list of keys in HASH."

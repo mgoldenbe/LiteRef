@@ -210,8 +210,22 @@
 
 ;;;; Selection of the subgraph.
 
-(defvar literef-subgraph literef-graph
+(defvar literef-subgraph nil
   "The selected subgraph")
+
+(defvar literef-subgraph-properties nil
+  "The selected subgraph's properties.")
+
+(defun literef-reset-subgraph-selection()
+  "Reset the subgraph selection to be the entrire graph and to have the properties corresponding to this selection."
+  (interactive)
+  (setq literef-subgraph literef-graph)
+  (setq literef-subgraph-properties
+	(list :source-type :all-keys :source nil :buffer-node-name nil
+	      :filter-string "t"))
+  literef-subgraph)
+
+(literef-reset-subgraph-selection)
 
 (defun literef-arc-filter-p()
   "Returns t if the current arc satisfies the filter and nil otherwise.
@@ -221,8 +235,8 @@ This function is re-defined by `literef-make-arc-filter'.")
 ;; The default arc filter.
 (literef-make-arc-filter "t")
 
-(defun literef-select-initial-keys()
-  "Select initial keys for forming the subgraph."
+(defun literef-subgraph-select-source()
+  "Select the source for forming the subgraph and set the :source-type and :source properties of `literef-subgraph-properties'."
   (let* ((current-key (literef-current-key))
 	 (ans (literef-read-char
 	       (concat "Choose the source of initial keys:  "
@@ -231,14 +245,33 @@ This function is re-defined by `literef-make-arc-filter'.")
 			 (concat "  |  " current-key "(c)")))
 	       (if current-key '(?a ?b ?c) '(?a ?b)))))
     (cond ((eq ans ?a)
-	   (setq literef-subgraph-source :all-keys)
-	   (literef-all-keys))
+	   (literef-plist-put literef-subgraph-properties
+			      :source-type :all-keys))
 	  ((eq ans ?b)
-	   (setq literef-subgraph-source :buffer)
-	   (literef-hash-keys-to-list (literef-out-citations)))
+	   (literef-plist-put literef-subgraph-properties
+			      :source-type :buffer)
+	   (literef-plist-put literef-subgraph-properties
+			      :source (buffer-name)))
 	  ((eq ans ?c)
-	   (setq literef-subgraph-source :current-key)
-	   (list current-key)))))
+	   (literef-plist-put literef-subgraph-properties
+			      :source-type :current-key)
+	   (literef-plist-put literef-subgraph-properties
+			      :source current-key)))))
+
+(defun literef-subgraph-initial-keys()
+  "Compute initial keys for forming the subgraph based on the stored source."
+  (let ((source-type
+	 (plist-get literef-subgraph-properties :source-type))
+	(source (plist-get literef-subgraph-properties :source)))
+  (cond ((eq source-type :all-keys)
+	 (literef-all-keys))
+	((eq source-type :buffer)
+	 (condition-case nil
+	     (with-current-buffer source
+	       (literef-hash-keys-to-list (literef-out-citations)))
+	   (error (error (concat "The buffer " source " does not exist anymore. Consider running literef-reset-subgraph-selection to reset the subgraph selection.")))))
+	((eq source-type :current-key)
+	   (list source)))))
 
 (defun literef-arc-filter-temp-variable(str)
   "Return the symbol named literef-temp-<prefix><str>."
@@ -329,29 +362,57 @@ This function is re-defined by `literef-make-arc-filter'.")
 	    (literef-add-to-next-iter key pair)))))
     nil))
 
+(defun literef-subgraph-from-saved-properties()
+  "Select subgraph of the graph of keys `literef-subgraph' based on the saved `literef-subgraph-properties'. If the source type is :buffer, makes sure that the buffer exists. If not, offers to reset the subgraph."
+  (interactive)
+  (literef-make-arc-filter
+   (plist-get literef-subgraph-properties :filter-string))
+  (let ((initial-keys (literef-subgraph-initial-keys)))
+    (setq literef-subgraph (literef-init-graph initial-keys))
+    (when (eq (plist-get literef-subgraph-properties :source-type)
+	      :buffer)
+      (let ((buffer-node-name
+	     (plist-get literef-subgraph-properties :buffer-node-name)))
+	(literef-graph-add-key buffer-node-name literef-subgraph)
+	(dolist (key initial-keys nil)
+	  (literef-graph-add-arc
+	   buffer-node-name key nil literef-subgraph))))
+    (literef-uniform-cost-search initial-keys))
+  (literef-show-graph)
+  literef-subgraph)
+
 (defun literef-select-subgraph()
-  "Select subgraph of the graph of keys. Sets `literef-subgraph-keys'."
+  "Select subgraph of the graph of keys `literef-subgraph'."
   (interactive)
   (unwind-protect
       (progn
 	(org-ref-cancel-link-messages)
-	(let ((initial-keys (literef-select-initial-keys)))
-	  (literef-make-arc-filter (literef-read-arc-filter
-				    "Enter a predicate for the arc filter: \n"))
-	  (setq literef-subgraph (literef-init-graph initial-keys))
-	  (when (eq literef-subgraph-source :buffer)
-	    (let ((buffer-node-name
-		   (concat "Buffer \"" (buffer-name) "\"")))
-	      (literef-graph-add-key buffer-node-name literef-subgraph)
-	    (dolist (key initial-keys nil)
-	      (literef-graph-add-arc
-	       buffer-node-name key nil literef-subgraph))))
-	  (literef-uniform-cost-search initial-keys)))
+	(literef-subgraph-select-source)
+	(when (eq (plist-get literef-subgraph-properties :source-type)
+	    :buffer)
+	  (let* ((default-buffer-name
+		   (concat "Buffer \"" (buffer-name) "\""))
+		 (buffer-node-name
+		  (read-string
+		   (concat
+		    "Enter the name of the buffer node. "
+		    "This name will be used for the export as well"
+		    " [" default-buffer-name "]: ")
+		   nil nil default-buffer-name)))
+	    (literef-plist-put literef-subgraph-properties
+			       :buffer-node-name buffer-node-name)))
+	(let ((initial-keys (literef-subgraph-initial-keys))
+	      (filter-string
+	       (literef-read-arc-filter
+		"Enter a predicate for the arc filter: \n")))
+	  (literef-plist-put literef-subgraph-properties
+			     :filter-string filter-string)
+	  (literef-subgraph-from-saved-properties)))
     (progn
       (org-ref-show-link-messages)
       (setq org-ref-show-citation-on-enter t)))
-  (literef-show-graph)
   literef-subgraph)
+	  
 
 ;;;; Operations on the selected subgraph.
 
@@ -495,5 +556,9 @@ This function is re-defined by `literef-make-arc-filter'.")
 	  (insert (make-string (- required-length cur-len) ?\s)))
 	(forward-line))
       nil)))
+
+(defun test()
+  (interactive)
+  (message "%d" (window-start)))
 
 (provide 'literef-graph)
