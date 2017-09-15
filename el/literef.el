@@ -5,8 +5,8 @@
 (require 'literef-utils)
 (require 'literef-helm)
 (require 'literef-latex-map)
-(require 'literef-graph)
 (require 'literef-annotations)
+(require 'literef-graph)
 (require 'literef-pdf)
 
 ;; advice org-ref-helm-insert-cite-link to begin by re-reading the default bibliography,
