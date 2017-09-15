@@ -1,21 +1,10 @@
-;; The current solution works without modifying the export function
-;; of the citation links.
-;; Here is how to do it in case such modification is needed in the future:
-;; (advice-add (org-link-get-parameter "cite" :export) :after #'literef-cite-export)
-
-(setq literef-section-name-history nil)
-
-(defun literef-export-notes-p()
-  "Predicate that checks whether notes are to be exported."
-  (not (and literef-export-depth (= literef-export-depth 0))))
-
 (defun literef-reference-text(keys)
   "Compute text for the reference for the given KEYS."
 
   (let* ((keys ;; only the keys whos notes are exported.
 	  (let (res)
 	    (dolist (key keys nil)
-	      (when (and (literef-key-notes-p key) (member key parsed-keys))
+	      (when (gethash key literef-subgraph nil)	 
 		(setq res (cons key res))))
 	    (reverse res)))
 	 (multiple-flag (> (length keys) 1))
@@ -35,7 +24,7 @@
     res))
 
 (defun literef-insert-note-references()
-  "For each citation for which notes are exported, insert a note reference. Properly handle comma-separated citations."
+  "For each citation in the current buffer, insert a reference to the sections corresponding to the keys in the selected subgraph. Properly handle comma-separated citations."
   (interactive)
   (let ((shift 0))
     (dolist (link (literef-citation-links) nil)
@@ -45,157 +34,99 @@
 	(insert reference)
 	(setq shift (+ shift (length reference)))))))
 
-;; (defun literef-add-to-next-iter(key)
-;;   "Perform duplicate detection on KEY and then add it to the list of exported keys and to the list of keys for the next iteration."
-;;   (unless (or
-;; 	   (gethash key cur-iter-hash nil)
-;; 	   (gethash key next-iter-hash nil)
-;; 	   (gethash key exported-keys nil))
-;;     (setq next-iter-list (cons key next-iter-list))
-;;     (puthash key t next-iter-hash)
-;;     (puthash key t exported-keys)))
-
-(defun literef-exported-keys()
-  "Performs uniform-cost search to compute the list of exported keys and the list of keys whose notes have been parsed.
-
-The open lists for the current and the next depth are maintained in a combination of a regular list and a hash table. 'exported-keys is the closed list. 
-"
-  (let ((depth 0)
-	(cur-iter-list) (cur-iter-hash (make-hash-table))
-	(next-iter-list) (next-iter-hash (make-hash-table))
-	(exported-keys (make-hash-table))
-	parsed-keys)
-    (dolist (key (literef-buffer-keys) nil)
-      (literef-add-to-next-iter key))
-    (while ;; there are keys for next iteration depth not exceeded
-	(and
-	 next-iter-list
-	 (not (and literef-export-depth
-		   (> (setq depth (1+ depth)) literef-export-depth))))
-      (setq cur-iter-list next-iter-list)
-      (setq cur-iter-hash next-iter-hash)
-      (setq next-iter-list nil)
-      (setq next-iter-hash (make-hash-table))
-      (while cur-iter-list
-	(let* ((key (car cur-iter-list)))
-	  (remhash key cur-iter-hash)
-	  (setq cur-iter-list (cdr cur-iter-list))
-	  (when (literef-key-notes-p key)
-	    (setq parsed-keys (cons key parsed-keys))
-	    (dolist (key
-		     (with-temp-buffer
-		       (insert-file-contents (literef-notes-filename key))
-		       (literef-buffer-keys))
-		     nil)
-	      (literef-add-to-next-iter key))))))
-    (list (literef-hash-keys-to-list exported-keys) parsed-keys)))
-
-;; Source: https://emacs.stackexchange.com/a/31763/16048
-(defmacro with-cloned-buffer(&rest body)
-  "Executes BODY just like `progn' but maintains original buffer state."
-  (declare (indent 0))
-  (let ((return-value (make-symbol "return-value")))
-    `(let ((buffer-file-name nil))
-       (clone-buffer nil t)
-       (let ((,return-value (progn ,@body)))
-	 (kill-buffer-and-window)
-	 ,return-value))))
-
-(defun literef-forward-search-stars()
-  "Find stars forward in the buffer."
-  (interactive)
-  (re-search-forward "[*]+" nil t)
-  (match-string 0))
-
-(defun literef-make-bib-file(bib-file)
+(defun literef-make-bib-file(bib-file-name)
   "Make the bibliography file containing only the entries for the used keys."
-  (when (file-exists-p bib-file) (delete-file bib-file))
-  (with-temp-file bib-file
-    (dolist (key (delete-dups (sort exported-keys 'string<)) nil)
-      (let ((cur-bib (literef-bib-filename key)))
-	(and
-	 (file-exists-p cur-bib)
-	 (insert-file-contents cur-bib)))
-      (goto-char (point-max))
-      (insert "\n"))))
+  (let ((keys (literef-buffer-keys)))
+    (when (file-exists-p bib-file-name) (delete-file bib-file-name))
+    (with-temp-file bib-file-name
+      (dolist (key keys nil)
+	(let ((cur-bib (literef-bib-filename key)))
+	  (and
+	   (file-exists-p cur-bib)
+	   (insert-file-contents cur-bib)))
+	(goto-char (point-max))
+	(insert "\n")))))
 
 (defun literef-key-notes-p(key)
-  "Predicate showing whether the notes for a particular key are to be exported."
+  "Predicate showing whether the notes for KEY are to be inserted.
+
+Currently it returns t if the notes file is of non-zero size."
   (let ((notes-file (literef-notes-filename key))
-		  (index-of-size-attribute 7))
+	(index-of-size-attribute 7))
     (> (elt (file-attributes notes-file) index-of-size-attribute) 0)))
 
-(defun literef-export-to-file-cloned-buffer()
-  "The actions to be performed in the cloned buffer before applying the original org-export-to-file."
-  ;; First, delete everything besides the narrowed region.
-  (delete-region narrow-end (point-max))
-  (delete-region (point-min) narrow-beg)
-  ;; Expand the include keywords.
-  (org-export-expand-include-keyword)
-  ;; Now put everything under section if notes are exported.
-  (when (stringp section-name)
-    (let* ((first-stars (progn (goto-char (point-min)) (literef-forward-search-stars)))
-	   (new-heading-stars (if (string= first-stars "") "*" first-stars))
-	   (section-text (concat new-heading-stars " " section-name "\n")))
-      (goto-char (point-min))
-      (set-mark (point-max))
-      (org-do-demote)
-      (deactivate-mark)
-      (goto-char (point-min))
-      (insert section-text)))
-  
-  ;; Up to here we have cared for the current buffer.
-  (let* ((exported-keys-pair (literef-exported-keys))
-	 (exported-keys (elt exported-keys-pair 0))
-	 (parsed-keys (elt exported-keys-pair 1))
-	 (bib-file (concat buffer-name ".bib"))
-	 (append-text (concat "\n" "bibliographystyle:"
-			      literef-bibliography-style "\n"
-			      "bibliography:" bib-file)))
-    (goto-char (point-max))
-    ;; Insert the notes
-    (when (> (length parsed-keys) 0) (insert "* Notes\n")
-	  (dolist (key (delete-dups (sort parsed-keys 'string<)) nil)
-	    (let ((notes-file (literef-notes-filename key)))
-	      (insert "** " (litered-key-string key) "\n" "<<sec:" key ">>" "\n")
-	      (insert "#+INCLUDE: " notes-file "\n")))
-	  ;; Insert references to notes
-	  (literef-insert-note-references))
-    ;; Insert bibliography and create it.
-    (goto-char (point-max))
-    (insert append-text)
-    (literef-make-bib-file bib-file)
-    ;; (message "Buffer contents:\n%s" (buffer-substring (point-min) (point-max)))
-    ))
-  
-(defun literef-export-to-file(orig-fun type file &rest args)
-  "Export to latex that creates and adds bibliography."
-  (let ((literef-export-depth (literef-read-number-or-nil "Enter the depth for notes export [0] (for no limit, enter nil): " "0")))
-    (save-window-excursion
-      (let* ((buffer-name (file-name-base file))
-	     (default-section-name
-	       (if literef-section-name-history
-		   (car literef-section-name-history)
-		 (capitalize buffer-name)))
-	     (section-name
-	      (if (literef-export-notes-p)
-		  (let ((answer
-			 (read-string
-			  (concat "The main section name "
-				  "(nil for no section) [" 
-				  default-section-name
-				  "]: ")
-			  nil
-			  'literef-section-name-history
-			  default-section-name
-			  )))
-		    (if (string= answer "nil") nil answer))
-		nil))
-	     (narrow-beg (point-min))
-	     (narrow-end (point-max)))
-	(with-cloned-buffer
-	  (literef-export-to-file-cloned-buffer)
-	  (apply orig-fun (cons type (cons file args))))))))
+(defun literef-keys-to-insert()
+  "Compute the list of keys whose notes are to be inserted in the export."
+  (let (res)
+    (dolist (key (literef-hash-keys-to-list literef-subgraph) nil)
+      (when (and (literef-key-exists key) (literef-key-notes-p key))
+	(push key res)))
+    (sort res 'string<)))
+    
+(defun literef-export-to-file(orig-fun &rest args)
+  "The version of `org-export-to-file' that supports exporting the subgraph.
+
+It performs some pre-processing and then calls the original `org-export-to-file'."
+  (let* ((source-type
+	  (plist-get literef-subgraph-properties :source-type))
+	 (source (plist-get literef-subgraph-properties :source))
+	 (buffer-name
+	  (if (not (boundp 'literef-subgraph-export))
+	      (buffer-name)
+	    (if (eq source-type :buffer)
+		(condition-case nil
+		    (with-current-buffer source (buffer-name))
+		  (error (error (concat "The buffer " source " does not exist anymore. Consider running literef-reset-subgraph-selection to reset the subgraph selection."))))
+	      (read-string "Enter the name of export buffer: "))))
+	 (buffer-string
+	  (if (not (boundp 'literef-subgraph-export))
+	      (buffer-string)
+	    (when (eq source-type :buffer)
+	      (with-current-buffer source (buffer-string))))))
+    (with-temp-buffer
+      ;; Name the buffer.
+      (rename-buffer buffer-name t)
+	
+      ;; Insert contents of a buffer if necessary.
+      (when buffer-string
+	(when (boundp 'literef-subgraph-export)
+	  (insert "*" (plist-get literef-subgraph-properties
+				 :buffer-node-name) "\n"))
+	(insert buffer-string))
+
+      ;; Now handle the insertion of notes.
+      (when (boundp 'literef-subgraph-export)
+	(let (keys (literef-keys-to-insert))
+	  (when (> (length keys) 0) (insert "* Notes\n")
+		(dolist (key keys nil)
+		  (let ((notes-file (literef-notes-filename key)))
+		    (insert "** " (literef-key-string key) "\n"
+			    "<<sec:" key ">>" "\n")
+		    (insert "#+INCLUDE: " notes-file "\n"))))))
+		
+      ;; Expand INCLUDEs
+      (org-export-expand-include-keyword)
+      (end-of-buffer)
+      
+      ;; Insert references to note sections.
+      (when (boundp 'literef-subgraph-export)
+	(literef-insert-note-references))
+
+      ;; Insert bibliography if needed.
+      (when (> (length (literef-buffer-keys)) 0)
+	(let* ((bib-file-name (concat buffer-name ".bib"))
+	       (append-text (concat "\n" "bibliographystyle:"
+				    literef-bibliography-style "\n"
+				    "bibliography:" bib-file-name)))
+	  (insert append-text)
+	  (literef-make-bib-file bib-file-name)))
+
+      (apply orig-fun args))))
+
+(defun literef-export-dispatch()
+  "The version of `org-export-dispatch' that works with the selected subgraph."
+  (let ((literef-subgraph-export t))
+    (org-export-dispatch)))
 
 (advice-add 'org-export-to-file :around #'literef-export-to-file)
 

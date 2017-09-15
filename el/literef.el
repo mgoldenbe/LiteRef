@@ -62,7 +62,7 @@ The string to be yanked is preceeded by the prefix computed as follows:
 ;;;; END --------------------------------------------------------
 
 ;;;; BEGIN: Splitting a citation --------------------------------
-(defun litered-key-string(key)
+(defun literef-key-string(key)
   "Compute a string consisting of title and author."
   (let* ((entry (bibtex-completion-get-entry key))
 	 (authors
@@ -111,7 +111,7 @@ Splits the first citation of multiple sources found on the current line, so that
 	;; insert a line for each key
 	(dolist (key keys nil)
 	  ;; get title and authors
-	  (let* ((title-author (and insert-title-author (litered-key-string key))))
+	  (let* ((title-author (and insert-title-author (literef-key-string key))))
 	    (unless (string= key (car keys)) (insert "\n"))
 	    (insert prefix (concat title-author) postfix " cite:" key))
 	  (when inline-tasks-flag

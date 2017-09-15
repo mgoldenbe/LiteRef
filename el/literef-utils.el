@@ -107,7 +107,7 @@
   (< (literef-link-begin link1) (literef-link-begin link2)))
 
 (defun literef-all-links(predicate)
-  "Compute the list of all citation links in the current buffer that satisfy a given PREDICATE (if PREDICATE is nil, all links are included). The links are sorted by the begin position." 
+  "Compute the list of all links in the current buffer that satisfy a given PREDICATE (if PREDICATE is nil, all links are included). The links are sorted by the begin position." 
   (let (res)
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
@@ -260,5 +260,16 @@ Returns nil if neither of these ways produces a key."
 (defun literef-current-buffer-key()
   "Compute key or nil of the current buffer."
   (literef-buffer-key (current-buffer)))
+
+;; Source: https://emacs.stackexchange.com/a/31763/16048
+(defmacro with-cloned-buffer(&rest body)
+  "Executes BODY just like `progn' but maintains original buffer state."
+  (declare (indent 0))
+  (let ((return-value (make-symbol "return-value")))
+    `(let ((buffer-file-name nil))
+       (clone-buffer nil t)
+       (let ((,return-value (progn ,@body)))
+	 (kill-buffer-and-window)
+	 ,return-value))))
 
 (provide 'literef-utils)
