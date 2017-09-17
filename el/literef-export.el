@@ -1,11 +1,19 @@
+(defun literef-key-notes-p(key)
+  "Predicate showing whether the notes for KEY are to be inserted.
+
+Currently it returns t if the notes file is of non-zero size."
+  (let ((notes-file (literef-notes-filename key))
+	(index-of-size-attribute 7))
+    (> (elt (file-attributes notes-file) index-of-size-attribute) 0)))
+
 (defun literef-reference-text(keys)
   "Compute text for the reference for the given KEYS."
 
   (let* ((keys ;; only the keys whos notes are exported.
 	  (let (res)
 	    (dolist (key keys nil)
-	      (when (gethash key literef-subgraph nil)	 
-		(setq res (cons key res))))
+	      (when (literef-key-notes-p key)	 
+		(push key res)))
 	    (reverse res)))
 	 (multiple-flag (> (length keys) 1))
 	 (res (if keys " (Section" "")))
@@ -47,14 +55,6 @@
 	(goto-char (point-max))
 	(insert "\n")))))
 
-(defun literef-key-notes-p(key)
-  "Predicate showing whether the notes for KEY are to be inserted.
-
-Currently it returns t if the notes file is of non-zero size."
-  (let ((notes-file (literef-notes-filename key))
-	(index-of-size-attribute 7))
-    (> (elt (file-attributes notes-file) index-of-size-attribute) 0)))
-
 (defun literef-keys-to-insert()
   "Compute the list of keys whose notes are to be inserted in the export."
   (let (res)
@@ -67,6 +67,7 @@ Currently it returns t if the notes file is of non-zero size."
   "The version of `org-export-to-file' that supports exporting the subgraph.
 
 It performs some pre-processing and then calls the original `org-export-to-file'."
+  (message "In literef-export-to-file")
   (let* ((source-type
 	  (plist-get literef-subgraph-properties :source-type))
 	 (source (plist-get literef-subgraph-properties :source))
@@ -84,25 +85,42 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 	    (when (eq source-type :buffer)
 	      (with-current-buffer source (buffer-string))))))
     (with-temp-buffer
+      (org-mode)
+      
       ;; Name the buffer.
       (rename-buffer buffer-name t)
 	
       ;; Insert contents of a buffer if necessary.
       (when buffer-string
 	(when (boundp 'literef-subgraph-export)
-	  (insert "*" (plist-get literef-subgraph-properties
-				 :buffer-node-name) "\n"))
-	(insert buffer-string))
+	  (let* ((default-section-name
+		   (plist-get literef-subgraph-properties
+			      :buffer-node-name))
+		 (section-name
+		  (read-string
+		   (concat "Enter the title of the buffer secion "
+			   "(default: " default-section-name
+			   ") or nil to not create a section: ")
+		   nil nil default-section-name)))
+	    (unless (equal section-name "nil")
+	      (insert "* "  section-name "\n"))))
+	(insert buffer-string)
+	(unless (eq (substring buffer-string -1) "\n") (insert "\n")))
 
       ;; Now handle the insertion of notes.
       (when (boundp 'literef-subgraph-export)
-	(let (keys (literef-keys-to-insert))
-	  (when (> (length keys) 0) (insert "* Notes\n")
-		(dolist (key keys nil)
-		  (let ((notes-file (literef-notes-filename key)))
-		    (insert "** " (literef-key-string key) "\n"
-			    "<<sec:" key ">>" "\n")
-		    (insert "#+INCLUDE: " notes-file "\n"))))))
+	(let ((keys (literef-keys-to-insert)))
+	  (when (> (length keys) 0)
+	    (let* ((create-notes-section
+		   (y-or-n-p
+		    "Should a section for notes be created?"))
+		   (notes-stars (if create-notes-section "**" "*")))
+	    (when create-notes-section (insert "* Notes\n"))
+	    (dolist (key keys nil)
+	      (let ((notes-file (literef-notes-filename key)))
+		(insert notes-stars " " (literef-key-string key) "\n"
+			"<<sec:" key ">>" "\n")
+		(insert "#+INCLUDE: " notes-file "\n")))))))
 		
       ;; Expand INCLUDEs
       (org-export-expand-include-keyword)
@@ -111,6 +129,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       ;; Insert references to note sections.
       (when (boundp 'literef-subgraph-export)
 	(literef-insert-note-references))
+      (end-of-buffer)
 
       ;; Insert bibliography if needed.
       (when (> (length (literef-buffer-keys)) 0)
@@ -125,9 +144,10 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 
 (defun literef-export-dispatch()
   "The version of `org-export-dispatch' that works with the selected subgraph."
+  (interactive)
   (let ((literef-subgraph-export t))
     (org-export-dispatch)))
 
-(advice-add 'org-export-to-file :around #'literef-export-to-file)
+;; (advice-add 'org-export-to-file :around #'literef-export-to-file)
 
 (provide 'literef-export)

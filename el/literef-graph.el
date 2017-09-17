@@ -14,29 +14,33 @@
 
 (defun literef-out-citations()
   "For the current buffer, compute a mapping, where keys are citations and values are functions associated with each citation."
-  (org-export-expand-include-keyword)
-  (let ((res (make-hash-table :test 'equal)))
-    ;; Handle citations that have annotation links.
-    (dolist (annotation-link (literef-citation-function-links) nil)
-      (let ((citation-link
-	     (literef-backward-adjacent-org-element annotation-link)))
-	(when (literef-citation-link-p citation-link)	  
-	    (let ((functions
-		   (literef-link-path-components annotation-link)))
-	      (setq res
-		    (literef-add-citation-and-functions-to-hash
-		     citation-link functions res))))))
-    ;; Handle citations that do not have annotation links.
-    (dolist (citation-link (literef-citation-links) nil)
-      (setq res
-	    (literef-add-citation-and-functions-to-hash
-	     citation-link nil res)))
-    ;; Exchange hash tables of citation functions for lists.
-    (dolist (pair (literef-hash-pairs-to-list res) res)
-      (puthash
-       (elt pair 0)
-       (sort (literef-hash-keys-to-list (elt pair 1)) 'string<)
-       res))))
+  (let ((buffer-string (buffer-string)))
+    (with-temp-buffer
+      (org-mode)
+      (insert buffer-string)
+      (org-export-expand-include-keyword)
+      (let ((res (make-hash-table :test 'equal)))
+	;; Handle citations that have annotation links.
+	(dolist (annotation-link (literef-citation-function-links) nil)
+	  (let ((citation-link
+		 (literef-backward-adjacent-org-element annotation-link)))
+	    (when (literef-citation-link-p citation-link)	  
+	      (let ((functions
+		     (literef-link-path-components annotation-link)))
+		(setq res
+		      (literef-add-citation-and-functions-to-hash
+		       citation-link functions res))))))
+	;; Handle citations that do not have annotation links.
+	(dolist (citation-link (literef-citation-links) nil)
+	  (setq res
+		(literef-add-citation-and-functions-to-hash
+		 citation-link nil res)))
+	;; Exchange hash tables of citation functions for lists.
+	(dolist (pair (literef-hash-pairs-to-list res) res)
+	  (puthash
+	   (elt pair 0)
+	   (sort (literef-hash-keys-to-list (elt pair 1)) 'string<)
+	   res))))))
 
 (defun literef-key-out-citations(key)
   "Compute a mapping, where keys are citations in the notes associated with KEY and values are functions associated with each citation."

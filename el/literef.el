@@ -7,6 +7,7 @@
 (require 'literef-latex-map)
 (require 'literef-annotations)
 (require 'literef-graph)
+(require 'literef-export)
 (require 'literef-pdf)
 
 ;; advice org-ref-helm-insert-cite-link to begin by re-reading the default bibliography,
