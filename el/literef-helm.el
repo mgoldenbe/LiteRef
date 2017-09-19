@@ -224,12 +224,19 @@
 
 ;;;; Candidate actions
 
+(defun literef-helm-insert-action(_c)
+  "The insert-action of helm."
+  (let (keys)
+    (dolist (entry (helm-marked-candidates) nil)
+      (push (cdr (assoc "=key=" entry)) keys))
+    (dolist (key keys nil)
+      (insert-for-yank key))))
+
 (defun literef-action-transformer (_orig-fun actions candidate)
   "Transform candidate actions."
   (let ((key (literef-candidate-property "=key=" candidate)))
     (push 
-     (cons "Insert citation." `(lambda(_c) (insert-for-yank ,key)))
-     actions)
+     (cons "Insert citation." 'literef-helm-insert-action) actions)
     (push 
      (cons "Open notes." `(lambda(_c) (literef-open-key-notes ,key)))
      actions)
