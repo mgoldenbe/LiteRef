@@ -152,21 +152,31 @@
 	  (when (not (= myres 0))
 	    (throw 'ok (< myres 0))))))))
 
-(defvar literef-current-sorting-criteria nil
-  "The current sorting criteria")
+(defun literef-char-to-compare(char)
+  "Return the comparison function symbol from one of the characters: Key↑ (k), Key↓ (K), Creation Date↑ (d), Creation Date↓ (D), Author↑ (a), Author↓ (A), Title↑ (t), Title↓ (T), Venue↑ (v), Venue↓ (V), Venue Type↑ (w), Venue Type↓ (W), Year↑ (y), Year↓ (Y). If CHAR is none of this characters, return nil."
+  (let ((compare-map
+	 '(?k literef-key-up ?K literef-key-down
+	      ?d literef-timestamp-up ?D literef-timestamp-down
+	      ?a literef-author-up ?A literef-author-down
+	      ?t literef-title-up ?T literef-title-down
+	      ?v literef-venue-up ?V literef-venue-down
+	      ?w literef-type-up ?W literef-type-down
+	      ?y literef-year-up ?Y literef-year-down)))
+    (when (stringp char) (setq char (string-to-char char)))
+    (plist-get compare-map char)))
+
+(defun literef-criteria-list(chars)
+  "Compute the list of comparison functions from a list of characters as in `literef-char-to-compare'."
+  (let (res)
+    (dolist (c chars nil)
+      (let ((compare (literef-char-to-compare c)))
+	(when compare (push compare res))))
+    (reverse res)))
 
 (defun literef-read-sorting-criteria()
   "Read search criteria"
   (let (res
 	(str-res "")
-	(action-map '(?k literef-key-up ?K literef-key-down
-			 ?d literef-timestamp-up ?D literef-timestamp-down
-			 ?a literef-author-up ?A literef-author-down
-			 ?t literef-title-up ?T literef-title-down
-			 ?v literef-venue-up ?V literef-venue-down
-			 ?w literef-type-up ?W literef-type-down
-			 ?y literef-year-up ?Y literef-year-down
-			 ))
 	(str-map '(?k "Key↑" ?K "Key↓"
 		      ?d "Creation-Date↑" ?D "Creation-Date↓"
 		      ?a "Author↑" ?A "Author↓"
@@ -191,18 +201,15 @@
 				 "Venue↑ (v) | Venue↓ (V)"
 				 "Venue Type↑ (w) | Venue Type↓ (W)"
 				 "Year↑ (y) | Year↓ (Y)" ""))))
-	       (action (plist-get action-map ans))
 	       (str (plist-get str-map ans)))
 	  (cond
 	   ((eq ans ?\r) (throw 'exit nil))
 	   ((eq ans ?\e) (setq res nil) (throw 'exit nil))
-	   (action
-	    (push action res)
-	    (setq str-res (concat str-res " " str)))))))
-    (if res
-	(setq literef-current-sorting-criteria res)
-      (setq res literef-current-sorting-criteria))
-    (reverse res)))
+	   (t
+	    (when (literef-char-to-compare ans)
+	      (setq str-res (concat str-res " " str))
+	      (push ans res)))))))
+    (literef-criteria-list (reverse res))))
 
 (defun literef-sort (_orig-fun)
   (interactive)
@@ -224,13 +231,17 @@
 
 ;;;; Candidate actions
 
-(defun literef-helm-insert-action(_c)
-  "The insert-action of helm."
+(defun literef-helm-marked-keys()
+  "Computes the list of keys that are marked in helm."
   (let (keys)
     (dolist (entry (helm-marked-candidates) nil)
       (push (cdr (assoc "=key=" entry)) keys))
-    (dolist (key keys nil)
-      (insert-for-yank key))))
+    (reverse keys)))
+
+(defun literef-helm-insert-action(_c)
+  "The insert-action of helm."
+  (dolist (key (literef-helm-marked-keys) nil)
+    (insert-for-yank key)))
 
 (defun literef-action-transformer (_orig-fun actions candidate)
   "Transform candidate actions."

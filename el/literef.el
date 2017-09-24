@@ -35,12 +35,18 @@
 
 The string to be yanked is preceeded by the prefix computed as follows:
 
-1. Split the contents being yanked based on commas and analyze the first entry. If it is not a valid key, the prefix is empty. Otherwise, proceed to step 2. 
+1. If over a citation key, go to its end.
 
-2. If the point is right after 'cite:', the prefix is empty. Otherwise, proceed to step 3. 
+2. Split the contents being yanked based on commas and analyze the first entry. If it is not a valid key, the prefix is empty. Otherwise, proceed to step 2. 
 
-3. If the point is over a key, the prefix is ','. Otherwise, the prefix is 'cite:'"
-  
+3. If the point is right after 'cite:', the prefix is empty. Otherwise, proceed to step 3. 
+
+4. If the point is over a key, the prefix is ','. Otherwise, the prefix is 'cite:'.
+
+Once the original function is called, the current citation link (if the cursor is over one) is sorted subject to the value of `literef-sort-citation-links'. 
+"
+  (let ((link (literef-citation-link-under-cursor)))
+    (when link (goto-char (literef-link-end link))))
   (let* ((key (car (split-string string ",")))
 	 (prefix 
 	  (if (literef-key-exists key)
@@ -57,6 +63,7 @@ The string to be yanked is preceeded by the prefix computed as follows:
 		     "cite:"))
 	    "")))
     (funcall orig-fun (concat prefix string))
+    (when literef-sort-citation-links (literef-sort-citation-link))
     ))
 
 (advice-add 'insert-for-yank :around #'literef-insert-for-yank)
@@ -133,6 +140,48 @@ Splits the first citation of multiple sources found on the current line, so that
 Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line."
   (interactive)
   (literef-split-cite-raw nil))
+;;;; END --------------------------------------------------------
+
+;;;; BEGIN: Sorting keys and citation links ---------------------
+
+(defun literef-sort-keys(keys criteria-string)
+  "Sort keys according to the string CRITERIA-STRING, which is a comma-separated list of characters as in `literef-char-to-compare'."
+  (let (res
+	(literef-criteria
+	 (literef-criteria-list (split-string criteria-string ",")))
+	candidates)
+    ;; Form the list of candidates (with empty string representations)
+    (dolist (key keys nil)
+      (push (cons "" (bibtex-completion-get-entry key)) candidates))
+    ;; Now sort it
+    (setq candidates (-sort 'literef-compare candidates))
+    ;; Now form the result
+    (dolist (c candidates nil)
+      (push (literef-candidate-property "=key=" c) res))
+    (reverse res)))
+
+(defun literef-sort-citation-link()
+  "Sort the current citation using `literef-citation-link-sorting-criteria' as the sorting criteria."
+  (interactive)
+  (let ((link (literef-citation-link-under-cursor)))
+    (when link
+      (let* ((orig-keys (literef-link-path-components link))
+	     (keys (literef-sort-keys 
+		    orig-keys
+		    literef-citation-link-sorting-criteria)))
+	(save-excursion
+	  (goto-char (literef-link-begin link))
+	  (re-search-forward (literef-link-path link))
+	  (replace-match (literef-join-strings keys ",")))))))
+
+(defun literef-sort-citation-links()
+  "Sort all citation links in the current buffer"
+  (interactive)
+  (save-excursion
+    (dolist (link (literef-citation-links) nil)
+      (goto-char (literef-link-end link))
+      (literef-sort-citation-link))))
+
 ;;;; END --------------------------------------------------------
 
 ;;;; BEGIN: Searches --------------------------------------------

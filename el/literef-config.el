@@ -4,6 +4,12 @@
 (setq literef-papers-directory (concat literef-directory "papers/"))
 (setq literef-drop-directory (concat literef-directory "drop/"))
 
+(defcustom literef-sort-citation-links t
+  "Determines whether the citation links should be automatically sorted.")
+
+(defcustom literef-citation-link-sorting-criteria "k"
+  "The sorting criteria for automatic sorting of citation links. It is a comma-separated list of characters as in `literef-char-to-compare'.")
+
 (defcustom literef-bibliography-style "plain"
   "The bibliography-style to be used for exports.")
 

@@ -33,7 +33,6 @@ Currently it returns t if the notes file is of non-zero size."
 
 (defun literef-insert-note-references()
   "For each citation in the current buffer, insert a reference to the sections corresponding to the keys in the selected subgraph. Properly handle comma-separated citations."
-  (interactive)
   (let ((shift 0))
     (dolist (link (literef-citation-links) nil)
       (let* ((keys (literef-link-path-components link))
@@ -46,6 +45,10 @@ Currently it returns t if the notes file is of non-zero size."
   "Make the bibliography file containing only the entries for the used keys."
   (let ((keys (literef-buffer-keys)))
     (when (file-exists-p bib-file-name) (delete-file bib-file-name))
+    (when literef-sort-citation-links
+      (setq keys (literef-sort-keys 
+		  keys
+		  literef-citation-link-sorting-criteria)))
     (with-temp-file bib-file-name
       (dolist (key keys nil)
 	(let ((cur-bib (literef-bib-filename key)))
@@ -125,6 +128,9 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       ;; Expand INCLUDEs
       (org-export-expand-include-keyword)
       (end-of-buffer)
+
+      ;; Sort citation links
+      (when literef-sort-citation-links (literef-sort-citation-links))
       
       ;; Insert references to note sections.
       (when (boundp 'literef-subgraph-export)
@@ -148,6 +154,6 @@ It performs some pre-processing and then calls the original `org-export-to-file'
   (let ((literef-subgraph-export t))
     (org-export-dispatch)))
 
-;; (advice-add 'org-export-to-file :around #'literef-export-to-file)
+(advice-add 'org-export-to-file :around #'literef-export-to-file)
 
 (provide 'literef-export)

@@ -118,11 +118,17 @@
 (defun literef-citation-link-p(link)
   "Return t if the link is a citation and nil otherwise"
   (let ((type (literef-link-type link)))
-    (and type (>= (length type) 4) (string= (substring type 0 4) "cite"))))
+    (and type (stringp type) (>= (length type) 4) (string= (substring type 0 4) "cite"))))
 
 (defun literef-citation-function-link-p(link)
   "Return t if the link is a citation annotation and nil otherwise"
   (string= (literef-link-type link) literef-citation-function-link))
+
+(defun literef-citation-link-under-cursor()
+  "Return the citation link under cursor or nil."
+  (ignore-errors
+    (let ((object (org-element-context)))
+      (when (literef-citation-link-p object) object))))
 
 (defun literef-citation-links()
   "Compute the list of all citation links in the current buffer, sorted by the begin position."
