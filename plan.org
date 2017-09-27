@@ -47,7 +47,7 @@ Currently only from DBLP.
 | Implementation of custom sorting in helm-bitex       | DONE                  |
 | Support of inline tasks                              | DONE                  |
 | Integration with PDF Tools                           | DONE                  |
-| Implementation of graph of citation relashionships   | 2                     |
+| Implementation of graph of citation relashionships   | DONE                  |
 | Implementation of annotations of references to tags. | CANCELED (narrowing!) |
 | Running the server (past daemon) from emacs          | 1                     |
 | Showing pdf in emacs after import                    | 1                     |

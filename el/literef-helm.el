@@ -49,7 +49,10 @@
   "Transform the initial candidate list for helm."
   (let (res)
     (dolist (c candidates res)
-      (push (cons (literef-candidate-helm-string c) (cdr c)) res))
+      (let ((key (literef-candidate-property "=key=" c)))
+	(when (or (not (boundp 'literef-subgraph-helm-cite))
+		  (gethash key literef-subgraph nil))
+	  (push (cons (literef-candidate-helm-string c) (cdr c)) res))))
     (setq res (reverse res))
     res
     ))
@@ -266,5 +269,11 @@
 ;; For now, no fallback options.
 ;; Future work -- implement it using the ideas from bibtex-completion.el
 (setq org-ref-helm-cite-fallback-source nil)
+
+;;;; Citing from the selected subgraph
+(defun literef-subgraph-helm-cite()
+  (interactive)
+  (let ((literef-subgraph-helm-cite t))
+    (org-ref-helm-cite)))
 
 (provide 'literef-helm)

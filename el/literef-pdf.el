@@ -68,8 +68,6 @@
 	  (insert (concat "annot:" key ":" (symbol-name annot-id)))
 	(message "An error occurred while selecting an annotation")))))
 
-(rename-buffer "aaa")
-
 ;;;; For a possible future feature.
 (setq org-startup-with-inline-images t)
 

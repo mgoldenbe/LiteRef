@@ -1,4 +1,6 @@
-ROOT_DIR = '/home/meir/Dropbox/Parnasa/Research/LiteRef/'
+import sys
+
+ROOT_DIR = sys.argv[1]
 PAPERS_DIR = ROOT_DIR + "papers/"
 NOTES_DIR = ROOT_DIR + "survey/"
 DROP_DIR = ROOT_DIR + "drop/"
