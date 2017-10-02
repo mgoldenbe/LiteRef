@@ -7,6 +7,12 @@ Installation dependencies outside of emacs:
 - pdfgrep (sudo apt-get install pdfgrep)
 - Graph::Easy (sudo apt-get install libgraph-easy-perl)
 
+- sudo pip install -U selenium
+- sudo apt install npm
+- sudo apt install nodejs-legacy
+- npm install phantomjs-prebuilt
+  The path to phantomjs executable will be printed. Copy this executable to /usr/bin/ or /usr/local/bin/ so it should be in the PATH
+
 Optional: Link Klipper for Chrome
 
 Emacs packages:

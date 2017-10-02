@@ -31,5 +31,6 @@ init()
 handler = EventHandler()
 notifier = pyinotify.Notifier(wm, handler)
 wdd = wm.add_watch(config.DROP_DIR, mask, rec=True)
+print "Watching " + config.DROP_DIR
 
 notifier.loop()

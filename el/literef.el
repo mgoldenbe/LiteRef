@@ -10,6 +10,13 @@
 (require 'literef-export)
 (require 'literef-pdf)
 
+;; start the server, while making sure that
+;; only one instance of it is runnning.
+(shell-command "pkill literef-server")
+(call-process-shell-command
+ (concat (file-name-directory load-file-name)
+	 "py/literef-server.py" " " literef-directory "&") nil 0)
+	   
 ;; advice org-ref-helm-insert-cite-link to begin by re-reading the default bibliography,
 ;; since entries could be added/removed.
 ;; (advice-add 'org-ref-helm-insert-cite-link :before #'literef-set-default-bibliography)

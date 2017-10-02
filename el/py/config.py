@@ -1,12 +1,14 @@
 import sys
 
 ROOT_DIR = sys.argv[1]
+if (ROOT_DIR[-1] != "/"): ROOT_DIR += "/"
 PAPERS_DIR = ROOT_DIR + "papers/"
 NOTES_DIR = ROOT_DIR + "survey/"
 DROP_DIR = ROOT_DIR + "drop/"
 
-PDF_AUTOMATED_SOURCES = ['https://semanticscholar.org/search?q=']
-PDF_MANUAL_SOURCE = 'google.com/search?q='
+# For now, only Google Scholar is used.
+PDF_AUTOMATED_SOURCES = ['Google Scholar']
+PDF_MANUAL_SOURCE = 'Google Scholar'
 BROWSER = 'chrome'
 EVINCE_STARTUP_DELAY = 3
 

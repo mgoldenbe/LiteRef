@@ -49,7 +49,7 @@ Currently only from DBLP.
 | Integration with PDF Tools                           | DONE                  |
 | Implementation of graph of citation relashionships   | DONE                  |
 | Implementation of annotations of references to tags. | CANCELED (narrowing!) |
-| Running the server (past daemon) from emacs          | 1                     |
+| Running the server (past daemon) from emacs          | DONE                  |
 | Showing pdf in emacs after import                    | 1                     |
 | Give a menu on :follow for citation links            | 1                     |
 | Insertion of entry from clipboard                    | 1                     |
@@ -79,3 +79,9 @@ Currently only from DBLP.
 ** Graph of citation relashionships
 - See https://emacs.stackexchange.com/q/35076/16048
 - Using Graph::Easy perl library to generate ascii representation looks best.
+
+* Downloading PDFs
+** Install Selenium and PhantomJS (https://stackoverflow.com/a/23898148/2725810) and, possibly Firefox driver (if so, make sure to put it in /usr/bin or /usr/bin/local. https://github.com/mozilla/geckodriver/releases)
+** https://stackoverflow.com/questions/7861775/python-selenium-accessing-html-source
+** https://stackoverflow.com/questions/23657849/how-to-get-real-source-code-of-html-page
+** 
