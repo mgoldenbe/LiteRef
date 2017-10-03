@@ -50,7 +50,7 @@ Currently only from DBLP.
 | Implementation of graph of citation relashionships   | DONE                  |
 | Implementation of annotations of references to tags. | CANCELED (narrowing!) |
 | Running the server (past daemon) from emacs          | DONE                  |
-| Showing pdf in emacs after import                    | 1                     |
+| Showing pdf in emacs after import                    | DONE                  |
 | Give a menu on :follow for citation links            | 1                     |
 | Insertion of entry from clipboard                    | 1                     |
 |------------------------------------------------------+-----------------------|

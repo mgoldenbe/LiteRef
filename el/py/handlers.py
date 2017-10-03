@@ -253,7 +253,6 @@ def handleNewPdf(fileName):
                       newPdfFile = newPdfFile) 
     os.system(command)
     os.system("rm -f " + reqFile)
-    os.system("evince " + newPdfFile)
 
 def handleNewFile(fileName):
     # Make sure it's not a short-lived temporary file, e.g. of sed

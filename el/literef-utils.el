@@ -227,16 +227,31 @@ Returns nil if neither of these ways produces a key."
   (let ((key (org-ref-get-bibtex-key-under-cursor)))
     (literef-open-key-notes key)))
 
+;;;; Opening PDF
+
+(defvar literef-needed-pdfs (make-hash-table :test 'equal)
+  "Keys whose PDFs are being expected.")
+
+(defun literef-check-arrived-pdfs()
+  "Open PDFs `literef-needed-pdfs' that have arrived."
+  (dolist (key (literef-hash-keys-to-list literef-needed-pdfs) nil)
+    (let ((filename (literef-pdf-filename key)))
+      (when (file-exists-p filename)
+	(remhash key literef-needed-pdfs)
+	(find-file-other-window filename)))))
+
+(cancel-function-timers 'literef-check-arrived-pdfs)
+(run-with-idle-timer 0.1 t 'literef-check-arrived-pdfs)
+
 (defun literef-open-key-pdf(key)
   "Open the pdf for KEY."
   (let ((filename (literef-pdf-filename key)))
-    (if (file-exists-p filename)
-	(find-file-other-window filename)
+    (unless (or (file-exists-p filename)
+		(gethash key literef-needed-pdfs nil))
       (with-temp-file (literef-request-filename)
-	(message "The PDF is not found. Sending query to the daemon (make it's running!)")
-	(run-with-timer 3 nil (lambda () (message nil)))
-	(insert (concat "getPdf" " " key))))))
-
+	(insert (concat "getPdf" " " key)))))
+  (puthash key t literef-needed-pdfs))
+      
 (defun literef-open-pdf()
   "Open the pdf for the citation under cursor or for the paper of the current notes file."
   (interactive)

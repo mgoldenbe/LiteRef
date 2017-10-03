@@ -92,18 +92,22 @@ def getPdfAutomated(entry, paperDir):
             with ProgressBox('Downloading the PDF...'):
                 os.system("cd {dir}; " \
                           "wget --no-check-certificate " \
-                          "-O paper.pdf {link}".
+                          "-O paper.temp.pdf {link}".
                           format(dir = paperDir, link = link))
-            proc = subprocess.Popen(['evince', paperDir + "/paper.pdf"])
+            proc = subprocess.Popen(['evince', \
+                                     paperDir + "/paper.temp.pdf"])
             # Sleep needed so the message box shoud appear on top.
             # The delay needs to be long enough to see the paper.
             time.sleep(config.EVINCE_STARTUP_DELAY)
             if tkMessageBox.askyesno('LiteRef: confirm PDF',
                                      'Is this the PDF you wanted?'):
+                os.system("mv " + \
+                          paperDir + "/paper.temp.pdf " + \
+                          paperDir + "/paper.pdf ")
                 proc.terminate()
                 return True
             proc.terminate()
-            os.system("rm -f " + paperDir + "/paper.pdf &")
+            os.system("rm -f " + paperDir + "/paper.temp.pdf")
         except:
             tkMessageBox.showerror('LiteRef Error',
                                    "Something went wrong with the source\n" +
