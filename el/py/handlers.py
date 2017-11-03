@@ -11,10 +11,11 @@ from pybtex.database import parse_file, BibliographyData, Entry, OrderedCaseInse
 from pybtex import errors as pybtexErrors
 import tkMessageBox
 import pyperclip
-from get_pdf import getPdfAutomated, getPdfManual
+from get_pdf import getResourceAutomated, getResourceManual, pdfExists
 
 
 Modes = enum('REGULAR', 'PERSIST_SKIP', 'PERSIST_CREATE') 
+neededPdfs = [] # keys for which pdfs are being awaited
 
 def saveEntry(key, entry, fileName, appendFlag = False):
     try:
@@ -211,7 +212,7 @@ def handleNewCsv(fileName):
 def readRequest(fileName):
     with open(fileName, "r") as myfile:
         request = myfile.readline().split()
-    return request
+    return [request[0], ' '.join(request[1:])]
 
 def requestCode(request):
     return request[0]
@@ -219,40 +220,54 @@ def requestCode(request):
 def requestKey(request):
     return request[1]
 
-## Handle request created from Emacs session.
 def handleRequest(fileName):
+    """
+    Handle request created by the Emacs session.
+    """
     request = readRequest(fileName)
+    code = requestCode(request)
     try:
-        if requestCode(request) == "getPdf":
+        if code == "getPdf":
+            searchType = "pdf"
             key = requestKey(request)
             paperDir = config.PAPERS_DIR + key
             bibFileName = paperDir + "/paper.bib"
             bibData = readBib(bibFileName)
             entry = bibData.entries[key]
-            if getPdfAutomated(entry, paperDir):
-                os.system("rm -f " + fileName)
-            else:
-                getPdfManual(entry)
+        if code == "getBib":
+            searchType = "bib"
+            paperDir = None
+            entry = requestKey(request)
     except:
-        tkMessageBox.showerror('LiteRef Error', "Bad request: " + fileName)
+        tkMessageBox.showerror('LiteRef Error', "Bad request.")
+        os.system("rm -f " + fileName)
+        return
+    os.system("rm -f " + fileName)
+
+    if code == "getPdf" and pdfExists(entry, paperDir): return
+    
+    if not getResourceAutomated(entry, searchType, paperDir):
+        if code == "getPdf" and key not in neededPdfs:
+            neededPdfs.append(key)
+        getResourceManual(entry, searchType)
+
+def confirmKey(key):
+    """
+    Confirm with the user that the downloaded paper is for the given key.
+    """
+    entry = readFile(config.PAPERS_DIR + key  + "/paper.bib")
+    return tkMessageBox.askyesno(
+        'LiteRef: confirm BibTex entry for the downloaded PDF',
+        "Is the downloaded PDF for the follwing BibTex entry?\n" + \
+        entry)
         
 def handleNewPdf(fileName):
     # Currently simply decide that it is the last request.
     #pdb.set_trace()
-    command = "ls -t {dir}/*.rqt | head -n 1".format(dir=config.DROP_DIR)
-    reqFile = subprocess.check_output(command, shell=True)
-    if reqFile == "":
-        tkMessageBox.showerror('LiteRef Error', 'No request, abandoning the new PDF.')
-        return
-    if reqFile[-1] == '\n': reqFile = reqFile[:-1]
-    request = readRequest(reqFile)
-    paperDir = config.PAPERS_DIR + requestKey(request)
-    newPdfFile = paperDir + "/paper.pdf"
-    command = "mv {old} {newPdfFile}". \
-               format(old = fileName, \
-                      newPdfFile = newPdfFile) 
-    os.system(command)
-    os.system("rm -f " + reqFile)
+    for key in neededPdfs:
+        if confirmKey(key):
+            neededPdfs.remove(key)
+            os.rename(fileName, config.PAPERS_DIR + key  + "/paper.pdf")
 
 def handleNewFile(fileName):
     # Make sure it's not a short-lived temporary file, e.g. of sed

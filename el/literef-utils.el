@@ -213,10 +213,6 @@ Returns nil if neither of these ways produces a key."
   "Compute name of the pdf file based on the key and the extension"
   (literef-filename key "pdf"))
 
-(defun literef-request-filename()
-  "Compute name of the request file"
-  (concat literef-drop-directory "request." (number-to-string (float-time)) ".rqt"))
-
 (defun literef-open-key-notes(key)
   "Open notes for KEY."
   (let ((filename (literef-notes-filename key)))
@@ -226,6 +222,16 @@ Returns nil if neither of these ways produces a key."
   "Open notes for the cite link under cursor"
   (let ((key (org-ref-get-bibtex-key-under-cursor)))
     (literef-open-key-notes key)))
+
+(defun literef-open-key-bibfile(key)
+  "Open notes for KEY."
+  (let ((filename (literef-bib-filename key)))
+    (find-file-other-window filename)))
+
+(defun literef-open-bibfile()
+  "Open the bibfile for the cite link under cursor"
+  (let ((key (org-ref-get-bibtex-key-under-cursor)))
+    (literef-open-key-bibfile key)))
 
 ;;;; Opening PDF
 
@@ -245,11 +251,18 @@ Returns nil if neither of these ways produces a key."
 
 (defun literef-open-key-pdf(key)
   "Open the pdf for KEY."
+  (unwind-protect
+      (progn
+	(org-ref-cancel-link-messages)
+	(when (and
+	       (gethash key literef-needed-pdfs nil)
+	       (y-or-n-p "The PDF has already been requested. Would you like to request it again?"))
+	  (remhash key literef-needed-pdfs))
+	(org-ref-show-link-messages)))
   (let ((filename (literef-pdf-filename key)))
     (unless (or (file-exists-p filename)
 		(gethash key literef-needed-pdfs nil))
-      (with-temp-file (literef-request-filename)
-	(insert (concat "getPdf" " " key)))))
+      (literef-server-request "getPdf" key)))
   (puthash key t literef-needed-pdfs))
       
 (defun literef-open-pdf()

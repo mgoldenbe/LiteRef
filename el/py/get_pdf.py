@@ -5,19 +5,62 @@ import subprocess
 import tkMessageBox
 import pdb
 import time
-from utils import ProgressBox
+from utils import ProgressBox, dirFiles
 import Tkinter as tk
 
 from selenium import webdriver
-driver = webdriver.PhantomJS()
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import re
 import requests
 
+# driver = webdriver.Firefox()
+
+driver = webdriver.PhantomJS(service_args=['--ignore-ssl-errors=true',
+                                            '--ssl-protocol=any'])
+driver.set_window_size(1124, 850) # Avoid the error of the element not being displayed
+
+def confirmPDF(fileName):
+    """
+    Open the given PDF and ask the user whether is the one he wanted.
+    """
+    proc = subprocess.Popen(['evince', fileName])
+    # Sleep needed so the message box shoud appear on top.
+    # The delay needs to be long enough to see the paper.
+    time.sleep(config.EVINCE_STARTUP_DELAY)
+    answer = tkMessageBox.askyesno('LiteRef: confirm PDF',
+                                   'Is this the required PDF?')
+    proc.terminate()
+    return answer
+
+def pdfExists(entry, paperDir):
+    """
+    Check whether the needed pdf file is among the pdf files in the drop folder.
+    """
+    for fileName in dirFiles(config.DROP_DIR, '*.pdf'):
+        if confirmPDF(fileName):
+            os.rename(fileName, paperDir + "/paper.pdf")
+            return True
+    return False
+
+def getClassElement(className):
+    """
+    Wait for the first element of the given class to appear and return it.
+    """
+    wait = WebDriverWait(driver, 10)
+    return wait.until(EC.visibility_of_element_located \
+                      ((By.CLASS_NAME, className)))
+
 def entry2query(entry):
     """
-    Compute a query based based on a bibtex entry.
-    """ 
-    return entry.fields['title'].replace(' ', '+')
+    Compute a query based based on bibtex entry or search string.
+    """
+    if type(entry) == type(""):
+        entryStr = entry
+    else:
+        entryStr = entry.fields['title']
+    return entryStr.replace(' ', '+')
 
 def sourceQueryAddress(source, entry):
     """
@@ -25,7 +68,10 @@ def sourceQueryAddress(source, entry):
     """
     return \
         {"Google Scholar": \
-         'https://scholar.google.co.il/scholar?q='}[source] + \
+         'https://scholar.google.co.il/scholar?q=',
+         "Semantic Scholar": \
+         'https://semanticscholar.org/search?q='
+        }[source] + \
          entry2query(entry)
 
 def sourceSearchResultsHTML(source, entry):
@@ -33,25 +79,50 @@ def sourceSearchResultsHTML(source, entry):
     Return the HTML source of the page of search results.
     """
     driver.get(sourceQueryAddress(source, entry))
+    if source in ["Semantic Scholar"]:
+        className = {"Semantic Scholar": 'paper-link'}[source]
+        wait = WebDriverWait(driver, 10)
+        element = wait.until(
+            EC.visibility_of_element_located((By.CLASS_NAME, className)))
     return driver.page_source
 
-def firstLink(source, page):
+def firstLink(source, searchType, page):
     """
-    Get the first PDF link from the HTML source page.
+    Get the first link to the resource corresponding to searchType
+    from the HTML source page. If the link is just the same page, 
+    return an empty string.
     """
-    if source == "Google Scholar":
-        bracketed_pdf = page.find("[PDF]")
-        if bracketed_pdf == -1:
-            return None
-        href = page[:bracketed_pdf].rfind("href")
-        p = re.compile("href=\"([^\"]*)\"")
-        res = p.search(page[href:])
-        return res.group(1)
+    position = -1
+    if searchType == "pdf":
+        if source == "Google Scholar":
+            position = page.find("[PDF]")
+        if source == "Semantic Scholar":
+            position = page.find(".pdf")
+    if searchType == "bib":
+        if source == "Google Scholar":
+            element = driver.find_element_by_class_name('gs_or_cit')
+            element.click()
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(
+                EC.visibility_of_element_located((By.ID, 'gs_cit')))
+            page = element.get_attribute("innerHTML")
+            position = page.find("BibTeX")
+        if source == "Semantic Scholar":
+            return "" # same page
+    if position == -1:
+        return None
+    href = page[:position].rfind("href")
+    p = re.compile("href=\"([^\"]*)\"")
+    res = p.search(page[href:])
+    return res.group(1).replace('&amp;', '&')
 
-def followRedirections(link):
+def followRedirections(source, searchType, link):
     """
-    Follow redirections beginning from the given link until a direct link to the PDF file is obtained.
+    Depending on source and searchType, follow redirections beginning 
+    from the given link until a direct link to the resrouce is obtained.
     """
+    if searchType == "bib": return link
+    if source != "Google Scholar": return link
     while True:
         with ProgressBox('Following re-directions:\n' + link):
             ## The option verify=False is generally not safe,
@@ -72,55 +143,103 @@ def followRedirections(link):
         with ProgressBox('The file is not found.'):
             time.sleep(2)
             return None
-            
-def getPdfAutomated(entry, paperDir):
+
+def candidatePDFFeedback(link, paperDir):
     """
-    Get the PDF for a bibtex entry in an automated manner and put it into the given paperDir directory.
-    """ 
-    for source in config.PDF_AUTOMATED_SOURCES:
+    Download the candidate PDF and ask the user whether it is the one.
+    """
+    with ProgressBox('Downloading the PDF...'):
+        os.system("cd {dir}; " \
+                  "wget --no-check-certificate " \
+                  "-O paper.temp.pdf {link}".
+                  format(dir = paperDir, link = link))
+        return confirmPDF(paperDir + "/paper.temp.pdf")
+
+def processCandidatePDF(link, paperDir):
+    """
+    Process the candidate PDF located at link.
+    """
+    answer = candidatePDFFeedback(link, paperDir)
+    if answer:
+        os.rename(paperDir + "/paper.temp.pdf", paperDir + "/paper.pdf")
+    os.system("rm -f " + paperDir + "/paper.temp.pdf")
+    return answer
+    
+def candidateBibFeedback(link, source):
+    """
+    Get the candidate BibTeX entry and ask the user whether it is the one.
+    """
+    if link != "":
+        driver.get(link)
+    if source == "Google Scholar":
+        entry = driver.page_source
+    if source == "Semantic Scholar":
+        driver.find_element_by_class_name('paper-actions-toggle').click()
+        getClassElement('cite-button').click()
+        getClassElement('formatted-citation')
+        page = driver.page_source
+        end = page.find("</cite>")
+        begin=page[:end].rfind("@")
+        entry = page[begin:end]
+    return (tkMessageBox.askyesno(
+        'LiteRef: confirm BibTex entry',
+        "Is the follwing the BibTex entry you wanted?\n" + \
+        entry), entry)
+
+def processCandidateBib(link, source):
+    """
+    Process the candidate PDF located at link.
+    """
+    answer, entry = candidateBibFeedback(link, source)
+    if answer:
+        with open(config.DROP_DIR + "temp.bib", "w") as myFile:
+            myFile.write(entry)
+    return answer
+
+def getResourceAutomated(entry, searchType, paperDir):
+    """
+    Obtain the resource for the entry in an automated manner.
+    """
+    sources = config.PDF_AUTOMATED_SOURCES
+    if searchType == "bib":
+        sources = config.BIB_AUTOMATED_SOURCES
+    for source in sources:
         try:
             # pdb.set_trace()
+            resourceString = "PDF"
+            if searchType == "bib": resourceString = "BibTex entry"
             with ProgressBox('Fetching search results from ' + source):
                 page = sourceSearchResultsHTML(source, entry)
-            with ProgressBox('Looking for link to PDF...'):
-                link = firstLink(source, page)
+                # driver.save_screenshot("myshot.png")
+            with ProgressBox("Looking for link to {resource}..." \
+                             .format(resource = resourceString)):
+                link = firstLink(source, searchType, page)
             if link == None:
-                with ProgressBox('No PDF link is found.'):
+                with ProgressBox("No {resource} link is found." \
+                                 .format(resource = resourceString)):
                     time.sleep(2)
                     continue
-            link = followRedirections(link)
-            with ProgressBox('Downloading the PDF...'):
-                os.system("cd {dir}; " \
-                          "wget --no-check-certificate " \
-                          "-O paper.temp.pdf {link}".
-                          format(dir = paperDir, link = link))
-            proc = subprocess.Popen(['evince', \
-                                     paperDir + "/paper.temp.pdf"])
-            # Sleep needed so the message box shoud appear on top.
-            # The delay needs to be long enough to see the paper.
-            time.sleep(config.EVINCE_STARTUP_DELAY)
-            if tkMessageBox.askyesno('LiteRef: confirm PDF',
-                                     'Is this the PDF you wanted?'):
-                os.system("mv " + \
-                          paperDir + "/paper.temp.pdf " + \
-                          paperDir + "/paper.pdf ")
-                proc.terminate()
-                return True
-            proc.terminate()
-            os.system("rm -f " + paperDir + "/paper.temp.pdf")
+            link = followRedirections(source, searchType, link)
+
+            if searchType == "pdf":
+                answer = processCandidatePDF(link, paperDir)
+            if searchType == "bib":
+                answer = processCandidateBib(link, source)
+            
+            if answer: return True
         except:
             tkMessageBox.showerror('LiteRef Error',
                                    "Something went wrong with the source\n" +
                                    source)
     return False
 
-    ## I am choosing the simple regular expressions approach for now, as it works for both the pdf and the abstract.
-
-def getPdfManual(entry):
+def getResourceManual(entry, searchType):
     """
-    Get the PDF for the paper, whose properties are supplied
-    in the `myDict` dictionary as returned by BibParser
+    Obtain the resource for the entry in a manual manner.
     """
-    url = sourceQueryAddress(config.PDF_MANUAL_SOURCE, entry)
+    # pdb.set_trace()
+    source = config.PDF_MANUAL_SOURCE
+    if searchType == "bib": source = config.BIB_MANUAL_SOURCE
+    url = sourceQueryAddress(source, entry)
     webbrowser.get(config.BROWSER).open_new_tab(url)
 

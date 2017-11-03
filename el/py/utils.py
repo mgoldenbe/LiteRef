@@ -2,7 +2,36 @@ import config
 import Tkinter as tk
 import tkFont
 import math
+import os
 import pdb
+import subprocess
+
+def dirFiles(dirName, pattern):
+    """
+    Return the list of files in the given directory that satisfy the given pattern, e.g. '*.pdf'.
+    """
+    command = "ls -t {dirName}/{pattern}". \
+              format(dirName=dirName, pattern=pattern)
+    return subprocess.check_output(command, shell=True).split()
+
+def readFile(fileName):
+    """
+    Return the contents of the file with the given name.
+    """
+    with open(fileName, "r") as myFile:
+        return myFile.read()
+
+# Source: https://stackoverflow.com/a/10655874/2725810
+def multisplit(s, delims):
+    """ 
+    Split the string s on the given delimeters.
+    """ 
+    pos = 0
+    for i, c in enumerate(s):
+        if c in delims:
+            yield s[pos:i]
+            pos = i + 1
+    yield s[pos:]
 
 ## enum with automatic enumeration
 ## source: https://stackoverflow.com/a/1695250/2725810

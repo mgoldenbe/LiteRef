@@ -40,32 +40,34 @@ Currently only from DBLP.
 - TODO A graph of citation relationships using GraphViz DOT evaluation as shown here: https://vxlabs.com/2014/12/04/inline-graphviz-dot-evaluation-for-graphs-using-emacs-org-mode-and-org-babel/
   Simply create a temporary buffer, in which to evaluate the program.
 * Creating on-line description + video
-|------------------------------------------------------+-----------------------|
-| *Implementation*                                     | *NDays*               |
-|------------------------------------------------------+-----------------------|
-| Implementation of copying                            | DONE                  |
-| Implementation of custom sorting in helm-bitex       | DONE                  |
-| Support of inline tasks                              | DONE                  |
-| Integration with PDF Tools                           | DONE                  |
-| Implementation of graph of citation relashionships   | DONE                  |
-| Implementation of annotations of references to tags. | CANCELED (narrowing!) |
-| Running the server (past daemon) from emacs          | DONE                  |
-| Showing pdf in emacs after import                    | DONE                  |
-| Give a menu on :follow for citation links            | 1                     |
-| Insertion of entry from clipboard                    | 1                     |
-|------------------------------------------------------+-----------------------|
-| *Writing + video*                                    |                       |
-|------------------------------------------------------+-----------------------|
-| Motivation                                           | DONE                  |
-| Overall design                                       |                       |
-| Adding papers                                        |                       |
-| Working with citations                               |                       |
-| Working with PDF                                     |                       |
-| Switching to notes                                   |                       |
-| Export                                               |                       |
-| Working with annotations (of citations and of tags)  |                       |
-| Installation, Version etc., future work etc.         |                       |
-|------------------------------------------------------+-----------------------|
+|--------------------------------------------------------------------------------------------+-----------------------|
+| *Implementation*                                                                           | *NDays*               |
+|--------------------------------------------------------------------------------------------+-----------------------|
+| Implementation of copying                                                                  | DONE                  |
+| Implementation of custom sorting in helm-bitex                                             | DONE                  |
+| Support of inline tasks                                                                    | DONE                  |
+| Integration with PDF Tools                                                                 | DONE                  |
+| Implementation of graph of citation relashionships                                         | DONE                  |
+| Implementation of annotations of references to tags.                                       | CANCELED (narrowing!) |
+| Running the server (past daemon) from emacs                                                | DONE                  |
+| Showing pdf in emacs after import                                                          | DONE                  |
+| Give a menu on :follow for citation links                                                  | DONE                  |
+| Insertion of entry from clipboard                                                          | DONE                  |
+| Getting entry by choosing from PDF                                                         | 1                     |
+| Options to always get PDF for new (PDF/regular) entry                                      | 1                     |
+|--------------------------------------------------------------------------------------------+-----------------------|
+| *Writing + video*                                                                          |                       |
+|--------------------------------------------------------------------------------------------+-----------------------|
+| Motivation                                                                                 | DONE                  |
+| Overall design                                                                             |                       |
+| Adding papers                                                                              |                       |
+| Working with citations                                                                     |                       |
+| Working with PDF                                                                           |                       |
+| Switching to notes                                                                         |                       |
+| Export                                                                                     |                       |
+| Working with annotations (use https://academia.stackexchange.com/a/97241/74651 as example) |                       |
+| Installation, Version etc., future work etc.                                               |                       |
+|--------------------------------------------------------------------------------------------+-----------------------|
 * Ideas of implementation
 ** Working with pdf
 - A command to choose an annotation and link to it. When such a link is clicked, the page is opened and the annotation is activated.

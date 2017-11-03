@@ -9,6 +9,7 @@
 (require 'literef-graph)
 (require 'literef-export)
 (require 'literef-pdf)
+(require 'literef-server)
 
 ;; start the server, while making sure that
 ;; only one instance of it is runnning.
@@ -27,8 +28,28 @@
   "Overrides bibtex-completion-fallback-candidates to not offer adding an entry to each bib file."
   bibtex-completion-fallback-options)
 
-; Open notes of the paper when its citation link is clicked. 
-(setq org-ref-cite-onclick-function (lambda(_key) (literef-open-notes)))
+;;;; BEGIN: Clicking citation link ------------------------------
+
+(defun  literef-cite-onclick-function()
+  "Handles following a citation link."
+  (unwind-protect
+      (progn
+	(org-ref-cancel-link-messages)
+	(let ((ans (literef-read-char
+		    (concat
+		     "Choose action:  "
+		     "  Notes (n)  |"
+		     "  PDF (p)  |"
+		     "  BibFile (b)")
+		    '(?n ?b ?p))))
+	  (when (eq ans ?n) (literef-open-notes))
+	  (when (eq ans ?p) (literef-open-pdf))
+	  (when (eq ans ?b) (literef-open-bibfile))))
+    (org-ref-show-link-messages)))
+
+(setq org-ref-cite-onclick-function
+      (lambda(_key) (literef-cite-onclick-function)))
+;;;; END --------------------------------------------------------
 
 ;;;; BEGIN: Copying and pasting key(s) --------------------------
 (defun literef-copy-current-key()
@@ -74,6 +95,12 @@ Once the original function is called, the current citation link (if the cursor i
     ))
 
 (advice-add 'insert-for-yank :around #'literef-insert-for-yank)
+
+(defun literef-bibtex-from-clipboard()
+  "Creates an entry from the BibTeX code saved in the clipboard."
+  (interactive)
+  (with-temp-file (concat literef-drop-directory "temp.bib")
+    (yank)))
 ;;;; END --------------------------------------------------------
 
 ;;;; BEGIN: Splitting a citation --------------------------------

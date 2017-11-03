@@ -68,6 +68,14 @@
 	  (insert (concat "annot:" key ":" (symbol-name annot-id)))
 	(message "An error occurred while selecting an annotation")))))
 
+
+;;;; Getting BibTeX entry
+(defun literef-get-region-bibtex()
+  "Get BibTeX entry based on the text in the region."
+  (interactive)
+  (let ((query (car (pdf-view-active-region-text))))
+    (literef-server-request "getBib" query)))
+
 ;;;; For a possible future feature.
 (setq org-startup-with-inline-images t)
 

@@ -7,8 +7,13 @@ NOTES_DIR = ROOT_DIR + "survey/"
 DROP_DIR = ROOT_DIR + "drop/"
 
 # For now, only Google Scholar is used.
-PDF_AUTOMATED_SOURCES = ['Google Scholar']
+# PDF_AUTOMATED_SOURCES = ['Semantic Scholar', 'Google Scholar']
+PDF_AUTOMATED_SOURCES = ['Semantic Scholar']
 PDF_MANUAL_SOURCE = 'Google Scholar'
+# BIB_AUTOMATED_SOURCES = ['Semantic Scholar', 'Google Scholar']
+BIB_AUTOMATED_SOURCES = ['Semantic Scholar']
+BIB_MANUAL_SOURCE = 'Google Scholar'
+
 BROWSER = 'chrome'
 EVINCE_STARTUP_DELAY = 3
 
