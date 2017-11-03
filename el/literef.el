@@ -32,20 +32,21 @@
 
 (defun  literef-cite-onclick-function()
   "Handles following a citation link."
-  (unwind-protect
-      (progn
-	(org-ref-cancel-link-messages)
-	(let ((ans (literef-read-char
-		    (concat
-		     "Choose action:  "
-		     "  Notes (n)  |"
-		     "  PDF (p)  |"
-		     "  BibFile (b)")
-		    '(?n ?b ?p))))
-	  (when (eq ans ?n) (literef-open-notes))
-	  (when (eq ans ?p) (literef-open-pdf))
-	  (when (eq ans ?b) (literef-open-bibfile))))
-    (org-ref-show-link-messages)))
+  (let (ans)
+    (unwind-protect
+	(progn
+	  (org-ref-cancel-link-messages)
+	  (setq ans (literef-read-char
+		     (concat
+		      "Choose action:  "
+		      "  Notes (n)  |"
+		      "  PDF (p)  |"
+		      "  BibFile (b)")
+		     '(?n ?b ?p))))
+      (org-ref-show-link-messages))
+    (when (eq ans ?n) (literef-open-notes))
+    (when (eq ans ?p) (literef-open-pdf))
+    (when (eq ans ?b) (literef-open-bibfile))))
 
 (setq org-ref-cite-onclick-function
       (lambda(_key) (literef-cite-onclick-function)))
