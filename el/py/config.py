@@ -6,13 +6,15 @@ PAPERS_DIR = ROOT_DIR + "papers/"
 NOTES_DIR = ROOT_DIR + "survey/"
 DROP_DIR = ROOT_DIR + "drop/"
 
-# For now, only Google Scholar is used.
-# PDF_AUTOMATED_SOURCES = ['Semantic Scholar', 'Google Scholar']
+# Implemented PDF sources: Google Scholar, Semantic Scholar.
 PDF_AUTOMATED_SOURCES = ['Semantic Scholar']
+# Use None if you do not want a manual source.
 PDF_MANUAL_SOURCE = 'Google Scholar'
-# BIB_AUTOMATED_SOURCES = ['Semantic Scholar', 'Google Scholar']
+
+# Implemented BibTeX sources: Google Scholar, Semantic Scholar, DBLP.
 BIB_AUTOMATED_SOURCES = ['Semantic Scholar']
-BIB_MANUAL_SOURCE = 'Google Scholar'
+# Use None if you do not want a manual source.
+BIB_MANUAL_SOURCE = 'Semantic Scholar'
 
 BROWSER = 'chrome'
 EVINCE_STARTUP_DELAY = 3

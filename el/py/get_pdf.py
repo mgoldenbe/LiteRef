@@ -228,9 +228,12 @@ def getResourceAutomated(entry, searchType, paperDir):
             
             if answer: return True
         except:
-            tkMessageBox.showerror('LiteRef Error',
-                                   "Something went wrong with the source\n" +
-                                   source)
+            tkMessageBox.showerror(
+                'LiteRef Error',
+                "Something went wrong with the source:\n" + \
+                source + "\n" + \
+                "It is possible that there are no resources "
+                "matching the query.")
     return False
 
 def getResourceManual(entry, searchType):
@@ -239,7 +242,9 @@ def getResourceManual(entry, searchType):
     """
     # pdb.set_trace()
     source = config.PDF_MANUAL_SOURCE
-    if searchType == "bib": source = config.BIB_MANUAL_SOURCE
+    if searchType == "bib":
+        source = config.BIB_MANUAL_SOURCE
+    if source == None: return
     url = sourceQueryAddress(source, entry)
     webbrowser.get(config.BROWSER).open_new_tab(url)
 

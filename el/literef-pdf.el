@@ -73,8 +73,33 @@
 (defun literef-get-region-bibtex()
   "Get BibTeX entry based on the text in the region."
   (interactive)
-  (let ((query (car (pdf-view-active-region-text))))
+  (let ((query
+	 (if (pdf-view-active-region-p)
+	     (car (pdf-view-active-region-text))
+	   (buffer-substring (region-beginning) (region-end)))))
+    ;; Remove new lines.
+    (setq query (replace-in-string "\n" "" query))
+    ;; Handle words that were split across lines.
+    ;; Do not split in the following case: Many-to-Many.
+    (let ((case-fold-search nil))
+      (setq query
+	    (replace-regexp-in-string
+	     "[a-z]-[a-z]+[-]?"
+	     (lambda (s)
+	       (if (equal (substring s -1) "-")
+		   s
+		 (replace-in-string "-" "" s)))
+	     query)))
+    ;; (message "Search for: %s" query)))
     (literef-server-request "getBib" query)))
+
+
+(defun flatten-string-with-links (string)
+    (replace-regexp-in-string "\\[\\[[a-zA-Z:%@/\.]+\\]\\[[a-zA-Z:%@/\.]+\\]\\]"
+                (lambda (s) (save-match-data
+			      (nth 2 (split-string s "[\]\[]+")))) string))
+
+(flatten-string-with-links "[[abc][cdh]]")
 
 ;;;; For a possible future feature.
 (setq org-startup-with-inline-images t)
