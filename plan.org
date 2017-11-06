@@ -53,8 +53,7 @@ Currently only from DBLP.
 | Showing pdf in emacs after import                                                          | DONE                  |
 | Give a menu on :follow for citation links                                                  | DONE                  |
 | Insertion of entry from clipboard                                                          | DONE                  |
-| Getting entry by choosing from PDF                                                         | 1                     |
-| Options to always get PDF for new (PDF/regular) entry                                      | 1                     |
+| Getting entry by choosing from PDF                                                         | DONE                  |
 |--------------------------------------------------------------------------------------------+-----------------------|
 | *Writing + video*                                                                          |                       |
 |--------------------------------------------------------------------------------------------+-----------------------|

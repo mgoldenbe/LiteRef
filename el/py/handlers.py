@@ -256,7 +256,7 @@ def confirmKey(key):
     Confirm with the user that the downloaded paper is for the given key.
     """
     entry = readFile(config.PAPERS_DIR + key  + "/paper.bib")
-    return tkMessageBox.askyesno(
+    return wideYesNo(
         'LiteRef: confirm BibTex entry for the downloaded PDF',
         "Is the downloaded PDF for the follwing BibTex entry?\n" + \
         entry)

@@ -5,7 +5,7 @@ import subprocess
 import tkMessageBox
 import pdb
 import time
-from utils import ProgressBox, dirFiles
+from utils import ProgressBox, dirFiles, wideYesNo
 import Tkinter as tk
 
 from selenium import webdriver
@@ -70,7 +70,9 @@ def sourceQueryAddress(source, entry):
         {"Google Scholar": \
          'https://scholar.google.co.il/scholar?q=',
          "Semantic Scholar": \
-         'https://semanticscholar.org/search?q='
+         'https://semanticscholar.org/search?q=',
+         "DBLP": \
+         'http://dblp.uni-trier.de/search?q='
         }[source] + \
          entry2query(entry)
 
@@ -81,9 +83,7 @@ def sourceSearchResultsHTML(source, entry):
     driver.get(sourceQueryAddress(source, entry))
     if source in ["Semantic Scholar"]:
         className = {"Semantic Scholar": 'paper-link'}[source]
-        wait = WebDriverWait(driver, 10)
-        element = wait.until(
-            EC.visibility_of_element_located((By.CLASS_NAME, className)))
+        getClassElement(className)
     return driver.page_source
 
 def firstLink(source, searchType, page):
@@ -109,6 +109,9 @@ def firstLink(source, searchType, page):
             position = page.find("BibTeX")
         if source == "Semantic Scholar":
             return "" # same page
+        if source == "DBLP":
+            position = page.find("BibTeX")
+            position += page[position + 1:].find("BibTeX") + 1
     if position == -1:
         return None
     href = page[:position].rfind("href")
@@ -181,7 +184,9 @@ def candidateBibFeedback(link, source):
         end = page.find("</cite>")
         begin=page[:end].rfind("@")
         entry = page[begin:end]
-    return (tkMessageBox.askyesno(
+    if source == "DBLP":
+        entry = getClassElement('verbatim').text
+    return (wideYesNo(
         'LiteRef: confirm BibTex entry',
         "Is the follwing the BibTex entry you wanted?\n" + \
         entry), entry)

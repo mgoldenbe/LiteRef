@@ -1,6 +1,7 @@
 import config
 import Tkinter as tk
 import tkFont
+import tkMessageBox
 import math
 import os
 import pdb
@@ -12,8 +13,11 @@ def dirFiles(dirName, pattern):
     """
     command = "ls -t {dirName}/{pattern}". \
               format(dirName=dirName, pattern=pattern)
-    return subprocess.check_output(command, shell=True).split()
-
+    try:
+        return subprocess.check_output(command, shell=True).split()
+    except:
+        return []
+    
 def readFile(fileName):
     """
     Return the contents of the file with the given name.
@@ -63,4 +67,8 @@ class ProgressBox:
     def __exit__(self, type, value, traceback):
         self.box.destroy()
     
-    
+def wideYesNo(title, text):
+    config.root.option_add("*Dialog.msg.wrapLength", "10i")
+    res = tkMessageBox.askyesno(title, text)
+    config.root.option_add("*Dialog.msg.wrapLength", "3i")
+    return res

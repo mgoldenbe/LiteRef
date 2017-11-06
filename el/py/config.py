@@ -12,20 +12,11 @@ PDF_AUTOMATED_SOURCES = ['Semantic Scholar']
 PDF_MANUAL_SOURCE = 'Google Scholar'
 
 # Implemented BibTeX sources: Google Scholar, Semantic Scholar, DBLP.
-BIB_AUTOMATED_SOURCES = ['Semantic Scholar']
+BIB_AUTOMATED_SOURCES = ['DBLP']
 # Use None if you do not want a manual source.
 BIB_MANUAL_SOURCE = 'Semantic Scholar'
 
 BROWSER = 'chrome'
 EVINCE_STARTUP_DELAY = 3
-
-MESSAGE_WIDTH = 40 # in characters
-MIN_MESSAGE_WINDOW_WIDTH = 200 # in pixels
-MIN_MESSAGE_WINDOW_HEIGHT = 150 # in pixels
-
-root = None
-
-def isDir(s, d):
-    return s[:len(d)] == d
 
     
