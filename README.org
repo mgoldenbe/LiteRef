@@ -6,13 +6,42 @@
 * Introduction
 Managing knowledge of related literature is an important activity for both graduate students and researchers. A central piece of this activity is maintaining notes both about individual research papers and, more importantly, about whole branches of research. Notes that cover branches of research are extremely useful. These notes are tools for uncovering connections between the papers and discovering venues for new research. The purpose of =LiteRef= is to provide a thin layer of software that would make it natural and easy to collect papers, maintain notes about both individual papers and whole branches, explore connections between papers and export all or part of this body of knowledge into a coherent document.  
 
-There are many software packages for reference management out there. However, reference management software is centered around maintaining the database of bibliography entries. In contrast, the main focus =LiteREf= is on providing the researcher with tools that would aid him in growing his /understanding/ of the research field. Therefore, I was looking to make the tasks related to maintaining the raw database of bibliography entries occupy as little of the researcher’s attention as possible. For example, there is no user interface for creating a =BibTex= entry. A new entry is simply downloaded or copied or whatever into the file system, upon which event =BibTeX= cares for the rest automatically („the rest“ includes assigning a unique descriptive key to the entry, absorbing the entry into the database and making it immediately available for being cited in the notes). The commands of the user interface are reserved for the tasks related to maintaining notes and discovering knowledge.
+There are many software packages for reference management out there. The main difference between =LiteRef= and these packages is the focus. While the focus of existing reference management software is on maintaining the database of bibliography entries, the focus of =LiteRef= is on providing the researcher with tools that would aid him in growing his /understanding/ of the research field. Consequently, =LiteRef= is centered around the /notes/ written by the researcher.
 
-The following sections describe both the overall design of =LiteRef= and its features. Each feature is accompanied by a movie to demonstrate the feature’s usage. 
+=LiteRef= runs under =Emacs=, an extremely powerful and flexible text editor. In particular, =Emacs= comes with an awesome major mode for organizing notes called =org-mode=. =LiteRef= harnesses the power of =org-mode= and several other packages (most notably =org-ref=) to put at the researcher’s disposal a potent tool for maintaining his knowledge of related literature. The following features are /some/ of the highlights of =LiteRef=:
+- Each citation in the notes can be annotated with citation functions. Since each paper is associated with a notes file, these annotated citations induce a graph, where related papers are connected by arcs labeled by citation functions. We call this a /citation graph/.
+- A sub-graph of the /citation graph/, possibly augmented with papers cited in an arbitrary buffer, can be defined. This sub-graph can subsequently be visualized, searched and exported. The generality of the way in which the /citation sub-graph/ and the built-in capabilities of =Emacs= and =org-mode= (notably narrowing and inclusion directives) add much power to this feature. 
+- Special links make it possible to relate notes to annotations in the PDF file of the paper.
+
+The following sections describe both the overall design of =LiteRef= and its features. Each feature’s description is accompanied by a movie demonstrating the feature’s usage. 
   
 * The overall design
+The purpose of this section is to describe the conceptual design of =LiteRef= and thereby make reading the sections that describe particular features comfortable. 
+** Physical structure
+As far as the user is concerned, two folders in the distribution are of interest: =papers/= and =drop/=. As suggested by their names, the =papers/= folder contains the database of papers, while the =drop/= folder is the place where new BibTeX and PDF entries are to be dropped for subsequent handling by =LiteRef=.
 
-A paper’s life in =LiteRef= begins with adding the paper’s =BibTeX= entry.
+The database of papers has a very simple structure, whereby each paper gets a folder whose name is the key of that paper’s BibTeX entry (these keys are assigned automatically). A paper’s folder contains at least two files: /paper.bib/ (the BibTeX entry of the paper) and /paper.org/ (the notes about the paper). In addition, it make contain /paper.pdf/ (the PDF of the paper) and additional files with notes (these can be linked to /paper.org/ by inclusion directives).
+
+=LiteRef= does not impose any restrictions on the format of the notes. Thus, all the arsenal of =org-mode= is put at the researcher’s disposal. In addition, the researcher can maintain any number of notes dedicated to branches of research rather than to a particular paper.  
+** The user interface
+Most features of =LiteRef= are implemented in Emacs Lisp. These features use uniquely =Emacs= ways for doing things. These ways may come as a surprise to an uninitiated user, but inevitably prove to be extremely time-effective. Once having got used to using =Emacs= properly, one rejoices for the rest of his life at having found the ultimate tool for everything related to editing text, maintaining notes and too many other tasks to name.     
+
+Functionality related to watching the /drop folder/ and creating/fetching new entries are delegated to a server written in =Python=. In contrast to the functionalities that are executed entirely in =Emacs=, the server relies on dialog windows for its features’s user interface. One effect of this difference is that the user can easily distinguish a candidate BibTeX entry or PDF that was found and downloaded automatically from an entry in the database. Thus, the overall user experience only wins from this non-uniformness of presentation means.
+** Import of entries
+Creating a new entry is triggered by appearance of a /.bib/ file in the =drop/= folder. This can happen in a large number of ways from manual creation of this file to automated search in on-line sources. Whatever way it is, each BibTeX entry in the new /.bib/ file receives an automated key and (after duplicate detection) becomes a new entry in the database. Both /paper.bib/ and /paper.org/ for the new entries are created at this point.
+ 
+Searching for a PDF file is triggered by trying to open a paper’s PDF file for the citation currently under focus in the open notes. When this happens, if the =drop/= folder contains PDF files, these become the first candidates. If the user rejects these candidates, automated search in the on-line sources ensues.
+
+The on-line source for searching for BibTeX and PDF files are defined in an extensible way in the server. *It is left up to the user to respect the terms of service of whatever sites are searched.*
+** Working with the papers
+The features that distinguish =LiteRef= are centered around working with paper citations. A paper is cited using the =org-ref= citation link, which consist of =cite:= followed by the keys of the BibTeX entries of the papers being cited, e.g. cite:AbrahamDGW2011c-Hub-Based,ChakrabortiSSKK2016c-Compl-Condit. In most cases, one would cite a paper by using the /helm/ search, which is the =Emacs= way of searching in a large collection by gradually narrowing the set of candidates. The candidates for this search can be either the whole paper database or the papers the form the current citation sub-graph. Once some paper citations are added, a number of features of =LiteRef= dedicated to making the editing tasks related to paper citations effective are available.
+
+Besides the paper citations, two other types of links are used. First, a paper citation can be followed by a list of citation functions, e.g. cite:AlfeldZB2016c-Machin-Teach f:develops,compares. Citation functions allow the researcher to characterize the relationships between the two papers. For example, suppose the notes for the paper /X/ is cite the paper /Y/. This citation could signify that /X/ develops the ideas of /Y/, that the ideas presented in /X/ bear a degree of resemblance to those of /Y/, that /X/ compares its results to those of /Y/ etc. =LiteRef= is flexible in that it allows the researcher to define the list of legal citation functions. One can either come up with his own list or use an existing set of citation functions such as [[http://www.sparontologies.net/ontologies/cito/source.html][this]]. Once such a list is defined, =LiteRef= makes inserting citation functions links convenient (again, in a uniquely =Emacs= way, of course). As mentioned earlier, citation function links are utilized by =LiteRef= to provide functionalities related to the citation (sub-)graph.
+
+Second, a paper’s note can contain links to particular annotations in the paper’s PDF. This feature allows the researcher to easily relate his comments to particular clauses in the paper.
+
+We are now ready to look at the features of =LiteRef= in detail.
+
 * Features
 ** Adding papers
 - Downloading a .bib file for a single key (the daemon must be running).
@@ -24,7 +53,7 @@ A paper’s life in =LiteRef= begins with adding the paper’s =BibTeX= entry.
   + A check whether the key already exists. Can apply the same action to the other entries in the new .bib file.
 - Copying a .bib file.
 - Handling .csv files produced using Link Klipper, currently from DBLP.
-** Working with Citations
+** Working with citations
 *** Adding a citation
 - The newly added keys are in the clipboard.
   + =org-ref= citations are used, so that various citations can be used and are correctly exported to =LaTeX=.
