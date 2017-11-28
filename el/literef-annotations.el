@@ -18,7 +18,7 @@
   "Input citation functions."
   (completing-read-multiple "Select or more comma-separated citation functions (press TAB for completion):\n" literef-citation-functions))
 
-(defun literef-annotate()
+(defun literef-citation-function()
   "Annotate a citation with user-selected citation functions."
   (interactive)
   (let ((link (org-element-context)))

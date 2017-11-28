@@ -49,11 +49,16 @@
 
 ;;;; BEGIN: Key bindings ----------------------------------------
 (define-key global-map "\C-cw" 'literef-copy-current-key)
-(define-key global-map "\C-cf" 'literef-annotate)
+(define-key global-map "\C-cf" 'literef-citation-function)
+(define-key global-map "\C-cb" 'literef-open-bibfile)
+(define-key global-map "\C-cn" 'literef-open-notes)
 (define-key global-map "\C-co" 'literef-open-pdf)
 (define-key global-map "\C-cs" 'literef-split-cite-title-author)
 (define-key global-map "\C-cd" 'literef-split-cite)
+(define-key global-map "\C-ca" 'literef-cite-pdf-annotation)
 (define-key global-map "\C-cp" 'literef-search-pdfs)
+(define-key global-map "\C-cv" 'literef-show-graph)
+
 ;;;; END --------------------------------------------------------
 
 (provide 'literef-config)

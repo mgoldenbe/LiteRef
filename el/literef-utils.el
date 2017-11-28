@@ -220,6 +220,7 @@ Returns nil if neither of these ways produces a key."
 
 (defun literef-open-notes()
   "Open notes for the cite link under cursor"
+  (interactive)
   (let ((key (org-ref-get-bibtex-key-under-cursor)))
     (literef-open-key-notes key)))
 
@@ -230,6 +231,7 @@ Returns nil if neither of these ways produces a key."
 
 (defun literef-open-bibfile()
   "Open the bibfile for the cite link under cursor"
+  (interactive)
   (let ((key (org-ref-get-bibtex-key-under-cursor)))
     (literef-open-key-bibfile key)))
 
