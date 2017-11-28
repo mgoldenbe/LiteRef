@@ -151,7 +151,7 @@ The operations on the citation sub-graph are simple and yet very potent. The des
 *** Visualization
 The command =literef-show-graph= (bound by default to =C-c v=),  allows the researcher to view a whole research area as represented by the citation sub-graph at a glance. This command visualizes the citation sub-graph in an =org= buffer, so that the citations inside the nodes are regular citation links that allow all the regular operations described above. In addition, the buffer can be scrolled by using the commands bound to the Control key pressed down together with an arrow key. The visualization is demonstrated by the following [[demo]].   
 *** Search
-The command =literef-subgraph-helm-cite= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[demo]] shows this.
+The command =literef-subgraph-helm-cite= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#finding-the-keys-to-cite][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[demo]] shows this.
 *** Export
 We already described above how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-export-dispatch= performs export of the citation sub-graph. The document for export is constructed using the following algorithm:
 - The buffer for export is initialized as detailed below.
