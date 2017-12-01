@@ -56,8 +56,10 @@
 (define-key global-map "\C-cs" 'literef-split-cite-title-author)
 (define-key global-map "\C-cd" 'literef-split-cite)
 (define-key global-map "\C-ca" 'literef-cite-pdf-annotation)
+(define-key global-map "\C-cg" 'literef-get-region-bibtex)
 (define-key global-map "\C-cp" 'literef-search-pdfs)
 (define-key global-map "\C-cv" 'literef-show-graph)
+
 
 ;;;; END --------------------------------------------------------
 

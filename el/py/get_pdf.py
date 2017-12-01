@@ -9,11 +9,10 @@ from utils import ProgressBox, dirFiles, wideYesNo
 import Tkinter as tk
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import re
 import requests
+
+from online_sources import *
 
 # driver = webdriver.Firefox()
 
@@ -44,14 +43,6 @@ def pdfExists(entry, paperDir):
             return True
     return False
 
-def getClassElement(className):
-    """
-    Wait for the first element of the given class to appear and return it.
-    """
-    wait = WebDriverWait(driver, 10)
-    return wait.until(EC.visibility_of_element_located \
-                      ((By.CLASS_NAME, className)))
-
 def entry2query(entry):
     """
     Compute a query based based on bibtex entry or search string.
@@ -64,26 +55,18 @@ def entry2query(entry):
 
 def sourceQueryAddress(source, entry):
     """
-    Get the address corresponding to the query from the give source.
+    Get the address corresponding to the query from the given source.
     """
-    return \
-        {"Google Scholar": \
-         'https://scholar.google.co.il/scholar?q=',
-         "Semantic Scholar": \
-         'https://semanticscholar.org/search?q=',
-         "DBLP": \
-         'http://dblp.uni-trier.de/search?q='
-        }[source] + \
-         entry2query(entry)
+    return source.queryAddress + entry2query(entry)
 
 def sourceSearchResultsHTML(source, entry):
     """
     Return the HTML source of the page of search results.
     """
     driver.get(sourceQueryAddress(source, entry))
-    if source in ["Semantic Scholar"]:
-        className = {"Semantic Scholar": 'paper-link'}[source]
-        getClassElement(className)
+    try:
+        getClassElement(driver, source.searchPageElementName)
+    except: pass
     return driver.page_source
 
 def firstLink(source, searchType, page):
@@ -92,28 +75,14 @@ def firstLink(source, searchType, page):
     from the HTML source page. If the link is just the same page, 
     return an empty string.
     """
-    position = -1
-    if searchType == "pdf":
-        if source == "Google Scholar":
-            position = page.find("[PDF]")
-        if source == "Semantic Scholar":
-            position = page.find(".pdf")
-    if searchType == "bib":
-        if source == "Google Scholar":
-            element = driver.find_element_by_class_name('gs_or_cit')
-            element.click()
-            wait = WebDriverWait(driver, 10)
-            element = wait.until(
-                EC.visibility_of_element_located((By.ID, 'gs_cit')))
-            page = element.get_attribute("innerHTML")
-            position = page.find("BibTeX")
-        if source == "Semantic Scholar":
-            return "" # same page
-        if source == "DBLP":
-            position = page.find("BibTeX")
-            position += page[position + 1:].find("BibTeX") + 1
-    if position == -1:
-        return None
+    try:
+        if searchType == "pdf":
+            page, position = source.afterLinkForPDF(driver, page)
+        if searchType == "bib":
+            page, position = source.afterLinkForBib(driver, page)
+    except:
+        return "" # same page
+    if position == -1: return None
     href = page[:position].rfind("href")
     p = re.compile("href=\"([^\"]*)\"")
     res = p.search(page[href:])
@@ -125,7 +94,10 @@ def followRedirections(source, searchType, link):
     from the given link until a direct link to the resrouce is obtained.
     """
     if searchType == "bib": return link
-    if source != "Google Scholar": return link
+    try:
+        if source.redirections != True: return link
+    except: return link
+
     while True:
         with ProgressBox('Following re-directions:\n' + link):
             ## The option verify=False is generally not safe,
@@ -171,21 +143,11 @@ def processCandidatePDF(link, paperDir):
 def candidateBibFeedback(link, source):
     """
     Get the candidate BibTeX entry and ask the user whether it is the one.
+    If LINK is empty string, the needed link is assumed to be already open.
     """
-    if link != "":
-        driver.get(link)
-    if source == "Google Scholar":
-        entry = driver.page_source
-    if source == "Semantic Scholar":
-        driver.find_element_by_class_name('paper-actions-toggle').click()
-        getClassElement('cite-button').click()
-        getClassElement('formatted-citation')
-        page = driver.page_source
-        end = page.find("</cite>")
-        begin=page[:end].rfind("@")
-        entry = page[begin:end]
-    if source == "DBLP":
-        entry = getClassElement('verbatim').text
+    if link != "": driver.get(link)
+    entry = source.bibEntry(driver)
+
     return (wideYesNo(
         'LiteRef: confirm BibTex entry',
         "Is the follwing the BibTex entry you wanted?\n" + \
@@ -208,12 +170,12 @@ def getResourceAutomated(entry, searchType, paperDir):
     sources = config.PDF_AUTOMATED_SOURCES
     if searchType == "bib":
         sources = config.BIB_AUTOMATED_SOURCES
-    for source in sources:
+    for source in [globals()[s] for s in sources]:
         try:
             # pdb.set_trace()
             resourceString = "PDF"
             if searchType == "bib": resourceString = "BibTex entry"
-            with ProgressBox('Fetching search results from ' + source):
+            with ProgressBox('Fetching search results from ' + source.name):
                 page = sourceSearchResultsHTML(source, entry)
                 # driver.save_screenshot("myshot.png")
             with ProgressBox("Looking for link to {resource}..." \
@@ -236,7 +198,7 @@ def getResourceAutomated(entry, searchType, paperDir):
             tkMessageBox.showerror(
                 'LiteRef Error',
                 "Something went wrong with the source:\n" + \
-                source + "\n" + \
+                source.name + "\n" + \
                 "It is possible that there are no resources "
                 "matching the query.")
     return False
@@ -249,6 +211,7 @@ def getResourceManual(entry, searchType):
     source = config.PDF_MANUAL_SOURCE
     if searchType == "bib":
         source = config.BIB_MANUAL_SOURCE
+    source = globals()[source]
     if source == None: return
     url = sourceQueryAddress(source, entry)
     webbrowser.get(config.BROWSER).open_new_tab(url)

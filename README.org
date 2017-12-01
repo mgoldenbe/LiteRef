@@ -60,7 +60,7 @@ This process is shown in the following [[demo]].
 *** By copying a BibTeX entry into the clipboard
 With some sites, it is easier to put a BibTeX entry into the clipboard than to download a /.bib/ file. The command =literef-bibtex-from-clipboard= (by default associated with C-c c) caters to this case as show in the following [[demo]].
 *** By searching in on-line sources
-=LiteRef= can search for a BibTeX entry corresponding to the text in the active region. The region can be either in a regular =Emacs= buffer (e.g. in a notes file) or in a PDF buffer. The latter is the most widespread use case, since most often the researcher becomes interested in a paper that is cited in the paper currently being studied. The following [[demo]] shows both options.
+The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches for a BibTeX entry corresponding to the text in the active region. The region can be either in a regular =Emacs= buffer (e.g. in a notes file) or in a PDF buffer. The latter is the most widespread use case, since most often the researcher becomes interested in a paper that is cited in the paper currently being studied. The following [[demo]] shows both options.
 
 The researcher can configure =LiteRef= to search several on-line sources. This is done by appropriately setting the =BIB_AUTOMATED_SOURCES= variable in the /config.py/ module of the server. In addition, the user can set =BIB_MANUAL_SOURCE= variable of the server. When this variable is set and the automated search does not come up with the desired BibTeX entry, =LiteRef= will open a the browser for searching in the specified source manually.
 

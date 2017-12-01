@@ -7,6 +7,10 @@ import os
 import pdb
 import subprocess
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 def dirFiles(dirName, pattern):
     """
     Return the list of files in the given directory that satisfy the given pattern, e.g. '*.pdf'.
@@ -72,3 +76,20 @@ def wideYesNo(title, text):
     res = tkMessageBox.askyesno(title, text)
     config.root.option_add("*Dialog.msg.wrapLength", "3i")
     return res
+
+# Functions for processing online pages
+def getClassElement(driver, className):
+    """
+    Wait for the first element of the given class to appear and return it.
+    """
+    wait = WebDriverWait(driver, 10)
+    return wait.until(EC.visibility_of_element_located \
+                      ((By.CLASS_NAME, className)))
+
+def getIDElement(driver, id):
+    """
+    Wait for the first element with the given id to appear and return it.
+    """
+    wait = WebDriverWait(driver, 10)
+    return wait.until(EC.visibility_of_element_located \
+                      ((By.ID, id)))
