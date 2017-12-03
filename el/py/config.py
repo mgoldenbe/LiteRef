@@ -7,7 +7,7 @@ NOTES_DIR = ROOT_DIR + "survey/"
 DROP_DIR = ROOT_DIR + "drop/"
 
 # Implemented PDF sources: GoogleScholar, SemanticScholar.
-PDF_AUTOMATED_SOURCES = ['GoogleScholar']
+PDF_AUTOMATED_SOURCES = ['SemanticScholar']
 # Use None if you do not want a manual source.
 PDF_MANUAL_SOURCE = 'GoogleScholar'
 

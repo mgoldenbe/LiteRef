@@ -13,8 +13,6 @@ Installation dependencies outside of emacs:
 - npm install phantomjs-prebuilt
   The path to phantomjs executable will be printed. Copy this executable to /usr/bin/ or /usr/local/bin/ so it should be in the PATH
 
-Optional: Link Klipper for Chrome
-
 Emacs packages:
 
 - org

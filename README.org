@@ -65,10 +65,10 @@ The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches f
 The researcher can configure =LiteRef= to search several on-line sources. This is done by appropriately setting the =BIB_AUTOMATED_SOURCES= variable in the /config.py/ module of the server. In addition, the user can set =BIB_MANUAL_SOURCE= variable of the server. When this variable is set and the automated search does not come up with the desired BibTeX entry, =LiteRef= will open a the browser for searching in the specified source manually.
 
 The currently implemented on-line sources for BibTeX entries are /Google Scholar/, /Semantic Scholar/ and /DBLP/. The user can add more sources by implementing classes with interfaces similar to the classes of the existing sources. These interfaces are well documented in the /online_sources.py/ module of the server. 
-*** NEEDS CHANGE TO DO IT WITHOUT LINK KLIPPER By using Link Klipper
+*** By downloading an HTML containing a number of papers
 Suppose that there is a venue that publishes paper in the narrow specialization of the researcher. The researcher needs to be knowledgeable about all the papers appearing in that venue. Thus, he may want to have a notes file, where all such papers for each year are presented. (We will see below that =LiteRef= makes it easy to track his progress on studying these papers as well.)
 
-To cater to the above scenario, =LiteRef= can handle  /.csv/ files produced by the Chrome’s Link Klipper extension and containing all the links reachable from the current page. Once such a /.csv/ file appears in the =drop/= directory, =LiteRef= extracts from it links to BibTeX entries and downloads the entries themselves. This feature is currently available only for DBLP. It is shown in action in the following [[demo]].
+To cater to the above scenario, =LiteRef= can handle /.html/ files downloaded into the =drop/= directory. =LiteRef= extracts from such an HTML links to BibTeX entries and downloads the entries themselves. Of the implemented on-line sources, only DBLP supports this feature. The following [[demo]] shows this feature put to use.
 ** Working with citations
 Most of the functionalities of =LiteRef= are centered around citations. In this section, we focus on the tasks of finding the keys to cite, editing the text containing citations, splitting a list of citations and working with the currently active citation or paper. 
 *** Finding the keys to cite

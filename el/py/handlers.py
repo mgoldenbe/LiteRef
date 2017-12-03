@@ -13,6 +13,7 @@ import tkMessageBox
 import pyperclip
 from get_pdf import getResourceAutomated, getResourceManual, pdfExists
 
+from online_sources import *
 
 Modes = enum('REGULAR', 'PERSIST_SKIP', 'PERSIST_CREATE') 
 neededPdfs = [] # keys for which pdfs are being awaited
@@ -197,16 +198,29 @@ def handleNewBib(fileName):
             
     #getPdf(entry)
 
-def handleNewCsv(fileName):
-    command = "mkdir {tempDir}; origDir=`pwd`;cd {tempDir}; " \
-              "wget `grep \"BibTeX\" {fileName} | colrm 1 1 | sed -e 's/\", BibTeX/.bib/g' | sed -e 's/rec\/bibtex/rec\/bib1/g'`; " \
-              "cd $origDir; cat {tempDir}/*.bib >> {dropDir}/mybib.bib; " \
-              "rm -rf {tempDir}". \
+def handleNewHTML(fileName):
+    page = open(fileName, 'r').read()
+    links = DBLP.allBibLinks(page)
+    
+    tempDir = config.DROP_DIR + 'temp/'
+    os.system("mkdir -p " + tempDir)
+    
+    listFileName = tempDir + "links.txt"
+    listFile = open(listFileName, 'w')
+    listFile.write("\n".join(links))
+    listFile.close()
+
+    command = "origDir=`pwd`; cd {tempDir}; " \
+              "wget -i {listFileName}; " \
+              "cd $origDir; " \
+              "cat {tempDir}/*.bib >> {dropDir}/mybib.bib; " \
+              "rm -rf \"{tempDir}\"; rm -f \"{fileName}\"". \
               format(fileName = fileName,
-                     tempDir = config.DROP_DIR + 'temp/',
+                     listFileName = listFileName,
+                     tempDir = tempDir,
                      dropDir = config.DROP_DIR)
+    #print command
     os.system(command)
-    os.system("rm -f " + fileName)     
 
 ## Read request created from Emacs session.
 def readRequest(fileName):
@@ -278,12 +292,13 @@ def handleNewFile(fileName):
     if ext == '.crdownload': return
     try:
         handler = {'.bib': handleNewBib,
-                   '.csv':handleNewCsv,
+                   '.html':handleNewHTML,
                    '.pdf':handleNewPdf,
                    '.rqt':handleRequest}[ext]
     except:
         handler = None
-        tkMessageBox.showerror('LiteRef Error', 'Unknown file extension')
+        tkMessageBox.showerror('LiteRef Error',
+                               "Unknown file extension: " + ext)
 
     if handler != None:
         sleep(0.1) # Make sure that the file is fully written

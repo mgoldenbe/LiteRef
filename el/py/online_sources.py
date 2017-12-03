@@ -1,4 +1,5 @@
 from utils import getIDElement, getClassElement
+import re
 
 """
 The variables and functions (note that these functions are static) in a source are:
@@ -16,6 +17,8 @@ def afterLinkForPDF(driver, page) -- computes the position in PAGE following the
 def afterLinkForBib(driver, page) -- computes the position in PAGE following the href element pointing to the page with the sought BibTeX entry or -1 if such position is not found. Returns the possibly modified PAGE and the position. Sources that do not provide BibTeX entries or in which the BibTeX entries are located on the search page itself do not implement this function.
 
 def bibEntry(driver) -- returns the first BibTeX entry located on the current page.
+
+def allBibLinks(page) -- returns the list of all links to BibTeX entries for the HTML page PAGE.
 """
 
 class GoogleScholar:
@@ -75,3 +78,19 @@ class DBLP:
     @staticmethod
     def bibEntry(driver):
         return getClassElement(driver, 'verbatim').text
+
+    @staticmethod
+    def allBibLinks(page):
+        links = []
+        p = re.compile("href=\"([^\"]*)\"")
+        page = page[page.find('<h2>'):] # entries before aren't papers
+        while True:
+            if page.rfind('BibTeX') == -1: break
+            page = page[:page.rfind('BibTeX')]
+            page = page[:page.rfind('href=')]
+            pos = page.rfind('href="')
+            res = p.search(page[pos:])
+            link = res.group(1).replace('&amp;', '&')
+            links.append(link.replace("rec/bibtex", "rec/bib1") + ".bib")
+            page = page[:pos]
+        return links
