@@ -56,18 +56,18 @@ The most direct way do import BibTeX entries into the database of =LiteRef= is t
 The following actions are performed automatically as soon as a new /.bib/ file appears in the =drop/= folder:
 - The BibTeX entries are extracted.
 - The key for each BibTeX entry is computed.
-- All the entries are added into the database subject to duplicate detection. In case a duplicate is detected, the user may choose to keep both entries, in which case the key of the new entry is modified to guarantee uniqueness. Practically, a need for this feature may occur when an entry refers to a journal version of the conference paper with the same name by the same authors (and, most surprisingly, the same year!) as the one that already exists in the database.
+- All the entries are added into the database subject to duplicate detection. In case a duplicate is detected, the user may choose to keep both entries, in which case the key of the new entry is modified to guarantee uniqueness. One practical case when a need for this feature may occur is when the new entry refers to a short version of the full-size conference paper that is already present in the database.
   + Note that all the added entries get the same creation time stamp. This detail is important when ordering papers by multiple criteria as described [[#finding-the-keys-to-cite][below]]. 
 - The list of newly added keys is put into the clipboard, so the new keys can be immediately quoted in the notes.
 This process is shown in the following [[demo]].
 # **** Scenario
-# So, suppose I have a BibTeX file somewhere on my system. Here it is. For this example, I made a file with three BibTeX entries, the last two of which refer to papers that are actually already contained in the LiteRef database (though they have a different key in my old file). Let us now see what happens when we copy this file into the drop folder.
+# So, suppose we have a BibTeX file somewhere on our system. Here it is. For this example, I made a file with three BibTeX entries, the last two of which refer to papers that are actually already contained in the LiteRef database (though they have a different key in my old file). Let us now see what happens when we copy this file into the drop folder.
 
-# We get a message about the second entry being a duplicate. Let’s choose to include this entry anyways. Now we get a message about the second entry being a duplicate. Let’s discard that entry. Note that we did not get any message about the first entry. That entry was silently added to the database. Now, let’s switch to Emacs an org-buffer open. I invoke the yank command and the newly added papers are cited! Note the automatically generated keys and, in particular, the suffix added to the key of the second paper.
+# We get a message about the second entry being a duplicate. Let’s choose to include this entry anyways. Now we get a message about the third entry being a duplicate. Let’s discard that entry. Note that we did not get any message about the first entry. That entry was silently added to the database. Now, let’s switch to an Emacs session with an org-buffer open. I invoke the yank command and the newly added papers are cited! Note the automatically generated keys and, in particular, the suffix added to the key of the second paper.
 
 #+BEGIN_HTML
-<a href="https://www.youtube.com/watch?v=2t925KRBbFc">
-<img src="http://img.youtube.com/vi/2t925KRBbFc/0.jpg">
+<a href="https://www.youtube.com/watch?v=bncsUKENxJA">
+<img src="http://img.youtube.com/vi/bncsUKENxJA/0.jpg">
 </a>
 #+END_HTML
 *** By copying a BibTeX entry into the clipboard
