@@ -73,7 +73,7 @@ This process is shown in the following [[demo]].
 
 #+BEGIN_HTML
 <a href="https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0">
-<img src="https://photos-5.dropbox.com/t/2/AAAPIQLGB2O3PAtKtYrP01-fLK1-E4gHIe2xX25TjVoyFw/12/53311650/png/32x32/1/_/1/2/import_by_copy.png/EM3gjykY9KxLIAcoBw/fBMkTISelapl6uYb4XiBPoPIOy2Hqy4dhJ1fUvMn6T8?preserve_transparency=1&size=2048x1536&size_mode=3"
+<img src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
 </a>
 #+END_HTML
 *** By copying a BibTeX entry into the clipboard
