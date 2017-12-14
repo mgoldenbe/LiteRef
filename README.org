@@ -73,7 +73,9 @@ This process is shown in the following [[demo]].
 
 #+BEGIN_HTML
 <a href="https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0">
-<img src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
+<img 
+width=50%
+src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
 </a>
 #+END_HTML
 *** By copying a BibTeX entry into the clipboard
