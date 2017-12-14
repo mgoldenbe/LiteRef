@@ -13,9 +13,15 @@
     (literef-assoc property fields)))
 
 (defun literef-candidate-venue(c)
-  "Return either nil or the venue of of the candidate C."
+  "Return either nil or the venue of the candidate C."
   (or (literef-candidate-property "booktitle" c)
       (literef-candidate-property "journal" c)))
+
+(defun literef-candidate-venue-type(c)
+  "Return the venue type of the candidate extracted from the key."
+  (let ((key (literef-candidate-property "=key=" c)))
+    (string-match "[[:digit:]]\\{4\\}\\([^-]*\\)" key)
+    (match-string 1 key)))
 
 ;;;; Changing the candidate strings.
 
@@ -135,7 +141,10 @@
 
 (defun literef-type-up(c1 c2)
   "Compare venue types for storing in increasing order."
-  (literef-str-compare c1 c2 "=type="))
+   (literef-raw-str-compare
+    (literef-candidate-venue-type c1)
+    (literef-candidate-venue-type c2)))
+   
 (defun literef-type-down(c1 c2)
   "Compare venue types for storing in decreasing order."
   (- (literef-type-up c1 c2)))

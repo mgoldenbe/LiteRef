@@ -35,7 +35,11 @@ Most features of =LiteRef= are implemented in Emacs Lisp. These features use uni
 
 The functionalities related to watching the /drop folder/ and creating/fetching new entries are delegated to a server written in =Python=. In contrast to the functionalities that are executed entirely inside =Emacs=, the server relies on dialog windows for its features’ user interface. One positive effect of this difference is that the user can visually and easily distinguish a /candidate/ BibTeX entry or PDF that has just been found and downloaded automatically from an entry that is already in the =LiteRef= database. Thus, the overall user experience only wins from this non-uniformness of presentation means.
 ** Import of entries
-[[#importing-bibtex-entries][Insertion of a new BibTeX entry]] into the =LiteRef= database is triggered by the appearance of a /.bib/ file in the =drop/= folder. This can happen in a large number of ways from manual creation of this file to automated search in on-line sources. Whatever way is chosen, each BibTeX entry in the new /.bib/ file receives an automatically generated key and (after duplicate detection) becomes a new entry in the database. Both /paper.bib/ and (an empty) /paper.org/ for the new entries are created at this point.
+[[#importing-bibtex-entries][Insertion of a new BibTeX entry]] into the =LiteRef= database is triggered by the appearance of a /.bib/ file in the =drop/= folder. This can happen in a large number of ways from manual creation of this file to automated search in on-line sources. Whatever way is chosen, /each/ BibTeX entry in the new /.bib/ file receives an automatically generated key. This key consists of three parts:
+- Last name of the first author followed by a capital letter for each co-author,
+- Year of publication followed by a letter signifying the type of venue, e.g. 2000c (a conference proceedings in 2000) or 2005j (a journal volume in 2005).
+- Two (possibly abbreviated) words from the title. 
+After duplicate detection, the new entries are entered into the database. Both /paper.bib/ and (an empty) /paper.org/ for the new entries are created at this point.
  
 [[#importing-pdf-of-a-paper][Searching for a PDF file]] is triggered by trying to open a paper’s PDF file in any one of the ways described [[#actions-on-a-paper][below]]. When this happens, if the =drop/= folder contains PDF files, these become the first candidates. If the user rejects these candidates, automated search in the on-line sources ensues.
 
@@ -63,11 +67,13 @@ This process is shown in the following [[demo]].
 # **** Scenario
 # So, suppose we have a BibTeX file somewhere on our system. Here it is. For this example, I made a file with three BibTeX entries, the last two of which refer to papers that are actually already contained in the LiteRef database (though they have a different key in my old file). Let us now see what happens when we copy this file into the drop folder.
 
-# We get a message about the second entry being a duplicate. Let’s choose to include this entry anyways. Now we get a message about the third entry being a duplicate. Let’s discard that entry. Note that we did not get any message about the first entry. That entry was silently added to the database. Now, let’s switch to an Emacs session with an org-buffer open. I invoke the yank command and the newly added papers are cited! Note the automatically generated keys and, in particular, the suffix added to the key of the second paper.
+# We get a message about the second entry being a duplicate. Let’s choose to include this entry anyways. However, we do not wish to apply this choice to the remaining entries of the file. Now we get a message about the third entry being a duplicate. Let’s discard that entry. Note that we did not get any message about the first entry. That entry will be silently added to the database. Now, let’s switch to an Emacs session with an org-buffer open. I invoke the yank command and the newly added papers are cited! Note the automatically generated keys and, in particular, the suffix added to the key of the second paper.
+
+# Running a little bit ahead, let’s run a paper search and sort the candidates in the decreasing order of the creation time stamp. The top two candidates are the two papers that we have just added. Note that their creation time stamp is same, so that we can order them on an additional criteria. So, let’s order them by the type of venue. 
 
 #+BEGIN_HTML
-<a href="https://www.youtube.com/watch?v=bncsUKENxJA">
-<img src="http://img.youtube.com/vi/bncsUKENxJA/0.jpg">
+<a href="https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0">
+<img src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?dl=0">
 </a>
 #+END_HTML
 *** By copying a BibTeX entry into the clipboard

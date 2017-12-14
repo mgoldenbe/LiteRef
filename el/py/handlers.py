@@ -146,10 +146,12 @@ def duplicateCheck(key, mode, askPersist):
         skipFlag = not tkMessageBox.askyesno('LiteRef: Duplicate Key',
                                              'Duplicate key is detected: ' + key + '.\n' +
                                              'Would you like to create an entry in any case?')
+        config.root.update()
         persistFlag = False
         if askPersist:
             persistFlag = tkMessageBox.askyesno('LiteRef: Repeat Choice',
                                                 'Would you like to apply this choice for the remaining entries?')
+            config.root.update()
         if persistFlag: mode = (Modes.PERSIST_SKIP if skipFlag else Modes.PERSIST_CREATE)
         if skipFlag: return ('BadKey', mode)
     return (unduplicateKey(key), mode)
@@ -160,6 +162,10 @@ def handleNewBib(fileName):
     bib_data = readBib(fileName)
     mode = Modes.REGULAR
     index = -1; count = len(bib_data.entries)
+    
+    # Doing it in two separate loops,
+    # so all entries would get the same time stamp.
+    newEntries = {}
     for key in bib_data.entries:
         index += 1
         entry = bib_data.entries[key]
@@ -178,7 +184,10 @@ def handleNewBib(fileName):
             entry.fields.order.remove('crossref')
         except:
             pass
-            
+        newEntries[newKey] = entry
+
+    for newKey in newEntries:
+        entry = newEntries[newKey]
         paperDir = config.PAPERS_DIR + newKey
         bibFileName = paperDir + "/paper.bib"
         orgFileName = paperDir + "/paper.org"
