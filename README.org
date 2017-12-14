@@ -72,7 +72,7 @@ This process is shown in the following [[https://www.dropbox.com/s/yi06fltwsvs21
 # Running a little bit ahead, let’s run a paper search and sort the candidates in the decreasing order of the creation time stamp. The top two candidates are the two papers that we have just added. Note that their creation time stamp is same, so that we can order them on an additional criteria. So, let’s order them by the type of venue. 
 
 #+BEGIN_HTML
-<p align="middle"
+<p align="middle">
 <a href="https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0">
 <img 
 width=50%
