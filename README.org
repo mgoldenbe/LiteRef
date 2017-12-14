@@ -63,7 +63,7 @@ The following actions are performed automatically as soon as a new /.bib/ file a
 - All the entries are added into the database subject to duplicate detection. In case a duplicate is detected, the user may choose to keep both entries, in which case the key of the new entry is modified to guarantee uniqueness. One practical case when a need for this feature may occur is when the new entry refers to a short version of the full-size conference paper that is already present in the database.
   + Note that all the added entries get the same creation time stamp. This detail is important when ordering papers by multiple criteria as described [[#finding-the-keys-to-cite][below]]. 
 - The list of newly added keys is put into the clipboard, so the new keys can be immediately quoted in the notes.
-This process is shown in the following [[demo]].
+This process is shown in the following [[https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0][demo]].
 # **** Scenario
 # So, suppose we have a BibTeX file somewhere on our system. Here it is. For this example, I made a file with three BibTeX entries, the last two of which refer to papers that are actually already contained in the LiteRef database (though they have a different key in my old file). Let us now see what happens when we copy this file into the drop folder.
 
@@ -72,11 +72,13 @@ This process is shown in the following [[demo]].
 # Running a little bit ahead, let’s run a paper search and sort the candidates in the decreasing order of the creation time stamp. The top two candidates are the two papers that we have just added. Note that their creation time stamp is same, so that we can order them on an additional criteria. So, let’s order them by the type of venue. 
 
 #+BEGIN_HTML
+<p align="middle"
 <a href="https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0">
 <img 
 width=50%
 src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
 </a>
+</p>
 #+END_HTML
 *** By copying a BibTeX entry into the clipboard
 With some sites, it is easier to put a BibTeX entry into the clipboard than to download a /.bib/ file. The command =literef-bibtex-from-clipboard= (by default associated with C-c c) caters to this case as show in the following [[demo]].
