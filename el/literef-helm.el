@@ -33,9 +33,11 @@
 	 (creation-date (format-time-string
 			 "%d-%m-%Y %H:%M:%S"
 			 (seconds-to-time (literef-creation-timestamp key))))
-	 (author (literef-assoc "author" fields))
-	 (title (literef-assoc "title" fields))
-	 (venue (literef-candidate-venue c)))
+	 (author
+	  (literef-translate-latex (literef-assoc "author" fields)))
+	 (title
+	  (literef-translate-latex (literef-assoc "title" fields)))
+	 (venue (literef-translate-latex (literef-candidate-venue c))))
     ;; (setq key (concat "[" key "]"))
     (setq key
     	  (propertize

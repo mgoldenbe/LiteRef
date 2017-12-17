@@ -96,16 +96,16 @@ src="https://www.dropbox.com/s/m8rrpxehodwri81/import_by_download.png?raw=1">
 </p>
 #+END_HTML
 *** By searching in on-line sources
-The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches for a BibTeX entry corresponding to the text in the active region. The region can be either in a regular =Emacs= buffer (e.g. in a notes file) or in a PDF buffer. The latter is the most widespread use case, since most often the researcher becomes interested in a paper that is cited in the paper currently being studied. The following [[demo]] shows this.
+The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches for a BibTeX entry corresponding to the text in the active region. The region can be either in a regular =Emacs= buffer (e.g. in a notes file) or in a PDF buffer. The latter is the most widespread use case, since most often the researcher becomes interested in a paper that is cited in the paper currently being studied. When the selected region contains multiple lines with words split between lines, =LiteRef= forms the single-line query intelligently. That is, it uses spell checking to determine whether the hyphen should be kept or removed. It refers to the user’s help only in case of doubt (i.e. when both the hyphenated and the „glued“ versions are (in)correct). The following [[https://www.dropbox.com/s/e4wuod3dplyodfr/import_bib_online.mp4?dl=0][demo]] shows this.
 # **** Scenario
 # For this demo, we will open an existing PDF of a paper and assume that we got interested in, say, this paper in the bibliography. So, we select this paper and invoke the =literef-get-region-bibtex= command. We see that DBLP, which is the on-line source selected in my configuration, is searched. The BibTeX is fetched and we are asked to confirm that this is the needed entry. Let’s confirm. We can now cite the newly added paper.
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/i30oguvqcmk5lkg/import_by_download.mp4?dl=0">
+<a href="https://www.dropbox.com/s/e4wuod3dplyodfr/import_bib_online.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/m8rrpxehodwri81/import_by_download.png?raw=1">
+src="https://www.dropbox.com/s/bod6bheyhed7y3v/import_bib_online.png?raw=1">
 </a>
 </p>
 #+END_HTML
@@ -114,11 +114,26 @@ The researcher can configure =LiteRef= to search several on-line sources. This i
 
 The currently implemented on-line sources for BibTeX entries are Google Scholar, Semantic Scholar and DBLP. The user can add more sources by implementing classes with interfaces similar to the classes of the existing sources. These interfaces are well documented in the [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/online_sources.py][online_sources.py]] module of the server.
 
-
 *** By downloading an HTML containing a number of papers
 Suppose that there is a venue that publishes paper in the narrow specialization of the researcher. The researcher needs to be knowledgeable about all the papers appearing in that venue. Thus, he may want to have a notes file, where all such papers for each year are presented. (We will see [[#splitting-a-multi-paper-citation][below]] that =LiteRef= makes it easy to track his progress on studying these papers as well.)
 
 To cater to the above scenario, =LiteRef= can handle /.html/ files downloaded into the =drop/= folder. =LiteRef= extracts from such an HTML links to BibTeX entries and downloads the entries themselves. Of the implemented on-line sources, only DBLP supports this feature. The following [[demo]] shows this feature put to use.
+
+# **** Scenario
+# Since the SoCS conference proceedings contain papers in my narrow specialization, I would like to review all the papers from these proceedings. Here, I opened in DBLP the table of contents of SoCS from 2011. I download the HTML of this page and go ahead to cite the newly added papers. 
+
+# Running a little bit ahead, let us make a headline for each paper in preparation for further study. 
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/e4wuod3dplyodfr/import_bib_online.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/bod6bheyhed7y3v/import_bib_online.png?raw=1">
+</a>
+</p>
+#+END_HTML
+
 ** Working with citations
 Most of the functionalities of =LiteRef= are centered around citations. In this section, we focus on the tasks of finding the keys to cite, editing the text containing citations, splitting a list of citations and working with the currently active citation or paper. 
 *** Finding the keys to cite

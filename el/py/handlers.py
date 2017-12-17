@@ -78,7 +78,7 @@ def keygen(entry):
     # of each of the remaining authors
     try:
         for el in myAuthors[1:]:
-            res += el.last_names[0][0]
+            res += re.sub('\W+','', el.last_names[0])[0]
     except:
         tkMessageBox.showwarning(
             'LiteRef: Bad BibTex Entry',
@@ -220,7 +220,7 @@ def handleNewHTML(fileName):
     listFile.close()
 
     command = "origDir=`pwd`; cd {tempDir}; " \
-              "wget -i {listFileName}; " \
+              "wget --no-check-certificate -i {listFileName}; " \
               "cd $origDir; " \
               "cat {tempDir}/*.bib >> {dropDir}/mybib.bib; " \
               "rm -rf \"{tempDir}\"; rm -f \"{fileName}\"". \
@@ -230,6 +230,8 @@ def handleNewHTML(fileName):
                      dropDir = config.DROP_DIR)
     #print command
     os.system(command)
+    tkMessageBox.showinfo('LiteRef Info',
+                          'All entries have been fetched.')
 
 ## Read request created from Emacs session.
 def readRequest(fileName):

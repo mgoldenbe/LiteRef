@@ -159,7 +159,9 @@ def processCandidateBib(link, source):
     """
     answer, entry = candidateBibFeedback(link, source)
     if answer:
-        with open(config.DROP_DIR + "temp.bib", "w") as myFile:
+        fileName = config.DROP_DIR + "/temp.bib"
+        os.system("rm -f " + fileName)
+        with open(fileName, "w") as myFile:
             myFile.write(entry)
     return answer
 
