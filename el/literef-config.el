@@ -48,6 +48,7 @@
 (setq org-export-with-todo-keywords nil)
 
 ;;;; BEGIN: Key bindings ----------------------------------------
+(define-key global-map "\C-cc" 'literef-bibtex-from-clipboard)
 (define-key global-map "\C-cw" 'literef-copy-current-key)
 (define-key global-map "\C-cf" 'literef-citation-function)
 (define-key global-map "\C-cb" 'literef-open-bibfile)

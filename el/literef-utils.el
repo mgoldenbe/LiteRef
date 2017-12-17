@@ -1,3 +1,6 @@
+(defun literef-xor(a b)
+  (not (eq a b)))
+
 (defun literef-number-or-nil-p(string)
   "Determines whether STRING is number or nil."
   (let ((converted (string-to-number string)))
@@ -36,6 +39,34 @@
     (while t
       (let ((ans (read-char prompt)))
       (when (member ans legal-chars) (throw 'ok ans))))))
+
+(defun literef-word-correct-p(word)
+  "Return t if WORD is spelled correctly and nil otherwise. Adapted from `flyspell-correct-word-before-point'."
+  (let (poss ispell-filter)
+    (ispell-send-string "%\n")	;put in verbose mode
+    (ispell-send-string (concat "^" word "\n"))
+    ;; wait until ispell has processed word
+    (while (progn
+	     (accept-process-output ispell-process)
+	     (not (string= "" (car ispell-filter)))))
+    ;; Remove leading empty element
+    (setq ispell-filter (cdr ispell-filter))
+    ;; ispell process should return something after word is sent.
+    ;; Tag word as valid (i.e., skip) otherwise
+    (or ispell-filter
+	(setq ispell-filter '(*)))
+    (if (consp ispell-filter)
+	(setq poss (ispell-parse-output (car ispell-filter))))
+    (cond
+     ((or (eq poss t) (stringp poss))
+      ;; The word is correct.
+      t)
+     ((null poss)
+      ;; ispell error
+      (error "Ispell: error in Ispell process"))
+     (t
+      ;; The word is incorrect.
+      nil))))
 
 ;; Source: https://emacs.stackexchange.com/a/19878/16048
 (defun literef-eval-string (string)

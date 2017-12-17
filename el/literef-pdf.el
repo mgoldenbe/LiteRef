@@ -68,6 +68,45 @@
 	  (insert (concat "annot:" key ":" (symbol-name annot-id)))
 	(message "An error occurred while selecting an annotation")))))
 
+(defun literef-first-word(line)
+  "Return the first word in LINE."
+  (string-match "\\(^[[:alpha:]]+\\)" line)
+  (match-string 1 line))
+
+(defun literef-last-word-hyphen(line)
+  "Return the last word in LINE. That word is assumed to be followed by hyphen. If the line is not ended with word and hyphen, return nil."
+  (string-match "\\([[:alpha:]]+\\)-$" line)
+  (match-string 1 line))
+
+(defun literef-glue-p(line1-last line2-first)
+  "Determines whether a line ending with the word LINE1-LAST and hyphen and the line beginning with the word LINE2-FIRST should be glued without the use of a hyphen when presenting those two lines as a single line."
+  (let ((glued-correct
+	 (literef-word-correct-p (concat line1-last line2-first)))
+	(hyphened-correct
+	 (and (literef-word-correct-p line1-last)
+	      (literef-word-correct-p line2-first))))
+    (cond
+     ((and glued-correct (not hyphened-correct)) t)
+     ((and hyphened-correct (not glued-correct)) nil)
+     (t (y-or-n-p
+	 (concat "Should the words " line1-last " and " line2-first
+		 " be glued in the single-line version?"))))))
+
+(defun literef-single-line-query(query)
+  "Return a single-line query corresponding to QUERY, while correctly handling hyphen at the end of lines."
+  (let* ((lines (split-string query "\n"))
+	 (res (car lines))
+	 (lines (cdr lines)))
+    (dolist (line lines res)
+      (let ((res-last (literef-last-word-hyphen res))
+	    (line-first (literef-first-word line)))
+	(if (and res-last line-first)
+	    (progn
+	      (when (literef-glue-p res-last line-first)
+		(setq res (substring res 0 -1))) ;; remove the hyphen
+	      (setq res (concat res line)))
+	  ;; Neither glue nor hyphen.
+	  (setq res (concat res " " line)))))))
 
 ;;;; Getting BibTeX entry
 (defun literef-get-region-bibtex()
@@ -77,22 +116,8 @@
 	 (if (pdf-view-active-region-p)
 	     (car (pdf-view-active-region-text))
 	   (buffer-substring (region-beginning) (region-end)))))
-    ;; Remove new lines.
-    (setq query (replace-in-string "\n" "" query))
-    ;; Handle words that were split across lines.
-    ;; Do not split in the following case: Many-to-Many.
-    (let ((case-fold-search nil))
-      (setq query
-	    (replace-regexp-in-string
-	     "[a-z]-[a-z]+[-]?"
-	     (lambda (s)
-	       (if (equal (substring s -1) "-")
-		   s
-		 (replace-in-string "-" "" s)))
-	     query)))
-    ;; (message "Search for: %s" query)))
-    (literef-server-request "getBib" query)))
-
+    (literef-server-request
+     "getBib" (literef-single-line-query query))))
 
 (defun flatten-string-with-links (string)
     (replace-regexp-in-string "\\[\\[[a-zA-Z:%@/\.]+\\]\\[[a-zA-Z:%@/\.]+\\]\\]"

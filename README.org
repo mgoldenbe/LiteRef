@@ -59,8 +59,8 @@ There are several ways to import a new BibTeX entry into the database of =LiteRe
 The most direct way do import BibTeX entries into the database of =LiteRef= is to either download or copy the corresponding /.bib/ file into the =drop/= folder. In case the BibTeX entry needs to be written from scratch, the /.bib/ file can be either created in the =drop/= folder or in another location and then copied over.
 The following actions are performed automatically as soon as a new /.bib/ file appears in the =drop/= folder:
 - The BibTeX entries are extracted.
-- The key for each BibTeX entry is computed.
-- All the entries are added into the database subject to duplicate detection. In case a duplicate is detected, the user may choose to keep both entries, in which case the key of the new entry is modified to guarantee uniqueness. One practical case when a need for this feature may occur is when the new entry refers to a short version of the full-size conference paper that is already present in the database.
+- The key for each BibTeX entry is generated.
+- All the entries are added into the database subject to duplicate detection. In case a duplicate is detected, the user may choose to keep both entries, in which case the key of the new entry is modified to guarantee uniqueness. One practical case when a need for this feature may arise is when the new entry refers to a short version of the full-size conference paper that is already present in the database.
   + Note that all the added entries get the same creation time stamp. This detail is important when ordering papers by multiple criteria as described [[#finding-the-keys-to-cite][below]]. 
 - The list of newly added keys is put into the clipboard, so the new keys can be immediately quoted in the notes.
 This process is shown in the following [[https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0][demo]].
@@ -81,15 +81,42 @@ src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
 </p>
 #+END_HTML
 *** By copying a BibTeX entry into the clipboard
-With some sites, it is easier to put a BibTeX entry into the clipboard than to download a /.bib/ file. The command =literef-bibtex-from-clipboard= (by default associated with C-c c) caters to this case as show in the following [[demo]].
+With some sites, it is easier to put a BibTeX entry into the clipboard than to download/create a /.bib/ file. The command =literef-bibtex-from-clipboard= (by default associated with =C-c c=) caters to this case as shown in the following [[https://www.dropbox.com/s/i30oguvqcmk5lkg/import_by_download.mp4?dl=0][demo]].
+# **** Scenario
+# Suppose we found a paper on Semantic Scholar. Now we open its BibTeX entry and copy it into the clipboard. Let’s now switch to our notes and invoke the =literef-bibtex-from-clipboard= command. The entry is now in the database and we can cite it by invoking the yank command.
+#
+# Had we found the same paper on DBLP, we might have as well chosen to import it by downloading the BibTeX file into the drop/ folder. … But now, of course, this entry is a duplicate.
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/i30oguvqcmk5lkg/import_by_download.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/m8rrpxehodwri81/import_by_download.png?raw=1">
+</a>
+</p>
+#+END_HTML
 *** By searching in on-line sources
-The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches for a BibTeX entry corresponding to the text in the active region. The region can be either in a regular =Emacs= buffer (e.g. in a notes file) or in a PDF buffer. The latter is the most widespread use case, since most often the researcher becomes interested in a paper that is cited in the paper currently being studied. The following [[demo]] shows both options.
+The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches for a BibTeX entry corresponding to the text in the active region. The region can be either in a regular =Emacs= buffer (e.g. in a notes file) or in a PDF buffer. The latter is the most widespread use case, since most often the researcher becomes interested in a paper that is cited in the paper currently being studied. The following [[demo]] shows this.
+# **** Scenario
+# For this demo, we will open an existing PDF of a paper and assume that we got interested in, say, this paper in the bibliography. So, we select this paper and invoke the =literef-get-region-bibtex= command. We see that DBLP, which is the on-line source selected in my configuration, is searched. The BibTeX is fetched and we are asked to confirm that this is the needed entry. Let’s confirm. We can now cite the newly added paper.
 
-The researcher can configure =LiteRef= to search several on-line sources. This is done by appropriately setting the =BIB_AUTOMATED_SOURCES= variable in the /config.py/ module of the server. In addition, the user can set =BIB_MANUAL_SOURCE= variable of the server. When this variable is set and the automated search does not come up with the desired BibTeX entry, =LiteRef= will open a the browser for searching in the specified source manually.
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/i30oguvqcmk5lkg/import_by_download.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/m8rrpxehodwri81/import_by_download.png?raw=1">
+</a>
+</p>
+#+END_HTML
 
-The currently implemented on-line sources for BibTeX entries are /Google Scholar/, /Semantic Scholar/ and /DBLP/. The user can add more sources by implementing classes with interfaces similar to the classes of the existing sources. These interfaces are well documented in the /online_sources.py/ module of the server. 
+The researcher can configure =LiteRef= to search several on-line sources. This is done by appropriately setting the =BIB_AUTOMATED_SOURCES= variable in the /config.py/ module of the server. In addition, the user can set =BIB_MANUAL_SOURCE= variable of the server. When this variable is set and the automated search does not come up with the desired BibTeX entry, =LiteRef= will open the browser for searching in the specified source manually.
+
+The currently implemented on-line sources for BibTeX entries are Google Scholar, Semantic Scholar and DBLP. The user can add more sources by implementing classes with interfaces similar to the classes of the existing sources. These interfaces are well documented in the [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/online_sources.py][online_sources.py]] module of the server.
+
+
 *** By downloading an HTML containing a number of papers
-Suppose that there is a venue that publishes paper in the narrow specialization of the researcher. The researcher needs to be knowledgeable about all the papers appearing in that venue. Thus, he may want to have a notes file, where all such papers for each year are presented. (We will see below that =LiteRef= makes it easy to track his progress on studying these papers as well.)
+Suppose that there is a venue that publishes paper in the narrow specialization of the researcher. The researcher needs to be knowledgeable about all the papers appearing in that venue. Thus, he may want to have a notes file, where all such papers for each year are presented. (We will see [[#splitting-a-multi-paper-citation][below]] that =LiteRef= makes it easy to track his progress on studying these papers as well.)
 
 To cater to the above scenario, =LiteRef= can handle /.html/ files downloaded into the =drop/= folder. =LiteRef= extracts from such an HTML links to BibTeX entries and downloads the entries themselves. Of the implemented on-line sources, only DBLP supports this feature. The following [[demo]] shows this feature put to use.
 ** Working with citations
