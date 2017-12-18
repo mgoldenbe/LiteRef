@@ -225,10 +225,12 @@
 	      (push ans res)))))))
     (literef-criteria-list (reverse res))))
 
+(setq literef-criteria nil)
+
 (defun literef-sort (_orig-fun)
   (interactive)
-  (let* ((literef-criteria (literef-read-sorting-criteria)))
-    (helm-update)))
+  (setq literef-criteria (literef-read-sorting-criteria))
+  (helm-update))
 
 (defun literef-filtered-candidate-transformer
     (_orig-fun candidates &optional _source)

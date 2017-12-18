@@ -117,19 +117,19 @@ The currently implemented on-line sources for BibTeX entries are Google Scholar,
 *** By downloading an HTML containing a number of papers
 Suppose that there is a venue that publishes paper in the narrow specialization of the researcher. The researcher needs to be knowledgeable about all the papers appearing in that venue. Thus, he may want to have a notes file, where all such papers for each year are presented. (We will see [[#splitting-a-multi-paper-citation][below]] that =LiteRef= makes it easy to track his progress on studying these papers as well.)
 
-To cater to the above scenario, =LiteRef= can handle /.html/ files downloaded into the =drop/= folder. =LiteRef= extracts from such an HTML links to BibTeX entries and downloads the entries themselves. Of the implemented on-line sources, only DBLP supports this feature. The following [[demo]] shows this feature put to use.
+To cater to the above scenario, =LiteRef= can handle /.html/ files downloaded into the =drop/= folder. =LiteRef= extracts from such an HTML links to BibTeX entries and downloads the entries themselves. Of the implemented on-line sources, only DBLP supports this feature. The following [[https://www.dropbox.com/s/9hwao8hkh6y8rjv/import_html.mp4?dl=0][demo]] shows this feature put to use.
 
 # **** Scenario
-# Since the SoCS conference proceedings contain papers in my narrow specialization, I would like to review all the papers from these proceedings. Here, I opened in DBLP the table of contents of SoCS from 2011. I download the HTML of this page and go ahead to cite the newly added papers. 
+# Since the SoCS conference proceedings contain papers in my narrow specialization, I would like to review all the papers from these proceedings. Here, I opened in DBLP the table of contents of SoCS from 2011. I download the HTML of this page and wait for all the BibTeX entries to be fetched… Here we go. Now we can go ahead and cite the newly added papers. 
 
-# Running a little bit ahead, let us make a headline for each paper in preparation for further study. 
+# Running a little bit ahead, let us make a headline for each paper in preparation for further study… 
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/e4wuod3dplyodfr/import_bib_online.mp4?dl=0">
+<a href="https://www.dropbox.com/s/9hwao8hkh6y8rjv/import_html.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/bod6bheyhed7y3v/import_bib_online.png?raw=1">
+src="https://www.dropbox.com/s/xxsyd0rre2u77j5/import_html.png?raw=1">
 </a>
 </p>
 #+END_HTML
@@ -137,9 +137,22 @@ src="https://www.dropbox.com/s/bod6bheyhed7y3v/import_bib_online.png?raw=1">
 ** Working with citations
 Most of the functionalities of =LiteRef= are centered around citations. In this section, we focus on the tasks of finding the keys to cite, editing the text containing citations, splitting a list of citations and working with the currently active citation or paper. 
 *** Finding the keys to cite
-=LiteRef= inherits from =org-ref= and significantly improves the command =org-ref-insert-link= (bound by default to =C-c ]=) for inserting a citation. Just like it’s predecessor, the command uses the =helm= interface for finding candidates by iterative process of filtering. =LiteRef= helps make this process more effective by supporting sorting candidates on multiple criteria. For example, one can access the recently added entries by sorting the candidates on the date and time of creation (which is taken to be the date and time of the last update of /paper.bib/ for that entry; entries added within a small time margin, which is two seconds by default, of each other are considered to be added at the same time to enable ordering them on other criteria). As its predecessor, the command supports insertion of multiple entries.
+=LiteRef= inherits from =org-ref= and significantly improves the command =org-ref-insert-link= (bound by default to =C-c ]=) for inserting a citation. Just like it’s predecessor, the command uses the =helm= interface for finding candidates by iterative process of filtering. =LiteRef= helps make this process more effective by supporting sorting candidates on multiple criteria. For example, one can access the recently added entries by sorting the candidates on the date and time of creation (which is taken to be the date and time of the last update of /paper.bib/ for that entry; entries added within a small time margin, which is two seconds by default, of each other are considered to be added at the same time to enable ordering them on other criteria). As its predecessor, the command supports insertion of multiple entries. If =literef-sort-citation-links= is not =nil=, the citation links are sorted on the sorted criteria encoded in the string value of =literef-citation-link-sorting-criteria=.
 
 Note that one can perform actions other than inserting a citation on a candidate. All this is shown in the following [[demo]].
+
+# **** Scenario
+# Suppose we would like to find recent papers of prof. Felner. We sort the candidates both on author name and the publication date in decreasing order. It is now easy to find the recent papers first-authored by the author of interest. If we like to find papers where prof. Felner appeared as a co-author and not necessarily as a first author, we can sort on the publication date only and then filter the candidates. The filter respects the order in which the words appear in the candidate. So, if we add the word „Title:“ to the filter, we will exclude the appearances of prof. Felner in the editing commitee of a conference proceeding. So, let us cite the papers of prof. Felner from 2017.  
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/9hwao8hkh6y8rjv/import_html.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/xxsyd0rre2u77j5/import_html.png?raw=1">
+</a>
+</p>
+#+END_HTML
 
 One can also insert citations based on searching for a given string in the first page of all the paper PDFs. This is done with the =literef-search-pdfs= command. The following [[demo]] shows how to find all papers written by researchers from Toronto (which can be useful if the researcher wants to establish contacts with researchers in his area of research in Toronto).
 *** Intelligent handling of citations
