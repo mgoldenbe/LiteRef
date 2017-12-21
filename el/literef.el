@@ -124,6 +124,9 @@ Splits the first citation of multiple sources found on the current line, so that
   (let* ((save-point (point)) ; because we'll kill the line
 	 (postfix-end (progn (end-of-line) (point)))
 	 (prefix-begin (progn (beginning-of-line) (point)))
+	 (element (progn
+		    (beginning-of-line)
+		    (car (org-element-at-point))))
 	 (prefix-end (progn (search-forward "cite:" postfix-end t) (point)))
 	 (prefix (buffer-substring prefix-begin (- prefix-end 5))))
     (if (= prefix-begin prefix-end) 
@@ -134,16 +137,16 @@ Splits the first citation of multiple sources found on the current line, so that
 	     (postfix-begin (+ prefix-end (length keys-with-commas)))
 	     (postfix (buffer-substring postfix-begin postfix-end))
 	     (inline-tasks-flag
-	      (if (eq (char-after prefix-begin) ?*)
-		  nil
-		(progn
-		  (goto-char save-point)
-		  (unwind-protect
-		      (progn
-			(org-ref-cancel-link-messages)
-			(y-or-n-p "Insert inline tasks?"))
-		    (org-ref-show-link-messages)))
-		  )))
+	      (if (eq element 'plain-list)
+		  (progn
+		    (goto-char save-point)
+		    (unwind-protect
+			(progn
+			  (org-ref-cancel-link-messages)
+			  (y-or-n-p "Insert inline tasks?"))
+		      (org-ref-show-link-messages)))
+		nil
+		)))
 	;; set the default todo keyword
 	(setq org-inlinetask-default-state
 	      (when org-todo-keywords-1 (car org-todo-keywords-1)))
@@ -154,9 +157,9 @@ Splits the first citation of multiple sources found on the current line, so that
 	;; insert a line for each key
 	(dolist (key keys nil)
 	  ;; get title and authors
-	  (let* ((title-author (and insert-title-author (literef-key-string key))))
+	  (let* ((title-author (and insert-title-author (concat (literef-key-string key) " "))))
 	    (unless (string= key (car keys)) (insert "\n"))
-	    (insert prefix (concat title-author) postfix " cite:" key))
+	    (insert prefix (concat title-author) "cite:" key postfix))
 	  (when inline-tasks-flag
 	    (org-inlinetask-insert-task)
 	    (search-forward "END")))))

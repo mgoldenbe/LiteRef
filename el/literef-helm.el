@@ -259,6 +259,14 @@
   (dolist (key (literef-helm-marked-keys) nil)
     (insert-for-yank key)))
 
+(defun literef-kill-ring-action-yank(orig_fun _string)
+  "The LiteRef version of helm-kill-ring-action-yank."
+  (dolist (c (helm-marked-candidates) nil)
+    (funcall orig_fun c)))
+
+(advice-add 'helm-kill-ring-action-yank
+	    :around 'literef-kill-ring-action-yank)
+
 (defun literef-action-transformer (_orig-fun actions candidate)
   "Transform candidate actions."
   (let ((key (literef-candidate-property "=key=" candidate)))

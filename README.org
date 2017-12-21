@@ -62,7 +62,7 @@ The following actions are performed automatically as soon as a new /.bib/ file a
 - The key for each BibTeX entry is generated.
 - All the entries are added into the database subject to duplicate detection. In case a duplicate is detected, the user may choose to keep both entries, in which case the key of the new entry is modified to guarantee uniqueness. One practical case when a need for this feature may arise is when the new entry refers to a short version of the full-size conference paper that is already present in the database.
   + Note that all the added entries get the same creation time stamp. This detail is important when ordering papers by multiple criteria as described [[#finding-the-keys-to-cite][below]]. 
-- The list of newly added keys is put into the clipboard, so the new keys can be immediately quoted in the notes.
+- The list of newly added keys is put into the clipboard, so the papers can be immediately cited in the notes by invoking the =yank= command (/yanking/ is the =Emacs= term for pasting), which is typically bound to =C-y=.
 This process is shown in the following [[https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0][demo]].
 # **** Scenario
 # So, suppose we have a BibTeX file somewhere on our system. Here it is. For this example, I made a file with three BibTeX entries, the last two of which refer to papers that are actually already contained in the LiteRef database (though they have a different key in my old file). Let us now see what happens when we copy this file into the drop folder.
@@ -136,34 +136,92 @@ src="https://www.dropbox.com/s/xxsyd0rre2u77j5/import_html.png?raw=1">
 
 ** Working with citations
 Most of the functionalities of =LiteRef= are centered around citations. In this section, we focus on the tasks of finding the keys to cite, editing the text containing citations, splitting a list of citations and working with the currently active citation or paper. 
-*** Finding the keys to cite
-=LiteRef= inherits from =org-ref= and significantly improves the command =org-ref-insert-link= (bound by default to =C-c ]=) for inserting a citation. Just like it’s predecessor, the command uses the =helm= interface for finding candidates by iterative process of filtering. =LiteRef= helps make this process more effective by supporting sorting candidates on multiple criteria. For example, one can access the recently added entries by sorting the candidates on the date and time of creation (which is taken to be the date and time of the last update of /paper.bib/ for that entry; entries added within a small time margin, which is two seconds by default, of each other are considered to be added at the same time to enable ordering them on other criteria). As its predecessor, the command supports insertion of multiple entries. If =literef-sort-citation-links= is not =nil=, the citation links are sorted on the sorted criteria encoded in the string value of =literef-citation-link-sorting-criteria=.
+*** Searching the papers database
+=LiteRef= inherits from =org-ref= and significantly improves the command =org-ref-insert-link= (bound by default to =C-c ]=) for inserting a citation. 
 
-Note that one can perform actions other than inserting a citation on a candidate. All this is shown in the following [[demo]].
+Just like it’s predecessor, the command uses the =helm= interface for finding candidates by iterative process of filtering. =LiteRef= helps make this process more effective by supporting sorting candidates on multiple criteria. The sorting is invoked by default by =M-<DOWN>= (=M= stands for the /Meta/ key, which is =Alt= on most keyboards). For example, one can access the recently added entries by sorting the candidates on the date and time of creation (which is taken to be the date and time of the last update of /paper.bib/ for that entry; entries added within a small time margin, which is two seconds by default, of each other are considered to be added at the same time to enable ordering them on other criteria). As its predecessor, the command supports insertion of multiple entries (multiple candidates are selected by pressing =C-<SPACE>=). If =literef-sort-citation-links= is not =nil=, the citation links are sorted on the sorted criteria encoded in the string value of =literef-citation-link-sorting-criteria=.
+
+Note that one can perform actions other than inserting a citation on a candidate (this is done by pressing =<TAB>= while the candidate is active). All this is shown in the following [[https://www.dropbox.com/s/7qr2rv9lsl43g5e/search.mp4?dl=0][demo]].
 
 # **** Scenario
-# Suppose we would like to find recent papers of prof. Felner. We sort the candidates both on author name and the publication date in decreasing order. It is now easy to find the recent papers first-authored by the author of interest. If we like to find papers where prof. Felner appeared as a co-author and not necessarily as a first author, we can sort on the publication date only and then filter the candidates. The filter respects the order in which the words appear in the candidate. So, if we add the word „Title:“ to the filter, we will exclude the appearances of prof. Felner in the editing commitee of a conference proceeding. So, let us cite the papers of prof. Felner from 2017.  
+# Suppose we would like to find recent papers of prof. Felner. We sort the candidates both on the author name and the publication date in decreasing order. It is now easy to find the recent papers first-authored by prof. Felner. If we like to find papers where prof. Felner appeared as a co-author and not necessarily as a first author, we can sort on the publication date only and then filter the candidates. The filter respects the order in which the words appear in the candidate. So, if we add the word „Title:“ to the filter, we will make sure that the name of prof. Felner appears before the title of the paper (and not, say, in the editing commitee of a conference proceeding). So, let us cite the papers of prof. Felner from 2017. In my configuration,… multi-paper citations are automatically sorted in alphabetic order of the keys.
+
+# Let us now use the search to perform another action. For example, let us open the PDF of … this paper.
+
+#+BEGIN_HTML
+<p align="middle"> <a
+href="https://www.dropbox.com/s/7qr2rv9lsl43g5e/search.mp4?dl=0"> <img
+width=50%
+src="https://www.dropbox.com/s/hs07fkeiq2apz59/search.mp3?raw=1"> </a>
+</p> #+END_HTML
+
+One can also insert citations based on searching for a given string in the first page of all the paper PDFs. This is done with the =literef-search-pdfs= command. The following [[https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0][demo]] shows how to find all papers written by researchers from Toronto (which can be useful if the researcher wants to establish contacts with researchers in his area of research in Toronto).
+
+# **** Scenario
+# Say nothing.
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/9hwao8hkh6y8rjv/import_html.mp4?dl=0">
+<a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/xxsyd0rre2u77j5/import_html.png?raw=1">
+src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+</a>
+</p>
+#+END_HTML
+*** Intelligent handling of copying and pasting citations
+When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. This is shown in the following [[https://www.dropbox.com/s/avpp69cd6em5byj/intelligent_pasting.mp4?dl=0][demo]].
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/avpp69cd6em5byj/intelligent_pasting.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/j6v15naeqmc2q06/intelligent_pasting.png?raw=1">
 </a>
 </p>
 #+END_HTML
 
-One can also insert citations based on searching for a given string in the first page of all the paper PDFs. This is done with the =literef-search-pdfs= command. The following [[demo]] shows how to find all papers written by researchers from Toronto (which can be useful if the researcher wants to establish contacts with researchers in his area of research in Toronto).
-*** Intelligent handling of citations
-When a citation is added or a BibTeX entry’s key is yanked (which is the =Emacs= term for pasting) from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. This is shown in the following [[demo]].
+# **** Scenario
+# Suppose we would like to add a paper to this three-paper citation. The cursor just happens to be in the middle of this long citation. We can simply cite more papers and leave it to =LiteRef= to take care of the formatting and ordering issues. So,… let’s cite these two papers. We see that a well-formed multi-paper citation resulted and the keys have been ordered according to the configuration, which is the alphabetic order of keys in my case.
+
+In addition, =LiteRef= offers the =literef-copy-current-key= command (bound by default to =C-c w=), which puts the currently active citation key into the kill ring. When used in conjunction with =helm-show-kill-ring= and [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bookmarks.html][bookmarks]] (which are of those many tools Emacs has to make your life easier once you discover them), one can easily collect citations scattered all over his notes. The following [[https://www.dropbox.com/s/b6n2ffwf3eatvo8/collect.mp4?dl=0][demo]] shows this.
+
+# Suppose we are working on our notes and would like to cite some of the papers already cited above… We are going to do this by putting the citations of interest into the kill ring. First, I save my place in a bookmark by pressing =C-x r m=. Now, I go over the notes and press =C-c w= to invoke the =literef-copy-current-key= command for each citation that I care to copy. Now I go back to the bookmarked place by pressing =C-x r b=.… I invoke the =helm-show-kill-ring= command, which allows one to search in the kill-ring. =LiteRef= modifies the default action of =helm-show-kill-ring=, so that we can yank all of the selected candidates. We rely on =LiteRef= for yanking the BibTeX keys in an intelligent manner. Thus, we obtain a well-formed multi-paper citation that we were looking for.
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/b6n2ffwf3eatvo8/collect.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/wzu61s974xhls70/collect.png?raw=1">
+</a>
+</p>
+#+END_HTML
 *** Splitting a multi-paper citation
-Sometimes we would like to have citations of multiple papers appear either as headlines or in a list in the same notes file. This would allow us to add notes relating to each individual citation. We can do this by splitting a multi-paper citation using either =literef-split-cite= (bound to =C-c d= by default) or =literef-split-cite-title-author= (bound to =C-c c= by default). Th latter command adds authors and title to each paper. Both commands replicate the context of the original multi-paper citation (i.e. the preceding and following text) with each resulting single-paper citation. 
+Sometimes we would like to have citations of multiple papers appear either as headlines or in a list in the same notes file. This would allow us to add notes relating to each individual citation. We can do this by splitting a multi-paper citation using either =literef-split-cite= (bound to =C-c d= by default) or =literef-split-cite-title-author= (bound to =C-c s= by default). Th latter command adds authors and title to each paper. Both commands replicate the context of the original multi-paper citation (i.e. the preceding and following text) with each resulting single-paper citation. 
 
-In addition, when the original multi-paper citation appears as a list item, =LiteRef= will offer to create an active task for each paper.
+In addition, when the original multi-paper citation appears as a list item, =LiteRef= will offer to create an =org-mode= [[http://orgmode.org/w/?p=org-mode.git;a=blob_plain;f=lisp/org-inlinetask.el;hb=HEAD][inline task]] for each paper.
 
-This feature is particularly powerful when the researcher would like to study the papers appearing in a particular journal volume or conference proceeding. The feature in action is shown in the following [[demo]].  
+This feature is particularly powerful when the researcher would like to study the papers appearing in a particular journal volume or conference proceeding. The feature in action is shown in the following [[https://www.dropbox.com/s/misp2pwkeeoypyu/split.mp4?dl=0][demo]].  
  
+# **** Scenario
+# In this video, we show the various ways of splitting a multi-paper citation in preparation for further study of each of the cited papers. So, let us add some context before and after the citation… Now we press =C-c d= to invoke the =literef-split-cite= command. We see that each paper is now cited separately and the context is attached to each citation.
+
+# One interesting use of this feature is when the context causes the citations to become headlines or list items. So, let us perform a split so that each citation will become a headline… One of the things we can do with an =org-mode= headline is associate a status. So, here we defined the milestones of studying a paper. We can now change the paper’s status by pressing Shift with right or left arrow. However, if we export such an org file, each headline will become a section. We might not want that. So, let us try to use an itemized list instead… Since list items cannot have status associated with them, =LiteRef= offers us to associate an =org-mode= inline task with each paper. Let’s agree. We can now track the progress of studying the papers in the same way as with the headlines.
+
+# Since it may be inconvenient to have to hover with the mouse over a citation in order to view the paper’s title and authors,… =LiteRef= provides the =literef-split-cite-title-author= command… Let me press =C-c s= to split our multi-paper citation using this command. The effect is as before, except that each citation is preceeded by the paper’s title and authors. 
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/misp2pwkeeoypyu/split.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/rits0gcws7jak5f/split.png?raw=1">
+</a>
+</p>
+#+END_HTML
+
 *** Actions on a paper
 When the user follows a citation link (i.e. invokes the =org-mode= command =org-open-at-point= either by pressing =C-c C-o= when the cursor is on the link or by clicking on it with the mouse), a menu appears and he can choose to open (in a different window) the BibTeX entry, the notes of the PDF associated with the paper.
 
@@ -173,6 +231,19 @@ Each of these actions can be invoked directly when the cursor is located over a 
 - =literef-open-pdf= for opening the PDF is bound by default to =C-c o=. The next section describes what happens when the PDF for the paper has not yet been added. 
 
 The following [[demo]] shows the use of these actions.
+
+# **** Scenario
+# Here is a citation of two papers. I invoke the =org-open-at-point= command by pressing =C-c C-o= and get the action menu for the BibTeX key currently under cursor… I could get the same menu by clicking on the citation. The actions are self explanatory – I can open the BibTeX entry,… the notes for the paper…, or the paper’s PDF… I could also perform these actions directly. For example, I can open the PDF by invoking the =literef-open-pdf= command by pressing =C-c o=. I can also invoke these actions when visiting a file associated with the paper. For example, right now we are visiting PDF of the paper. So, let us open this paper’s BibTeX entry. I invoke the =literef-open-bibfile= command by pressing =C-c b=… Of course, the user can rebind all these and other commands to different key combinations for his best convenience.   
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+</a>
+</p>
+#+END_HTML
 
 In addition, one can use the active citation/paper as a root for defining a sub-graph of the citation graph. This is described in a separate section below.
 ** Importing PDF of a paper
@@ -185,10 +256,42 @@ b) The PDF is searched for in the on-line sources defined by the =PDF_AUTOMATED_
    If a PDF is fetched and confirmed by the user, it is attached to the entry and opened in =Emacs=. Otherwise, the next step is taken.
 c) When the =PDF_MANUAL_SOURCE= variable of the server is set, =LiteRef= will open a the browser for searching in the specified source manually. Namely, the server stores the BibTeX entries for which manual download of a PDF has been requested. Once a new PDF appears in the =drop/= folder, =LiteRef= asks the user to match it with one of those BibTeX entries. If none of the entries is matched the PDF remains in the =drop/= folder for future use. For example it may be attached to an entry in the step a) above when the user tries to open the corresponding paper’s PDF.  
 This process is shown in the following [[demo]].
+
+# **** Scenario
+# Here is a BibTeX entry for a paper for which there is no PDF in the =LiteRef= database. Let us first consider a scenario whereby we already have the PDF somewhere on the system… Here it is. We could of course copy that PDF manually into the paper’s folder… Alternatively, we can move all such PDFs into the drop/ folder… When we invoke =literef-open-pdf=, which is the regular command for opening the PDF… =LiteRef= offers to attach the PDF in the drop/ folder. If there are several papers there, we will be ask about each of them until we answer positively about one of these candidates or decline all of them… For this example, let us agree. The PDF is added to the =LiteRef= database and opened in Emacs…
+
+# Here is a different paper for which we do not have a PDF yet. This time, there is nothing in the drop/ folder and =LiteRef= will immediately begin by searching in the online sources, which are set to a single source, namely Semantic Scholar, in my configuration… I invoke the command for opening the PDF… The paper is found and, once we confirm that this is the paper we are looking for, it is added to the database and opened in Emacs.
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+</a>
+</p>
+#+END_HTML
+
 ** Working with PDF
 When it comes to working with the PDF of a paper, the rendering speed and features of the =pdf-tools= package of =Emacs= are prodigious. In particular, the researcher gets great tools for annotating the paper.
 
 =LiteRef= connects those abilities to the researcher’s notes by allowing to link directly from the notes to PDF annotations. The use of command for doing that, =literef-cite-pdf-annotation= (bound by default to =C-c a=) is shown in the following [[demo]].
+
+# **** Scenario
+# Suppose we are studying a paper and would like to comment on this fragment. We could add an annotation containing our comment, but suppose we’d like to make our comment part of the notes associated with the paper. So, a simple highlighting annotation suffices… Let us now continue to work on the notes and add our comment… At last, we want to link to the annotation. We press =C-c a= to invoke the =literef-cite-pdf-annotation= command and select the annotation to link to. Now, even if we close the PDF, we can still click on the link to jump directly to the annotation…
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+</a>
+</p>
+#+END_HTML
+
+Conveniently, the =literef-cite-pdf-annotation= command can be invoked even when the PDF buffer is not currently active. In this case, =LiteRef= will find such a buffer. If several buffers are visiting PDF files, the user is offered to choose the appropriate buffer.
+
 ** Basic export of notes
 =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=. In its original form, this command was already capable of exporting notes in a variety of formats, including LaTeX and PDF. With =LiteRef=, this command appends the bibliography based on the citations found in the notes. The underlying bibliography file created by =LiteRef= contains only the papers that appear in the bibliography, ordered by the increasing order of the BibTeX key.
 
