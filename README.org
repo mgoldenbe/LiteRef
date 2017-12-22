@@ -170,7 +170,7 @@ src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
 </p>
 #+END_HTML
 *** Intelligent handling of copying and pasting citations
-When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. This is shown in the following [[https://www.dropbox.com/s/avpp69cd6em5byj/intelligent_pasting.mp4?dl=0][demo]].
+When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. If automated ordering of citation is enabled (i.e. =literef-sort-citation-links= is set to =t=), then the keys will be sorted on the criteria specified in =literef-citation-link-sorting-criteria= (see the section on [[#installation-and-configuration][configuration]]). This is shown in the following [[https://www.dropbox.com/s/avpp69cd6em5byj/intelligent_pasting.mp4?dl=0][demo]].
 
 #+BEGIN_HTML
 <p align="middle">
@@ -198,6 +198,9 @@ src="https://www.dropbox.com/s/wzu61s974xhls70/collect.png?raw=1">
 </a>
 </p>
 #+END_HTML
+
+Currently, if one yanks a LiteRef key and that key gets relocated  by automated ordering, the following =yank-pop= command will not function properly. However, given the superior convenience offered by =helm-show-kill-ring=, this limitation should not discourage one from using automated ordering of citation keys.
+
 *** Splitting a multi-paper citation
 Sometimes we would like to have citations of multiple papers appear either as headlines or in a list in the same notes file. This would allow us to add notes relating to each individual citation. We can do this by splitting a multi-paper citation using either =literef-split-cite= (bound to =C-c d= by default) or =literef-split-cite-title-author= (bound to =C-c s= by default). Th latter command adds authors and title to each paper. Both commands replicate the context of the original multi-paper citation (i.e. the preceding and following text) with each resulting single-paper citation. 
 

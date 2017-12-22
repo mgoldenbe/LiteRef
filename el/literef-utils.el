@@ -211,7 +211,7 @@ Also, this version does not affect point"
     (condition-case nil (org-ref-get-bibtex-key-under-cursor) (error nil))))
 
 (defun literef-current-key()
-  "The key under cursor or for the paper of the current notes or .bib file.
+  "The key under cursor or for the paper with which the file being visitedis associated.
 
 Returns nil if neither of these ways produces a key."
   (or (literef-get-bibtex-key-under-cursor)
@@ -252,7 +252,7 @@ Returns nil if neither of these ways produces a key."
 (defun literef-open-notes()
   "Open notes for the cite link under cursor"
   (interactive)
-  (let ((key (org-ref-get-bibtex-key-under-cursor)))
+  (let ((key (literef-current-key)))
     (literef-open-key-notes key)))
 
 (defun literef-open-key-bibfile(key)
@@ -263,7 +263,7 @@ Returns nil if neither of these ways produces a key."
 (defun literef-open-bibfile()
   "Open the bibfile for the cite link under cursor"
   (interactive)
-  (let ((key (org-ref-get-bibtex-key-under-cursor)))
+  (let ((key (literef-current-key)))
     (literef-open-key-bibfile key)))
 
 ;;;; Opening PDF
