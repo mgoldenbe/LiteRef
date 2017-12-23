@@ -233,17 +233,17 @@ Each of these actions can be invoked directly when the cursor is located over a 
 - =literef-open-notes= for opening the notes is bound by default to =C-c n=.
 - =literef-open-pdf= for opening the PDF is bound by default to =C-c o=. The next section describes what happens when the PDF for the paper has not yet been added. 
 
-The following [[demo]] shows the use of these actions.
+The following [[https://www.dropbox.com/s/4rl36kkvdw4uqpy/actions.mp4?dl=0][demo]] shows the use of these actions.
 
 # **** Scenario
 # Here is a citation of two papers. I invoke the =org-open-at-point= command by pressing =C-c C-o= and get the action menu for the BibTeX key currently under cursor… I could get the same menu by clicking on the citation. The actions are self explanatory – I can open the BibTeX entry,… the notes for the paper…, or the paper’s PDF… I could also perform these actions directly. For example, I can open the PDF by invoking the =literef-open-pdf= command by pressing =C-c o=. I can also invoke these actions when visiting a file associated with the paper. For example, right now we are visiting PDF of the paper. So, let us open this paper’s BibTeX entry. I invoke the =literef-open-bibfile= command by pressing =C-c b=… Of course, the user can rebind all these and other commands to different key combinations for his best convenience.   
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
+<a href="https://www.dropbox.com/s/4rl36kkvdw4uqpy/actions.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+src="https://www.dropbox.com/s/625bc7e06x11vur/actions.png?raw=1">
 </a>
 </p>
 #+END_HTML
@@ -258,19 +258,19 @@ b) The PDF is searched for in the on-line sources defined by the =PDF_AUTOMATED_
 
    If a PDF is fetched and confirmed by the user, it is attached to the entry and opened in =Emacs=. Otherwise, the next step is taken.
 c) When the =PDF_MANUAL_SOURCE= variable of the server is set, =LiteRef= will open a the browser for searching in the specified source manually. Namely, the server stores the BibTeX entries for which manual download of a PDF has been requested. Once a new PDF appears in the =drop/= folder, =LiteRef= asks the user to match it with one of those BibTeX entries. If none of the entries is matched the PDF remains in the =drop/= folder for future use. For example it may be attached to an entry in the step a) above when the user tries to open the corresponding paper’s PDF.  
-This process is shown in the following [[demo]].
+This process is shown in the following [[https://www.dropbox.com/s/zeuh4q1ntmq2htg/import_pdf.mp4?dl=0][demo]].
 
 # **** Scenario
-# Here is a BibTeX entry for a paper for which there is no PDF in the =LiteRef= database. Let us first consider a scenario whereby we already have the PDF somewhere on the system… Here it is. We could of course copy that PDF manually into the paper’s folder… Alternatively, we can move all such PDFs into the drop/ folder… When we invoke =literef-open-pdf=, which is the regular command for opening the PDF… =LiteRef= offers to attach the PDF in the drop/ folder. If there are several papers there, we will be ask about each of them until we answer positively about one of these candidates or decline all of them… For this example, let us agree. The PDF is added to the =LiteRef= database and opened in Emacs…
+# Here is a BibTeX entry for a paper for which there is no PDF in the =LiteRef= database. Let us first consider a scenario whereby we already have the PDF somewhere on the system… Here it is. We could of course copy that PDF manually into the paper’s folder… Alternatively, we can move all such PDFs into the drop/ folder… When we invoke =literef-open-pdf=, which is the regular command for opening the PDF… =LiteRef= offers to attach the PDF in the drop/ folder. If there are several papers there, we will be asked about each of them until we answer positively about one of these candidates or decline all of them… For this example, let us agree. The PDF is added to the =LiteRef= database and opened in Emacs…
 
 # Here is a different paper for which we do not have a PDF yet. This time, there is nothing in the drop/ folder and =LiteRef= will immediately begin by searching in the online sources, which are set to a single source, namely Semantic Scholar, in my configuration… I invoke the command for opening the PDF… The paper is found and, once we confirm that this is the paper we are looking for, it is added to the database and opened in Emacs.
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
+<a href="https://www.dropbox.com/s/zeuh4q1ntmq2htg/import_pdf.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+src="https://www.dropbox.com/s/9x9jqnqk74bl8uw/import_pdf.png?raw=1">
 </a>
 </p>
 #+END_HTML

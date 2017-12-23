@@ -244,6 +244,12 @@ Returns nil if neither of these ways produces a key."
   "Compute name of the pdf file based on the key and the extension"
   (literef-filename key "pdf"))
 
+(defun literef-find-file-other-window(filename)
+  "The version of `find-file-other-window' that does not do anything if the file is already being visited in the current window."
+  (if (equal (buffer-file-name) filename)
+      (current-buffer)
+    (find-file-other-window filename)))
+
 (defun literef-open-key-notes(key)
   "Open notes for KEY."
   (let ((filename (literef-notes-filename key)))
@@ -277,10 +283,16 @@ Returns nil if neither of these ways produces a key."
     (let ((filename (literef-pdf-filename key)))
       (when (file-exists-p filename)
 	(remhash key literef-needed-pdfs)
-	(find-file-other-window filename)))))
+	(switch-to-buffer (find-file-other-window filename))))))
 
 (cancel-function-timers 'literef-check-arrived-pdfs)
 (run-with-idle-timer 0.1 t 'literef-check-arrived-pdfs)
+
+(defun literef-open-key-pdf-raw(key)
+  "Open the pdf for KEY. This function is to be used only when the PDF exists with certainty."
+  (let ((filename (literef-pdf-filename key)))
+    (when (file-exists-p filename)
+      (switch-to-buffer (literef-find-file-other-window filename)))))
 
 (defun literef-open-key-pdf(key)
   "Open the pdf for KEY."

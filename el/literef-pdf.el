@@ -2,7 +2,7 @@
   (let* ((parts (split-string path ":"))
 	 (key (elt parts 0))
 	 (annot-id (elt parts 1)))
-    (literef-open-key-pdf key)
+    (literef-open-key-pdf-raw key)
     (pdf-annot-show-annotation (pdf-annot-getannot annot-id) t)))
 
 (org-link-set-parameters
@@ -14,17 +14,11 @@
 
 (defun literef-buffers-in-mode(mode)
   "Get all buffers in the major mode MODE."
-  (save-excursion
-    (let ((res)
-	  (orig-buffer (current-buffer)))
-      (catch 'ok
-	(while t
-	  (other-window 1)
-	  (when (eq major-mode mode)
-	    (push (current-buffer) res))
-	  (when (eq (current-buffer) orig-buffer)
-	    (throw 'ok nil))))
-      res)))
+  (let (res)
+    (dolist (b (buffer-list) res)
+      (with-current-buffer b
+	(when (eq major-mode mode)
+	  (push (current-buffer) res))))))
 
 (defun literef-pdf-buffer-keys()
   "For each buffer in PDFView mode that corresponds to an entry, return the entry's key"
@@ -46,7 +40,8 @@
 	       "PDFs for the following keys are open. Please choose:\n"
 	       keys))))
       (save-excursion
-	(literef-open-key-pdf key)
+	(literef-open-key-pdf-raw key)
+	;; (yes-or-no-p (prin1-to-string (frame-selected-window)))
 	(let* ((window (window-inside-pixel-edges))
 	       (left (elt window 0))
 	       (top (elt window 1))
@@ -58,14 +53,21 @@
 	   (/ (+ top bottom) 2)))
 	(setq annot-id
 	      (ignore-errors
-		(pdf-annot-get-id (pdf-annot-read-annotation
-				   "Click on the annotation to select it.")))))
+		(pdf-annot-get-id
+		 (pdf-annot-read-annotation
+		  "Click on the annotation to select it.")))))
       (set-mouse-pixel-position
        (car orig-mouse-position)
        (car (cdr orig-mouse-position))
        (cdr (cdr orig-mouse-position)))
       (if annot-id
-	  (insert (concat "annot:" key ":" (symbol-name annot-id)))
+	  (let ((string (concat "annot:" key ":"
+				(symbol-name annot-id))))
+	    (if buffer-read-only
+		(progn
+		  (kill-new string)
+		  (message "The annotation link is in the kill ring."))
+	      (insert string)))
 	(message "An error occurred while selecting an annotation")))))
 
 (defun literef-first-word(line)
