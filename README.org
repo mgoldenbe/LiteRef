@@ -189,6 +189,24 @@ In addition, =LiteRef= offers the =literef-copy-current-key= command (bound by d
 
 # Suppose we are working on our notes and would like to cite some of the papers already cited above… We are going to do this by putting the citations of interest into the kill ring. First, I save my place in a bookmark by pressing =C-x r m=. Now, I go over the notes and press =C-c w= to invoke the =literef-copy-current-key= command for each citation that I care to copy. Now I go back to the bookmarked place by pressing =C-x r b=.… I invoke the =helm-show-kill-ring= command, which allows one to search in the kill-ring. =LiteRef= modifies the default action of =helm-show-kill-ring=, so that we can yank all of the selected candidates. We rely on =LiteRef= for yanking the BibTeX keys in an intelligent manner. Thus, we obtain a well-formed multi-paper citation that we were looking for.
 
+# Contents of notes:
+
+# Culberson and Schaeffer coined the term /pattern databases/ cite:CulbersonS1998j-Patter-Datab.
+
+# …
+
+# A straightforward compression scheme for pattern databases has been proposed Felner et al. cite:FelnerKMH2007j-Compr-Patter. 
+
+# The recent work by Helmert et al. cite:HelmertSF2017c-On-Variab provides an experimental study of the /min-compression/ scheme cite:FelnerKMH2007j-Compr-Patter.
+
+# …
+
+# Compression of pattern databases continues to attract the researchers’ attention cite:KeshtkaranTZ2011c-Novel-Techn.
+
+# …
+
+# In conclusion, much work as been done on compression of pattern databases [begin paste here] cite:CulbersonS1998j-Patter-Datab,FelnerKMH2007j-Compr-Patter,HelmertSF2017c-On-Variab,KeshtkaranTZ2011c-Novel-Techn. This direction has not been exhausted, so more work is probably to follow.
+
 #+BEGIN_HTML
 <p align="middle">
 <a href="https://www.dropbox.com/s/b6n2ffwf3eatvo8/collect.mp4?dl=0">
@@ -214,6 +232,15 @@ This feature is particularly powerful when the researcher would like to study th
 # One interesting use of this feature is when the context causes the citations to become headlines or list items. So, let us perform a split so that each citation will become a headline… One of the things we can do with an =org-mode= headline is associate a status. So, here we defined the milestones of studying a paper. We can now change the paper’s status by pressing Shift with right or left arrow. However, if we export such an org file, each headline will become a section. We might not want that. So, let us try to use an itemized list instead… Since list items cannot have status associated with them, =LiteRef= offers us to associate an =org-mode= inline task with each paper. Let’s agree. We can now track the progress of studying the papers in the same way as with the headlines.
 
 # Since it may be inconvenient to have to hover with the mouse over a citation in order to view the paper’s title and authors,… =LiteRef= provides the =literef-split-cite-title-author= command… Let me press =C-c s= to split our multi-paper citation using this command. The effect is as before, except that each citation is preceeded by the paper’s title and authors. 
+
+# Notes:
+
+# #+TODO: UNREAD SURFACE IN-DEPTH | DONE
+
+# * "Pattern Databases" by Culberson, J. C., & Schaeffer, J. cite:CulbersonS1998j-Patter-Datab
+# * "Compressed Pattern Databases" by Felner, A., Korf, R. E., Meshulam, R., & Holte, R. C. cite:FelnerKMH2007j-Compr-Patter
+# * "On Variable Dependencies and Compressed Pattern Databases" by Helmert, M., Sturtevant, N. R., & Felner, A. cite:HelmertSF2017c-On-Variab
+# * "A Novel Technique for Compressing Pattern Databases in the Pancake Sorting Problems" by Keshtkaran, M., Taghizadeh, R., & Ziarati, K. cite:KeshtkaranTZ2011c-Novel-Techn
 
 #+BEGIN_HTML
 <p align="middle">
@@ -278,17 +305,22 @@ src="https://www.dropbox.com/s/9x9jqnqk74bl8uw/import_pdf.png?raw=1">
 ** Working with PDF
 When it comes to working with the PDF of a paper, the rendering speed and features of the =pdf-tools= package of =Emacs= are prodigious. In particular, the researcher gets great tools for annotating the paper.
 
-=LiteRef= connects those abilities to the researcher’s notes by allowing to link directly from the notes to PDF annotations. The use of command for doing that, =literef-cite-pdf-annotation= (bound by default to =C-c a=) is shown in the following [[demo]].
+=LiteRef= connects those abilities to the researcher’s notes by allowing to link directly from the notes to PDF annotations. The use of command for doing that, =literef-cite-pdf-annotation= (bound by default to =C-c a=) is shown in the following [[https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0][demo]].
 
 # **** Scenario
-# Suppose we are studying a paper and would like to comment on this fragment. We could add an annotation containing our comment, but suppose we’d like to make our comment part of the notes associated with the paper. So, a simple highlighting annotation suffices… Let us now continue to work on the notes and add our comment… At last, we want to link to the annotation. We press =C-c a= to invoke the =literef-cite-pdf-annotation= command and select the annotation to link to. Now, even if we close the PDF, we can still click on the link to jump directly to the annotation…
+# =LiteRef= allows the researcher to link from his notes directly to PDF annotations. This works both when the notes buffer is active… and when the PDF is active… Let’s now close the PDF. The links can still be clicked to go directly to the annotation.
+
+# Contents of notes:
+# …
+# A straightforward compression scheme for pattern databases has been proposed Felner et al. cite:FelnerKMH2007j-Compr-Patter. 
+# The recent work by Helmert et al. cite:HelmertSF2017c-On-Variab proves a relation between the compressed PDBs and the regular ones . They also provide an intuitive understanding of this result . 
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
+<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
 </a>
 </p>
 #+END_HTML

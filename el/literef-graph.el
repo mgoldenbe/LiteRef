@@ -132,10 +132,11 @@
 
 (defun literef-save-hook()
   "Update the graph of keys when notes of a key are saved"
-  (let ((key (literef-current-buffer-key)))
-    (when key
-      (literef-graph-update-key key)
-      (message "The graph of keys is updated. You may want to update the subgraph selection."))))
+  (when (eq major-mode 'org-mode)
+    (let ((key (literef-current-buffer-key)))
+      (when key
+	(literef-graph-update-key key)
+	(message "The graph of keys is updated. You may want to update the subgraph selection.")))))
 
 (add-hook 'after-save-hook 'literef-save-hook)
 

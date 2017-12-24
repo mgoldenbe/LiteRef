@@ -2,8 +2,9 @@
   (let* ((parts (split-string path ":"))
 	 (key (elt parts 0))
 	 (annot-id (elt parts 1)))
-    (literef-open-key-pdf-raw key)
-    (pdf-annot-show-annotation (pdf-annot-getannot annot-id) t)))
+    (switch-to-buffer (literef-open-key-pdf-raw key))
+    (pdf-info-getannots)
+    (pdf-annot-show-annotation (pdf-info-getannot annot-id) t)))
 
 (org-link-set-parameters
  literef-pdf-annotation-link

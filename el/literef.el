@@ -59,6 +59,10 @@
   (let ((key (literef-current-key)))
     (when key (kill-new key))))
 
+(defun test()
+  (interactive)
+  (insert-for-yank "aaa"))
+
 (defun literef-insert-for-yank (orig-fun string)
   "The version of insert-for-yank that handles the keys being yanked intelligently.
 
@@ -75,7 +79,10 @@ The string to be yanked is preceeded by the prefix computed as follows:
 Once the original function is called, the current citation link (if the cursor is over one) is sorted subject to the value of `literef-sort-citation-links'. 
 "
   (let ((link (literef-citation-link-under-cursor)))
-    (when link (goto-char (literef-link-end link))))
+    (when link
+      (let ((link-end (literef-link-end link)))
+	(when (> link-end (point))
+	  (goto-char (literef-link-end link))))))
   (let* ((key (car (split-string string ",")))
 	 (prefix 
 	  (if (literef-key-exists key)
