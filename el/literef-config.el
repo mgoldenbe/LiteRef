@@ -7,7 +7,7 @@
 (defcustom literef-sort-citation-links t
   "Determines whether the citation links should be automatically sorted.")
 
-(defcustom literef-citation-link-sorting-criteria "k"
+(defcustom literef-citation-link-sorting-criteria "y"
   "The sorting criteria for automatic sorting of citation links. It is a comma-separated list of characters as in `literef-char-to-compare'.")
 
 (defcustom literef-bibliography-style "plain"
@@ -25,7 +25,7 @@
 (defcustom literef-pdf-annotation-color "chocolate"
   "The color of pdf annotation links.")
 
-(defcustom literef-citation-functions '("develops" "compares")
+(defcustom literef-citation-functions '("develops-ideas" "resembles-ideas" "applies-to-domain" "compares-results")
   "Kinds of citation functions used for annotation.")
 
 (defcustom literef-arc-filter-variables-prefix ""

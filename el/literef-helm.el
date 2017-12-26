@@ -55,6 +55,10 @@
 
 (defun literef-candidate-transformer(candidates)
   "Transform the initial candidate list for helm."
+  
+  ;; Make sure all candidates are displayed
+  (setq helm-candidate-number-limit (length candidates))
+  
   (let (res)
     (dolist (c candidates res)
       (let ((key (literef-candidate-property "=key=" c)))

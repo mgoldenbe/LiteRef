@@ -337,10 +337,35 @@ Narrowing is a standard =Emacs= feature whereby only part of the buffer is visib
 One of the keywords understood by =org-mode= is =#+INCLUDE=, which allows one to include an external file or a portion of it at the time of export. This allows the researcher to structure his notes in a collection of files, while still being able to collect these notes together for export.
 
 All this is shown in the following [[demo]].
+
+# **** Scenario
+# Suppose we are maintaining notes about two topics: Anytime Search and Pathfinding. Suppose also that notes about the Pattern Databases are maintained in a separate file (for example, by a student)… To produce a document containing all of the notes, we can include the other file. export the file into PDF… and open that PDF. The bibliography has been inserted… The bibfile containing the entries used in this small survey has been produced as well… Now, suppose we would like to produce a document that contains only the notes on Pathfinding. We narrow the buffer to the corresponding subtree and invoke the export. Here is the result… 
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+</a>
+</p>
+#+END_HTML
 ** Defining and using citation functions
-The functionalities of =LiteRef= for grasping the overall state of research in a given area are based on the notion of a /citation function/. Citation function is the role that the cited paper plays in the paper that cites it as reflected in the notes on the latter paper. For example, suppose that a paper /X/ cites a paper /Y/, because /X/ develops the ideas of /Y/. The researcher can reflect this in the notes on /X/ by citing /Y/ while specifying the citation function corresponding to the role of developing the ideas of the cited paper. It can look something like this: =cite:Y f:develops=. 
+The functionalities of =LiteRef= for grasping the overall state of research in a given area are based on the notion of a /citation function/. Citation function is the role that the cited paper plays in the paper that cites it as reflected in the notes on the latter paper. For example, suppose that a paper /X/ cites a paper /Y/, because /X/ develops the ideas of /Y/. The researcher can reflect this in the notes on /X/ by citing /Y/ while specifying the citation function corresponding to the role of developing the ideas of the cited paper. It can look something like this: =cite:Y f:develops-ideas=. 
 
 The set of legal citation functions is defined by the list =literef-citation-functions= in the configuration. The citation functions can be conveniently inserted into the notes by using the command =literef-citation-function= (bound by default to C-c f). This is demonstrated by the following [[demo]].
+# **** Scenario
+# For simplicity of this and the following examples, our list of citation functions will consist of only three functions: develops-ideas, resembles-ideas and applies-to-domain. So, let’s go to the notes of … this paper and say that this paper develops the ideas of … this one … here we go. In the following demos, we will see the power that this feature affords us.
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+</a>
+</p>
+#+END_HTML
 ** The citation (sub-)graph
 *** The notion of the citation graph
 The most powerful features of =LiteRef= are based on the observation that the papers and the citations (possibly labeled with citation functions) induce a directed graph with labeled arcs. The vertex set of this /citation graph/ is the set of all papers in the database. If the notes for the paper /A/ cite paper /B/ with citation functions $F_1, F2, \ldots, F_n$ then there is an arc from /A/ to be labeled by the set $\{F_1, F2, \ldots, F_n\}$. If the notes of /A/ cite /B/ without specifying citation functions, the arc from /A/ to /B/ is labeled with an empty set. It is convenient, though not totally accurate, to call such an arc /unlabeled/ and we do so hereafter. If the notes for the paper /A/ cite paper /B/ multiple times, then the arc from /A/ to /B/ is labeled by the union of the labels induced by each citation.
@@ -361,11 +386,23 @@ The filter on the arcs is an expression in =Emacs Lisp=. This expression is eval
 
 Here is an example of a filter: =((or (and develops (< depth 3)) compares) out)=. The filter says that we would like to follow the arcs with the =develops= citation function in their label up to depth 3 and the arcs with the =develops= citation function in their label regardless of the depth. Furthermore, we would like to follow only the outgoing arcs.
 
-Using =Emacs Lisp= expressions augmented by special variables allows for great flexibility in specifying the citation sub-graph. We will demonstrate this in action in the next section, in which we will learn, in particular, how the citation sub-graph can be visualized.
+Using =Emacs Lisp= expressions augmented by special variables allows for great flexibility in specifying the citation sub-graph. We will demonstrate this in action in the [[#Visualization][next section]], in which we will learn, in particular, how the citation sub-graph can be visualized.
 ** Operations on the citation sub-graph
 The operations on the citation sub-graph are simple and yet very potent. The descriptions below reflect the simplicity of these operations, while the demonstrations attempt to reveal some of their potential applications.
 *** Visualization
-The command =literef-show-graph= (bound by default to =C-c v=),  allows the researcher to view a whole research area as represented by the citation sub-graph at a glance. This command visualizes the citation sub-graph in an =org= buffer, so that the citations inside the nodes are regular citation links that allow all the regular operations described above. In addition, the buffer can be scrolled by using the commands bound to the Control key pressed down together with an arrow key. The visualization is demonstrated by the following [[demo]].   
+The command =literef-show-graph= (bound by default to =C-c v=),  allows the researcher to view a whole research area as represented by the citation sub-graph at a glance. This command visualizes the citation sub-graph in an =org= buffer, so that the citations inside the nodes are regular citation links that allow all the regular operations described above. In addition, the buffer can be scrolled by using the commands bound to the Control key pressed down together with an arrow key. The visualization is demonstrated by the following [[demo]].
+# **** Scenario
+# Suppose I would like to exlore the topic of compression of pattern databases. I define a citation subgraph by running a search starting with the first paper on the topic, which I am opening right now, and including all the papers that develop its ideas. That is, I am interested in the incoming arcs in the citation graph… I now press =C-c v= to invoke the =literef-show-graph= and visualize the selected subgraph. To get an idea of where the arcs and the labels come from. Let, us click open this paper’s notes and see how it cites this neighbor. Note that the distinct citation functions from all over the notes got assembled in the label… 
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+</a>
+</p>
+#+END_HTML   
 *** Search
 The command =literef-subgraph-helm-cite= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#finding-the-keys-to-cite][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[demo]] shows this.
 *** Export
