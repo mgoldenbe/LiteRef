@@ -2,6 +2,9 @@
 (require 'cl)
 (require 'dash)
 
+;; Make sure all candidates are displayed
+(setq helm-candidate-number-limit 1000000)
+
 (defun literef-assoc(property a-list)
   "Return either nil or the value in A-LIST associated with the PROPERTY."
   (let ((raw (assoc property a-list)))
@@ -55,9 +58,6 @@
 
 (defun literef-candidate-transformer(candidates)
   "Transform the initial candidate list for helm."
-  
-  ;; Make sure all candidates are displayed
-  (setq helm-candidate-number-limit (length candidates))
   
   (let (res)
     (dolist (c candidates res)

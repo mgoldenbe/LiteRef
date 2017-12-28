@@ -9,7 +9,7 @@
     
 (org-link-set-parameters
  literef-citation-function-link
- :follow (lambda (path) (message "%s %s %s" "The current paper" path "the ideas of the cited one."))
+ :follow (lambda (path) (message "%s %s %s" "The current paper relates to the cited one as: " path))
  :export (lambda (path desc backend) "") ; ignore the link
  :face `(:foreground ,literef-citation-function-color)
  :help-echo 'literef-citation-function-help-echo)

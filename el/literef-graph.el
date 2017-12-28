@@ -96,14 +96,18 @@
       (literef-graph-add-key key res))))
 
 (defun literef-key-out-neighbors(key &optional graph)
-  "The out-neighbors of KEY in the GRAPH of keys. If GRAPH is not specified, it is `literef-graph'."
+  "The out-neighbors of KEY in the GRAPH of keys. If GRAPH is not specified, it is `literef-graph'. If KEY is not in GRAPH, it is added."
   (unless graph (setq graph literef-graph))
-  (car (gethash key graph)))
+  (let ((key-entry (gethash key graph)))
+    (unless key-entry (setq key-entry (literef-graph-add-key key graph)))
+    (car key-entry)))
 
 (defun literef-key-in-neighbors(key &optional graph)
-  "The in-neighbors of KEY in the GRAPH of keys. If GRAPH is not specified, it is `literef-graph'."
+  "The in-neighbors of KEY in the GRAPH of keys. If GRAPH is not specified, it is `literef-graph'. If KEY is not in GRAPH, it is added."
   (unless graph (setq graph literef-graph))
-  (cdr (gethash key graph)))
+  (let ((key-entry (gethash key graph)))
+    (unless key-entry (setq key-entry (literef-graph-add-key key graph)))
+    (cdr key-entry)))
 
 (defun literef-graph-arc-label(from-key to-key &optional graph)
   "Return the citation functions by which an arc in GRAPH from FROM-KEY to TO-KEY is labeled. If GRAPH is not specified, it is `literef-graph'."

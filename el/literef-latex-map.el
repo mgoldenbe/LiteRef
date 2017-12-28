@@ -1698,11 +1698,11 @@
     (replace-regexp-in-string (regexp-quote what) with in nil 'literal)))
 
 (defun literef-translate-latex(str)
- "Apply latex-map to translate escaped characters in the given string"
- (dolist (pair latex-map nil)
-   (setq str (replace-in-string (concat "{" (elt pair 0) "}") (char-to-string (elt pair 1)) str))
-   (setq str (replace-in-string (elt pair 0) (char-to-string (elt pair 1)) str)))
- str)
+  "Apply latex-map to translate escaped characters in the given string"
+  (when str
+    (dolist (pair latex-map str)
+      (setq str (replace-in-string (concat "{" (elt pair 0) "}") (char-to-string (elt pair 1)) str))
+      (setq str (replace-in-string (elt pair 0) (char-to-string (elt pair 1)) str)))))
 
 (defun literef-bibtex-completion-get-value(orig-fun &rest args)
   "The version of bibtex-completion-get-value that translates latex special characters."
