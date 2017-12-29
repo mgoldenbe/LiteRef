@@ -7,6 +7,7 @@
 (require 'literef-latex-map)
 (require 'literef-annotations)
 (require 'literef-graph)
+(require 'literef-subgraph)
 (require 'literef-export)
 (require 'literef-pdf)
 (require 'literef-server)
