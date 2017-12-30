@@ -5,11 +5,11 @@
   (save-excursion
     (goto-char position)
     (goto-char (org-element-property :end (org-element-context)))
-    (format "%s %s %s" "The current paper" (match-string 2) "the ideas of the cited one.")))
+    (format "%s%s%s" "The current paper relates to the cited one as: " (match-string 2) ".")))
     
 (org-link-set-parameters
  literef-citation-function-link
- :follow (lambda (path) (message "%s %s %s" "The current paper relates to the cited one as: " path))
+ :follow (lambda (path) (message "%s%s%s" "The current paper relates to the cited one as: " path "."))
  :export (lambda (path desc backend) "") ; ignore the link
  :face `(:foreground ,literef-citation-function-color)
  :help-echo 'literef-citation-function-help-echo)

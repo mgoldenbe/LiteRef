@@ -1,67 +1,78 @@
 ;;;; Selection of the subgraph.
 
+;; A subgraph is stored as a list of three properties:
+;; :keys -- hash of keys;
+;; :generating-arcs -- the arcs traversed to generate the subgraph;
+;;                     each key in the hash is of the form:
+;;                     <key1><space><key2>.
+;; :source -- the source for the search for generating the subgraph.
 (defvar literef-subgraph nil
   "The selected subgraph: hash of keys that make it up.")
 
-(defvar literef-subgraph-generating-arcs nil
-  "The arcs traversed to generate the selected subgraph: hash with keys of the form <key1><space><key2>.")
+;; Note: to avoid passing around subgraph,
+;; all of the below functions operate on the current subgraph,
+;; which should be set before calling them.
 
-(defcustom literef-subgraph-show-only-generating-arcs nil
-  "Determines whether only the generating arcs of the subgraph should be visualized.")
+(defun literef-subgraph-keys()
+  "Return the keys of the current subgraph."
+  (plist-get current-subgraph :keys))
 
-(defvar literef-subgraph-properties nil
-  "The selected subgraph's properties.")
+(defun literef-subgraph-generating-arcs()
+  "Return the generating arcs of the current subgraph."
+  (plist-get current-subgraph :generating-arcs))
 
-(defun literef-subgraph-add-key(key &optional subgraph)
-  "Add KEY to SUBGRAPH. If SUBGRAPH is not specified, it is `literef-subgraph'."
-  (unless subgraph (setq subgraph literef-subgraph))  
-  (puthash key t subgraph))
+(defun literef-subgraph-generating-arcs()
+  "Return the generating arcs of the current subgraph."
+  (plist-get current-subgraph :generating-arcs))
 
-(defun literef-key-in-subgraph-p(key &optional subgraph)
-  "Checks whether KEY is in SUBGRAPH. If SUBGRAPH is not specified, it is `literef-subgraph'."
-  (unless subgraph (setq subgraph literef-subgraph))  
-  (gethash key subgraph))
+(defun literef-subgraph-source()
+  "Return the source of the current subgraph."
+  (plist-get current-subgraph :source))
 
-(defun literef-subgraph-add-generating-arc
-    (from-key to-key &optional subgraph)
-  "Add an arc from FROM-KEY to TO-KEY that was traversed for generating SUBGRAPH. If SUBGRAPH is not specified, it is `literef-subgraph'."
-  (unless subgraph (setq subgraph literef-subgraph))
-  (puthash (concat from-key " " to-key) t literef-subgraph-generating-arcs))
+(defun literef-subgraph-source-property(property)
+  "Return the PROPERTY of the source of current subgraph."
+  (let ((source (literef-subgraph-source)))
+    (plist-get source property)))
 
-(defun literef-generating-arc-p
-    (from-key to-key &optional generating-arcs)
-  "Checks whether the arc from FROM-KEY to TO-KEY is in GENERATING-ARCS. If GENERATING-ARCS is not specified, it is `literef-subgraph-generating-arcs'."
-  (unless generating-arcs
-    (setq generating-arcs literef-subgraph-generating-arcs))
-  (gethash (concat from-key " " to-key) generating-arcs))
+(defun literef-subgraph-set-source-property(property value)
+  "Return the PROPERTY of the source of current subgraph."
+  (let ((source (literef-subgraph-source)))
+    (literef-plist-put source property value)))
 
-(defun literef-init-subgraph(&optional init-keys)
+(defun literef-subgraph-add-key(key)
+  "Add KEY to the current-subgraph."
+  (let ((keys (literef-subgraph-keys)))
+    (puthash key t keys)))
+
+(defun literef-key-in-subgraph-p(key)
+  "Checks whether KEY is in the current subgraph."
+  (let ((keys (literef-subgraph-keys)))
+    (when (gethash key keys) t)))
+
+(defun literef-subgraph-add-generating-arc(from-key to-key)
+  "Add an arc from FROM-KEY to TO-KEY that was traversed for generating the current subgraph."
+  (let ((generating-arcs (literef-subgraph-generating-arcs)))
+    (puthash (concat from-key " " to-key) t generating-arcs)))
+
+(defun literef-generating-arc-p(from-key to-key)
+  "Checks whether the arc from FROM-KEY to TO-KEY is a generating arc of the current subgraph."
+  (let ((generating-arcs (literef-subgraph-generating-arcs)))
+    (when (gethash (concat from-key " " to-key) generating-arcs) t)))
+
+(defun literef-init-subgraph()
   "Return a subgraph using INIT-KEYS as the list of keys and return the new subgraph."
-  (let ((res (make-hash-table :test 'equal)))
-    (dolist (key init-keys res)
-      (literef-graph-add-key key res))))
-
-(literef-init-subgraph nil)
-
-(defun literef-reset-subgraph-selection()
-  "Reset the subgraph selection to be the entrire graph and to have the properties corresponding to this selection."
-  (interactive)
-  (setq literef-subgraph (literef-all-keys))
-  (setq literef-subgraph-generating-arcs
-	(make-hash-table :test 'equal))
-  (setq literef-subgraph-properties
-	(list
-	 :source-type :all-keys
-	 :source nil
-	 :buffer-node-name nil
-	 :filter-string "t"))
-  literef-subgraph)
-
-(literef-reset-subgraph-selection)
+  (list :keys (make-hash-table :test 'equal)
+	:generating-arcs (make-hash-table :test 'equal)
+	:source (list
+		 :source-type :all-keys
+		 :source-name nil
+		 :buffer-node-name nil
+		 :filter-string "t")))
 
 (defun literef-subgraph-select-source()
-  "Select the source for forming the subgraph and set the :source-type and :source properties of `literef-subgraph-properties'."
-  (let* ((current-key (literef-current-key))
+  "Select the source for forming the current subgraph."
+  (let* ((source (literef-subgraph-source))
+	 (current-key (literef-current-key))
 	 (ans (literef-read-char
 	       (concat "Choose the source of initial keys:  "
 		       "All keys (a)  |  Current buffer (b)"
@@ -69,41 +80,34 @@
 			 (concat "  |  " current-key "(c)")))
 	       (if current-key '(?a ?b ?c) '(?a ?b)))))
     (cond ((eq ans ?a)
-	   (literef-plist-put literef-subgraph-properties
-			      :source-type :all-keys))
+	   (literef-plist-put source :source-type :all-keys))
 	  ((eq ans ?b)
-	   (literef-plist-put literef-subgraph-properties
-			      :source-type :buffer)
-	   (literef-plist-put literef-subgraph-properties
-			      :source (buffer-name)))
+	   (literef-plist-put source :source-type :buffer)
+	   (literef-plist-put source :source-name (buffer-name)))
 	  ((eq ans ?c)
-	   (literef-plist-put literef-subgraph-properties
-			      :source-type :current-key)
-	   (literef-plist-put literef-subgraph-properties
-			      :source current-key)))))
+	   (literef-plist-put source :source-type :current-key)
+	   (literef-plist-put source :source-name current-key)))))
 
 (defun literef-subgraph-initial-keys()
-  "Compute initial keys for forming the subgraph based on the stored source."
-  (let ((source-type
-	 (plist-get literef-subgraph-properties :source-type))
-	(source (plist-get literef-subgraph-properties :source)))
+  "Compute initial keys for forming the current subgraph."
+  (let ((source-type (literef-subgraph-source-property :source-type))
+	(source-name (literef-subgraph-source-property :source-name)))
   (cond ((eq source-type :all-keys)
 	 (literef-all-keys))
 	((eq source-type :buffer)
 	 (condition-case nil
-	     (with-current-buffer source
+	     (with-current-buffer source-name
 	       (literef-hash-keys-to-list (literef-out-citations)))
-	   (error (error (concat "The buffer " source " does not exist anymore. Consider running literef-reset-subgraph-selection to reset the subgraph selection.")))))
+	   (error (error (concat "The buffer " source-name " does not exist anymore. Consider running literef-subgraph-reset-selection to reset the subgraph selection.")))))
 	((eq source-type :current-key)
-	   (list source)))))
+	   (list source-name)))))
 
 (defun literef-arc-filter-temp-variable(str)
   "Return the symbol named literef-temp-<prefix><str>."
   (intern (concat "literef-temp-"
 		  literef-arc-filter-variables-prefix str)))
 
-(defun literef-graph-check-arc(from-key
-			       to-key-cons &optional init-flag)
+(defun literef-graph-check-arc(from-key to-key-cons)
   "Return true if the arc represented by FROM-KEY and TO-KEY-CONS (consisting of a key and a plist) fits the arc filter."
   (let ((to-key (car to-key-cons))
 	(to-properties (cdr to-key-cons)))
@@ -121,19 +125,18 @@
     (literef-arc-filter-p)))
 
 (defun literef-add-to-next-iter(from-key to-key-cons)
-  "Handle the arc represented by FROM-KEY and TO-KEY-CONS (consisting of a key and a plist). If the arc fits the filter, the to-key (the car component of TO-KEY-CONS) is inserted in the subgraph. If, in addition, the duplicate detection is passed, then add to-key to the keys for the next iteration."
-  (let ((to-key (car to-key-cons))
+  "Handle the arc represented by FROM-KEY and TO-KEY-CONS (consisting of a key and a plist). If the arc fits the filter, the to-key (the car component of TO-KEY-CONS) is inserted in the current subgraph. If, in addition, the duplicate detection is passed, then add to-key to the keys for the next iteration."
+  (let ((keys (literef-subgraph-keys))
+	(to-key (car to-key-cons))
 	(to-properties (cdr to-key-cons)))
     (when (literef-graph-check-arc from-key to-key-cons)
-      (unless (gethash to-key literef-subgraph nil)
+      (unless (literef-key-in-subgraph-p to-key)
 	(puthash to-key to-properties next-iter)
-	(literef-subgraph-add-key to-key literef-subgraph))
+	(literef-subgraph-add-key to-key))
       (let ((direction (plist-get to-properties :direction)))
 	(if (eq direction :out)
-	    (literef-subgraph-add-generating-arc
-	     from-key to-key literef-subgraph)
-	  (literef-subgraph-add-generating-arc
-	   to-key from-key literef-subgraph))))))
+	    (literef-subgraph-add-generating-arc from-key to-key)
+	  (literef-subgraph-add-generating-arc to-key from-key))))))
 
 (defun literef-neighbor-pairs(cur-direction next-direction cur-properties)
   "Compute the neighbors pairs consisting of key and properies that fit the direction of the key being expanded (CUR-DIRECTION) the required direction of the arc (NEXT-DIRECTION) and the properties of the key being expanded (CUR-PROPERTIES)."
@@ -161,7 +164,7 @@
 	    (push (cons (car pair) properties) res)))))))
 
 (defun literef-uniform-cost-search(initial-keys)
-  "Performs uniform-cost search from INITIAL-KEYS while respecting the current arc filter. The resulting subgraph is accumulated in literef-subgraph."
+  "Builds the current subgraph by performing uniform-cost search from INITIAL-KEYS while respecting the current arc filter."
   (let ((cur-iter (make-hash-table :test 'equal))
 	(next-iter (make-hash-table :test 'equal)))
     (dolist (key initial-keys nil)
@@ -185,25 +188,43 @@
 	    (literef-add-to-next-iter key pair)))))
     nil))
 
-(defun literef-subgraph-from-saved-properties()
-  "Select subgraph of the graph of keys `literef-subgraph' based on the saved `literef-subgraph-properties'. If the source type is :buffer, makes sure that the buffer exists. If not, offers to reset the subgraph."
+(defun literef-arc-filter-variables()
+  "Return the list of variables recognized by the arc filter."
+  (append
+   (mapcar (lambda(f)
+	     (concat literef-arc-filter-variables-prefix f))
+	   literef-citation-functions)
+   (mapcar (lambda(f)
+	     (concat literef-arc-filter-variables-prefix f))
+	   (list "in" "out" "depth"))))
+
+(defun literef-make-arc-filter(str)
+  "Make and evaluate defun for the function named literef-arc-filter-p for the filter in the string STR."
+  (with-temp-buffer
+    (insert "(defun literef-arc-filter-p()\n")
+    (insert "    (let (")
+    (dolist (var-name (literef-arc-filter-variables) nil)
+      (insert "\n          (" var-name " literef-temp-" var-name ")"))
+    (insert ")\n       " str "))")
+    ;; (message "Here:\n%s" (buffer-string)) 
+    (eval-buffer)))
+
+(defun literef-subgraph-build-from-source()
+  "Build the current subgraph based on its source. If the source type is :buffer, makes sure that the buffer exists. If not, offers to reset the subgraph."
   (interactive)
   (literef-make-arc-filter
-   (plist-get literef-subgraph-properties :filter-string))
+   (literef-subgraph-source-property :filter-string))
   (let ((initial-keys (literef-subgraph-initial-keys)))
-    (setq literef-subgraph (literef-init-subgraph initial-keys))
-    (setq literef-subgraph-generating-arcs (make-hash-table :test 'equal))
-    (when (eq (plist-get literef-subgraph-properties :source-type)
+    (dolist (key initial-keys nil)
+      (literef-subgraph-add-key key))
+    (when (eq (literef-subgraph-source-property :source-type)
 	      :buffer)
       (let ((buffer-node-name
-	     (plist-get literef-subgraph-properties :buffer-node-name)))
-	(literef-subgraph-add-key buffer-node-name literef-subgraph)
+	     (literef-subgraph-source-property :buffer-node-name)))
+	(literef-subgraph-add-key buffer-node-name)
 	(dolist (key initial-keys nil)
-	  (literef-subgraph-add-generating-arc
-	   buffer-node-name key literef-subgraph))))
-    (literef-uniform-cost-search initial-keys))
-  (literef-show-selected-subgraph)
-  literef-subgraph)
+	  (literef-subgraph-add-generating-arc buffer-node-name key))))
+    (literef-uniform-cost-search initial-keys)))
 
 (defun literef-select-subgraph()
   "Select subgraph of the graph of keys `literef-subgraph'."
@@ -211,11 +232,10 @@
   (unwind-protect
       (progn
 	(org-ref-cancel-link-messages)
+	(setq current-subgraph (literef-init-subgraph))
 	(literef-subgraph-select-source)
-	(literef-plist-put literef-subgraph-properties
-			   :buffer-node-name nil)
-	(when (eq (plist-get literef-subgraph-properties :source-type)
-	    :buffer)
+	(when (eq (literef-subgraph-source-property :source-type)
+		  :buffer)
 	  (let* ((default-buffer-name
 		   (concat "Buffer \"" (buffer-name) "\""))
 		 (buffer-node-name
@@ -225,19 +245,31 @@
 		    "This name will be used for the export as well"
 		    " [" default-buffer-name "]: ")
 		   nil nil default-buffer-name)))
-	    (literef-plist-put literef-subgraph-properties
-			       :buffer-node-name buffer-node-name)))
-	(let ((initial-keys (literef-subgraph-initial-keys))
-	      (filter-string
+	    (literef-subgraph-set-source-property
+	     :buffer-node-name buffer-node-name)))
+	(let ((filter-string
 	       (literef-read-arc-filter
 		"Enter a predicate for the arc filter: \n")))
-	  (literef-plist-put literef-subgraph-properties
-			     :filter-string filter-string)
-	  (literef-subgraph-from-saved-properties)))
+	  (literef-subgraph-set-source-property
+	   :filter-string filter-string)
+	  (literef-subgraph-build-from-source)))
     (progn
       (org-ref-show-link-messages)
       (setq org-ref-show-citation-on-enter t)))
+  (setq literef-subgraph current-subgraph)
+  (literef-show-selected-subgraph)
   literef-subgraph)
+
+(defun literef-subgraph-reset-selection()
+  "Reset the subgraph selection to be the entrire graph."
+  (interactive)
+  (let ((current-subgraph (literef-init-subgraph)))
+    (literef-subgraph-build-from-source)
+    (setq literef-subgraph current-subgraph)))
+
+(literef-subgraph-reset-selection)
+(let ((current-subgraph literef-subgraph))
+  (literef-subgraph-keys))
 
 ;;;; Arc filter for subgraph selection.
 
@@ -252,16 +284,6 @@
   (condition-case nil
       (literef-eval-string predicate)
     (error (error "Could not evaluate: %s" predicate))))
-
-(defun literef-arc-filter-variables()
-  "Return the list of variables recognized by the arc filter."
-  (append
-   (mapcar (lambda(f)
-	     (concat literef-arc-filter-variables-prefix f))
-	   literef-citation-functions)
-   (mapcar (lambda(f)
-	     (concat literef-arc-filter-variables-prefix f))
-	   (list "in" "out" "depth"))))
 
 ;; This function is based on http://sixty-north.com/blog/writing-the-simplest-emacs-company-mode-backend
 (defun literef-arc-filter-company-backend
@@ -291,17 +313,6 @@
     (add-hook 'minibuffer-setup-hook 'literef-arc-filter-minibuffer-mode)
     (read-from-minibuffer prompt)))
 
-(defun literef-make-arc-filter(str)
-  "Make and evaluate defun for the function named literef-arc-filter-p for the filter in the string STR."
-  (with-temp-buffer
-    (insert "(defun literef-arc-filter-p()\n")
-    (insert "    (let (")
-    (dolist (var-name (literef-arc-filter-variables) nil)
-      (insert "\n          (" var-name " literef-temp-" var-name ")"))
-    (insert ")\n       " str "))")
-    ;; (message "Here:\n%s" (buffer-string)) 
-    (eval-buffer)))
-
 (defun literef-arc-filter-p()
   "Returns t if the current arc satisfies the filter and nil otherwise.
 
@@ -328,12 +339,12 @@ This function is constructed by `literef-make-arc-filter'.")
 (defun literef-graph-scroll-up()
   "Handle scrolling right."
   (interactive)
-  (scroll-up 1))
+  (scroll-down 1))
 
 (defun literef-graph-scroll-down()
   "Handle scrolling left."
   (interactive)
-  (scroll-down 1))
+  (scroll-up 1))
 
 (progn
   (setq literef-graph-mode-map (make-sparse-keymap))
@@ -352,15 +363,17 @@ This function is constructed by `literef-make-arc-filter'.")
   nil " LiteRefGraph" literef-graph-mode-map)  
 
 (defun literef-selected-subgraph-string()
-  "Return a string representation of the selected subgraph. Respects `literef-subgraph-show-only-generating-arcs'."
+  "Return a string representation of the current subgraph. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
   (let ((res "graph { flow: south; }\n") ;; http://bloodgate.com/perl/graph/manual/hinting.html
 	(buffer-node-name
-	 (plist-get literef-subgraph-properties :buffer-node-name)))
-    (dolist (key (literef-hash-keys-to-list literef-subgraph) nil)
+	 (literef-subgraph-source-property :buffer-node-name))
+	(keys (literef-subgraph-keys)))
+    (dolist (key (literef-hash-keys-to-list keys) nil)
       (let ((out-neighbors
 	     (if (eq key buffer-node-name)
-		 (mapcar (lambda(k) (list k nil))
-			 (literef-subgraph-initial-keys))
+		 (when literef-subgraph-show-buffer
+		   (mapcar (lambda(k) (list k nil))
+			   (literef-subgraph-initial-keys)))
 	       (literef-hash-pairs-to-list
 		(literef-key-out-neighbors key literef-graph)))))
 	(dolist (out-neighbor out-neighbors nil)
@@ -387,10 +400,11 @@ This function is constructed by `literef-make-arc-filter'.")
     res))
 
 (defun literef-show-selected-subgraph()
-  "Visualize the selected subgraph. Respects `literef-subgraph-show-only-generating-arcs'."
+  "Visualize the selected subgraph. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
   (interactive)
   (save-selected-window
-    (let ((temp-file-name (make-temp-file "foo")))
+    (let ((current-subgraph literef-subgraph)
+	  (temp-file-name (make-temp-file "foo")))
       (with-temp-file temp-file-name
 	(insert (literef-selected-subgraph-string)))
       (let* ((command (concat "graph-easy --boxart" " " temp-file-name))

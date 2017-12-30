@@ -62,7 +62,7 @@
   (let (res)
     (dolist (c candidates res)
       (let ((key (literef-candidate-property "=key=" c)))
-	(when (or (not (boundp 'literef-subgraph-helm-cite))
+	(when (or (not (boundp 'literef-subgraph-helm))
 		  (gethash key literef-subgraph nil))
 	  (push (cons (literef-candidate-helm-string c) (cdr c)) res))))
     (setq res (reverse res))
@@ -296,9 +296,9 @@
 (setq org-ref-helm-cite-fallback-source nil)
 
 ;;;; Citing from the selected subgraph
-(defun literef-subgraph-helm-cite()
+(defun literef-subgraph-helm()
   (interactive)
-  (let ((literef-subgraph-helm-cite t))
+  (let ((literef-subgraph-helm t))
     (org-ref-helm-cite)))
 
 (provide 'literef-helm)

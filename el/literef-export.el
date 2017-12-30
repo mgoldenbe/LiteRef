@@ -148,7 +148,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 
       (apply orig-fun args))))
 
-(defun literef-export-dispatch()
+(defun literef-subgraph-export-dispatch()
   "The version of `org-export-dispatch' that works with the selected subgraph."
   (interactive)
   (let ((literef-subgraph-export t))
