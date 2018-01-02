@@ -130,7 +130,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       (end-of-buffer)
 
       ;; Sort citation links
-      (when literef-sort-citation-links (literef-sort-citation-links))
+      (when literef-sort-citation-links (literef-sort-citation-links t))
       
       ;; Insert references to note sections.
       (when (boundp 'literef-subgraph-export)

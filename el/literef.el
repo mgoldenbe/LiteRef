@@ -100,7 +100,7 @@ Once the original function is called, the current citation link (if the cursor i
 		     "cite:"))
 	    "")))
     (funcall orig-fun (concat prefix string))
-    (when literef-sort-citation-links (literef-sort-citation-link))
+    (when literef-sort-citation-links (literef-sort-citation-link t))
     ))
 
 (advice-add 'insert-for-yank :around #'literef-insert-for-yank)
@@ -190,11 +190,13 @@ Splits the first citation of multiple sources found on the current line, so that
 
 ;;;; BEGIN: Sorting keys and citation links ---------------------
 
-(defun literef-sort-keys(keys criteria-string)
-  "Sort keys according to the string CRITERIA-STRING, which is a comma-separated list of characters as in `literef-char-to-compare'."
+(defun literef-sort-keys(keys criteria)
+  "Sort keys according to CRITERIA, which can be either a string of characters as in `literef-char-to-compare' or a list as returned by `literef-criteria-list'."
   (let (res
 	(literef-criteria
-	 (literef-criteria-list (split-string criteria-string ",")))
+	 (if (stringp criteria)
+	     (literef-criteria-list (split-string criteria ","))
+	   criteria))
 	candidates)
     ;; Form the list of candidates (with empty string representations)
     (dolist (key keys nil)
@@ -206,27 +208,33 @@ Splits the first citation of multiple sources found on the current line, so that
       (push (literef-candidate-property "=key=" c) res))
     (reverse res)))
 
-(defun literef-sort-citation-link()
-  "Sort the current citation using `literef-citation-link-sorting-criteria' as the sorting criteria."
+(defun literef-sort-citation-link(&optional no-read-criteria criteria)
+  "Sort the current citation. The sorting criteria criteria are read from the user. If the optional NO-READ-CRITERIA is set, `literef-citation-link-sorting-criteria' is used as the sorting criteria. In addition, if CRITERIA is set (in which case, NO-READ-CRITERIA should also be set), it is used as the sorting criteria."
   (interactive)
   (let ((link (literef-citation-link-under-cursor)))
     (when link
       (let* ((orig-keys (literef-link-path-components link))
 	     (keys (literef-sort-keys 
 		    orig-keys
-		    literef-citation-link-sorting-criteria)))
+		    (if no-read-criteria
+			(if criteria
+			    criteria
+			  literef-citation-link-sorting-criteria)
+		      (literef-read-sorting-criteria)))))
 	(save-excursion
 	  (goto-char (literef-link-begin link))
 	  (re-search-forward (literef-link-path link))
 	  (replace-match (literef-join-strings keys ",")))))))
 
-(defun literef-sort-citation-links()
-  "Sort all citation links in the current buffer"
+(defun literef-sort-citation-links(&optional no-read-criteria)
+  "Sort all citation links in the current buffer. The sorting criteria criteria are read from the user. If the optional NO-READ-CRITERIA is set, `literef-citation-link-sorting-criteria' is used as the sorting criteria."
   (interactive)
   (save-excursion
-    (dolist (link (literef-citation-links) nil)
-      (goto-char (literef-link-end link))
-      (literef-sort-citation-link))))
+    (let ((criteria
+	   (unless no-read-criteria (literef-read-sorting-criteria))))
+      (dolist (link (literef-citation-links) nil)
+	(goto-char (literef-link-end link))
+	(literef-sort-citation-link t criteria)))))
 
 ;;;; END --------------------------------------------------------
 

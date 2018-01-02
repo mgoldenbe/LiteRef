@@ -193,41 +193,47 @@
 
 (defun literef-read-sorting-criteria()
   "Read search criteria"
-  (let (res
-	(str-res "")
-	(str-map '(?k "Key↑" ?K "Key↓"
-		      ?d "Creation-Date↑" ?D "Creation-Date↓"
-		      ?a "Author↑" ?A "Author↓"
-		      ?t "Title↑" ?T "Title↓"
-		      ?v "Venue↑" ?V "Venue↓"
-		      ?w "Venue-Type↑" ?W "Venue-Type↓"
-		      ?y "Year↑" ?Y "Year↓"
-		      )))
-    (catch 'exit
-      (while t
-	(let* ((ans (read-char (concat
-				"Current criteria:" str-res "\n"
-				(format
-				 (concat "%-25s    %s\n"
-					 "%-25s    %s\n"
-					 "%-25s    %s\n"
-					 "%-25s    %s\n")
-				 "Key↑ (k) | Key↓ (K)"
-				 "Creation Date↑ (d) | Creation Date↓ (D)"
-				 "Author↑ (a) | Author↓ (A)"
-				 "Title↑ (t) | Title↓ (T)"
-				 "Venue↑ (v) | Venue↓ (V)"
-				 "Venue Type↑ (w) | Venue Type↓ (W)"
-				 "Year↑ (y) | Year↓ (Y)" ""))))
-	       (str (plist-get str-map ans)))
-	  (cond
-	   ((eq ans ?\r) (throw 'exit nil))
-	   ((eq ans ?\e) (setq res nil) (throw 'exit nil))
-	   (t
-	    (when (literef-char-to-compare ans)
-	      (setq str-res (concat str-res " " str))
-	      (push ans res)))))))
-    (literef-criteria-list (reverse res))))
+  (unwind-protect
+      (progn
+	(org-ref-cancel-link-messages)
+	(let (res
+	      (str-res "")
+	      (str-map '(?k "Key↑" ?K "Key↓"
+			    ?d "Creation-Date↑" ?D "Creation-Date↓"
+			    ?a "Author↑" ?A "Author↓"
+			    ?t "Title↑" ?T "Title↓"
+			    ?v "Venue↑" ?V "Venue↓"
+			    ?w "Venue-Type↑" ?W "Venue-Type↓"
+			    ?y "Year↑" ?Y "Year↓"
+			    )))
+	  (catch 'exit
+	    (while t
+	      (let* ((ans (read-char (concat
+				      "Current criteria:" str-res "\n"
+				      (format
+				       (concat "%-25s    %s\n"
+					       "%-25s    %s\n"
+					       "%-25s    %s\n"
+					       "%-25s    %s\n")
+				       "Key↑ (k) | Key↓ (K)"
+				       "Creation Date↑ (d) | Creation Date↓ (D)"
+				       "Author↑ (a) | Author↓ (A)"
+				       "Title↑ (t) | Title↓ (T)"
+				       "Venue↑ (v) | Venue↓ (V)"
+				       "Venue Type↑ (w) | Venue Type↓ (W)"
+				       "Year↑ (y) | Year↓ (Y)" ""))))
+		     (str (plist-get str-map ans)))
+		(cond
+		 ((eq ans ?\r) (throw 'exit nil))
+		 ((eq ans ?\e) (setq res nil) (throw 'exit nil))
+		 (t
+		  (when (literef-char-to-compare ans)
+		    (setq str-res (concat str-res " " str))
+		    (push ans res)))))))
+	  (literef-criteria-list (reverse res))))
+    (progn
+      (org-ref-show-link-messages)
+      (setq org-ref-show-citation-on-enter t))))
 
 (setq literef-criteria nil)
 

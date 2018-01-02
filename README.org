@@ -139,7 +139,7 @@ Most of the functionalities of =LiteRef= are centered around citations. In this 
 *** Searching the papers database
 =LiteRef= inherits from =org-ref= and significantly improves the command =org-ref-insert-link= (bound by default to =C-c ]=) for inserting a citation. 
 
-Just like it’s predecessor, the command uses the =helm= interface for finding candidates by iterative process of filtering. =LiteRef= helps make this process more effective by supporting sorting candidates on multiple criteria. The sorting is invoked by default by =M-<DOWN>= (=M= stands for the /Meta/ key, which is =Alt= on most keyboards). For example, one can access the recently added entries by sorting the candidates on the date and time of creation (which is taken to be the date and time of the last update of /paper.bib/ for that entry; entries added within a small time margin, which is two seconds by default, of each other are considered to be added at the same time to enable ordering them on other criteria). As its predecessor, the command supports insertion of multiple entries (multiple candidates are selected by pressing =C-<SPACE>=). If =literef-sort-citation-links= is not =nil=, the citation links are sorted on the sorted criteria encoded in the string value of =literef-citation-link-sorting-criteria=.
+Just like it’s predecessor, the command uses the =helm= interface for finding candidates by iterative process of filtering. =LiteRef= helps make this process more effective by supporting sorting candidates on multiple criteria. The sorting is invoked by default by =M-<down>= (=M= stands for the /Meta/ key, which is =Alt= on most keyboards). For example, one can access the recently added entries by sorting the candidates on the date and time of creation (which is taken to be the date and time of the last update of /paper.bib/ for that entry; entries added within a small time margin, which is two seconds by default, of each other are considered to be added at the same time to enable ordering them on other criteria). As its predecessor, the command supports insertion of multiple entries (multiple candidates are selected by pressing =C-<SPACE>=). If =literef-sort-citation-links= is not =nil=, the citation links are sorted on the sorted criteria encoded in the string value of =literef-citation-link-sorting-criteria=.
 
 Note that one can perform actions other than inserting a citation on a candidate (this is done by pressing =<TAB>= while the candidate is active). All this is shown in the following [[https://www.dropbox.com/s/7qr2rv9lsl43g5e/search.mp4?dl=0][demo]].
 
@@ -170,20 +170,22 @@ src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
 </p>
 #+END_HTML
 *** Intelligent handling of copying and pasting citations
-When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. If automated ordering of citation is enabled (i.e. =literef-sort-citation-links= is set to =t=), then the keys will be sorted on the criteria specified in =literef-citation-link-sorting-criteria= (see the section on [[#installation-and-configuration][configuration]]). This is shown in the following [[https://www.dropbox.com/s/avpp69cd6em5byj/intelligent_pasting.mp4?dl=0][demo]].
+When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. If automated ordering of citation is enabled (i.e. =literef-sort-citation-links= is set to =t=), then the keys will be sorted on the criteria specified in =literef-citation-link-sorting-criteria= (see the section on [[#installation-and-configuration][configuration]]). Keys of a citation link can also be re-ordered at any time by invoking the =literef-sort-citation-link= command (bound by default to =C-c <down>=). This command offers multi-criteria sorting capability similar to the one for sorting candidates during the [[#searching-the-papers-database][search for papers]]. The command  =literef-sort-citation-links= (not bound to a key by default) can be used to re-order all the citation links in the current buffer.
+This is shown in the following [[https://www.dropbox.com/s/2dnxyz3yl6dus29/intelligent_pasting.mp4?dl=0][demo]].
+
+# **** Scenario
+# Suppose we would like to add a paper to this three-paper citation. The cursor just happens to be in the middle of this long citation. We can simply cite more papers and leave it to =LiteRef= to take care of the formatting and ordering issues. So,… let’s cite these two papers. We see that a well-formed multi-paper citation resulted and the keys have been ordered according to the configuration, which is the alphabetic order of keys in my case…
+# Suppose we’d like this citation to follow the order of increasing publication date. I press =C-c <down>= to invoke the =literef-sort-citation-link= command, select the new ordering criteria and … the citation link is re-ordered.
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/avpp69cd6em5byj/intelligent_pasting.mp4?dl=0">
+<a href="https://www.dropbox.com/s/2dnxyz3yl6dus29/intelligent_pasting.mp4?dl=0">
 <img 
 width=50%
 src="https://www.dropbox.com/s/j6v15naeqmc2q06/intelligent_pasting.png?raw=1">
 </a>
 </p>
 #+END_HTML
-
-# **** Scenario
-# Suppose we would like to add a paper to this three-paper citation. The cursor just happens to be in the middle of this long citation. We can simply cite more papers and leave it to =LiteRef= to take care of the formatting and ordering issues. So,… let’s cite these two papers. We see that a well-formed multi-paper citation resulted and the keys have been ordered according to the configuration, which is the alphabetic order of keys in my case.
 
 In addition, =LiteRef= offers the =literef-copy-current-key= command (bound by default to =C-c w=), which puts the currently active citation key into the kill ring. When used in conjunction with =helm-show-kill-ring= and [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bookmarks.html][bookmarks]] (which are of those many tools Emacs has to make your life easier once you discover them), one can easily collect citations scattered all over his notes. The following [[https://www.dropbox.com/s/b6n2ffwf3eatvo8/collect.mp4?dl=0][demo]] shows this.
 
@@ -418,7 +420,7 @@ src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
 #+END_HTML   
 *** Search
 The command =literef-subgraph-helm= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#finding-the-keys-to-cite][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[demo]] shows this.
-# Suppose I’d like to make a list of papers on the topic of pattern databases in the order of increasing publication date. I build the citation sub-graph as before, only this time let’s invoke the build action using the helm interface… Now I press =C-c )= to invoke the  =literef-subgraph-helm= command, select all the papers and cite them. I order the new citation in the order of increasing publication date by pressing =C-c <DOWN>= to invoke the =literef-sort-citation-link= command. Lastly, I split the citation to obtain the list of papers to my wanting.
+# Suppose I’d like to make a list of papers on the topic of pattern databases in the order of increasing publication date. I build the citation sub-graph as before, only this time let’s invoke the build action using the helm interface… Now I press =C-c )= to invoke the  =literef-subgraph-helm= command, select all the papers and cite them. I order the new citation in the order of increasing publication date by pressing =C-c <down>= to invoke the =literef-sort-citation-link= command. Lastly, I split the citation to obtain the list of papers to my wanting.
 
 #+BEGIN_HTML
 <p align="middle">
