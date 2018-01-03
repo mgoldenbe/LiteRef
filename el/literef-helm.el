@@ -288,6 +288,9 @@
     (push 
      (cons "Open PDF." `(lambda(_c) (literef-open-key-pdf ,key)))
      actions)
+    (push 
+     (cons "Build citation sub-graph." `(lambda(_c) (literef-select-subgraph ,key)))
+     actions)
     )
   (reverse actions))
 

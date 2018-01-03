@@ -75,6 +75,7 @@
 (define-key global-map "\C-ca" 'literef-cite-pdf-annotation)
 (define-key global-map "\C-cg" 'literef-get-region-bibtex)
 (define-key global-map "\C-cp" 'literef-search-pdfs)
+(define-key global-map "\C-cu" 'literef-select-subgraph)
 (define-key global-map "\C-cv" 'literef-show-selected-subgraph)
 (define-key global-map "\C-c)" 'literef-subgraph-helm)
 

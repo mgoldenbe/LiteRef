@@ -338,33 +338,54 @@ Narrowing is a standard =Emacs= feature whereby only part of the buffer is visib
 
 One of the keywords understood by =org-mode= is =#+INCLUDE=, which allows one to include an external file or a portion of it at the time of export. This allows the researcher to structure his notes in a collection of files, while still being able to collect these notes together for export.
 
-All this is shown in the following [[demo]].
+All this is shown in the following [[https://www.dropbox.com/s/92pcdihsueyr879/basic_export.mp4?dl=0][demo]].
 
 # **** Scenario
-# Suppose we are maintaining notes about two topics: Anytime Search and Pathfinding… Suppose also that notes about the Pattern Databases are maintained in a separate file (for example, by a student)… To produce a document containing all of the notes, we can include the other file… I invoke =org-export-dispatch= command, export into PDF… and open that PDF. The document contains all the notes including those of the student. Also, the bibliography has been inserted… The bibfile containing the entries used in this small survey has been produced as well… Now, suppose we would like to produce a document that contains only the notes on Pathfinding. We narrow the buffer to the corresponding subtree and invoke the export. Here is the result… 
+# In this simplified example, the researcher maintains notes on three topics. In fact, notes on multi-agent pathfinding are maintained by a student of his who got interested in the topic. The researcher integrated the notes of his student by simply including them. I invoke the =org-export-dispatch= command, choose exporting into PDF and open the resulting document… The document contains all the notes including those of the student. Also, the bibliography has been inserted… The bibfile containing the entries used in this small survey has been produced as well… Now, suppose we would like to produce a document that contains only the notes on the very first topic. We narrow the buffer to the sub-tree and export to PDF. Here is the result… 
+
+# Contents of notes.org:
+# * Labeling approaches to answering shortest distance queries
+# A good representative of this approach is cite:AkibaIY2013c-Fast-Exact, which uses cut-offs based on 2-hop labeling cite:CohenHKZ2003j-Reach-And to store enough information to retrieve distance between any pair of vertices. etc.
+# * Modern methods for optimal pathfinding on grids
+# ** Jump-point search
+# - "Online Graph Pruning for Pathfinding On Grid Maps" by Harabor, D. D., & Grastien, A. cite:HaraborG2011c-Onlin-Graph. 
+# There are also an enhancements of this method:
+# - "Improving Jump Point Search" by Harabor, D. D., & Grastien, A. cite:HaraborG2014c-Improv-Jump.
+# ** Compressed all-pairs databases
+# - "Path Planning with Compressed All-Pairs Shortest Paths Data" by Botea, A., & Harabor, D. cite:BoteaH2013c-Path-Plann
+# - "Ultra-Fast Optimal Pathfinding without Runtime Search" by Botea, A. cite:Botea2011c-Ultra-Fast
+# ** etc.
+# * Multi-agent pathfinding (optimal)
+# #+INCLUDE: "multi-agent.org"
+
+# Contents of multi-agent.org:
+# These notes are dedicated to surveying promising approaches to solving the /Multi-Agent Pathfinding/ (MAPF) problem optimally.
+# * Conflict-based search
+# The two-level search idea is initiated by cite:SharonSFS2012c-Confl-Based. The idea has been extended to compute plans that are resistant against delays cite:AtzmonFSWBZ2017c-Robus-Multi. 
+# * Etc.
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<a href="https://www.dropbox.com/s/92pcdihsueyr879/basic_export.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+src="https://www.dropbox.com/s/os5tc2x9okq044v/basic_export.png?raw=1">
 </a>
 </p>
 #+END_HTML
 ** Defining and using citation functions
 The functionalities of =LiteRef= for grasping the overall state of research in a given area are based on the notion of a /citation function/. Citation function is the role that the cited paper plays in the paper that cites it as reflected in the notes on the latter paper. For example, suppose that a paper /X/ cites a paper /Y/, because /X/ develops the ideas of /Y/. The researcher can reflect this in the notes on /X/ by citing /Y/ while specifying the citation function corresponding to the role of developing the ideas of the cited paper. It can look something like this: =cite:Y f:develops-ideas=. 
 
-The set of legal citation functions is defined by the list =literef-citation-functions= in the configuration. The citation functions can be conveniently inserted into the notes by using the command =literef-citation-function= (bound by default to C-c f). This is demonstrated by the following [[demo]].
+The set of legal citation functions is defined by the list =literef-citation-functions= in the configuration. The citation functions can be conveniently inserted into the notes by using the command =literef-citation-function= (bound by default to C-c f). This is demonstrated by the following [[https://www.dropbox.com/s/dqqrvoyawm11grq/citation_function.mp4?dl=0][demo]].
 # **** Scenario
-# The list of citation functions in my configuration file looks like this… I now open the notes of a paper. My notes already indicate that the current paper cites this one. Let us use a citation function to indicate that the current paper both develops the ideas and compares the results to the results of the cited paper. I press =C-c f= to invoke the =literef-citation-function= command. This takes me to a completion mode, which uses the =company= package. I use the completion to insert the two citation functions separated by comma. Here we go…
+# Here is a simplified version of the notes on a paper about the algorithm by the abbreviated name of SFBDS. The notes state that this paper develops the ideas and improves on the experimental results of the original paper that introduced this algorithm. By using citation functions, we can state this explicitly, which will also enable features shown in the later demos. I press =C-c f= to invoke the =literef-citation-function= command. This prompts me to enter the citation functions using the =company= completion mode. If I press the Tab key right now, I will see all the citation functions that appear in my configuration file. So, I use the completion functionality to quickly enter the two relevant citation functions separated by comma. And, here we go…
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<a href="https://www.dropbox.com/s/dqqrvoyawm11grq/citation_function.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+src="https://www.dropbox.com/s/qsk7v8c8mrkhp9r/citation_function.png?raw=1">
 </a>
 </p>
 #+END_HTML
@@ -406,8 +427,9 @@ Two variables control what information appears on the displayed graph:
 The visualization is demonstrated by the following [[demo]].
 
 # **** Scenario
-# Suppose I would like to exlore the topic of compression of pattern databases. The PDF of the first paper on the topic is open right now, so that this paper is active. I press =C-c v= to invoke the =literef-show-selected-subgraph= and build a citation sub-graph with that paper as the source. For this first sub-graph, I will not limit the arcs, so my filter simply evaluates to =true=. The sub-graph is build and displayed… Let us see how the label of this arc came about. This label consists of two citation functions. Let’s look at the notes. Here is the first citation function and here is the other one… 
-# Now, the central paper in this topic is certainly this paper from 2007. Suppose I would like to see only the papers that directly cite this paper and claim orthogonality to its ideas. So, I click on this paper and select the action of building a sub-graph. I am interested in the papers that cite this one, so that’s the =in=-direction, at depth 1 of the search and satisfying the =claims-orthogonality= predicate. Here we go… 
+# Suppose I would like to exlore the topic of compression of pattern databases. The PDF of the first paper on the topic is open right now, so that this paper is active. I press =C-c u= to invoke the =literef-select-subgraph= and build a citation sub-graph with this paper as the source. For this first sub-graph, I will not limit the arcs, so my filter simply evaluates to =true=. The sub-graph is built and displayed… If I want to display the selected sub-graph at any later point, I can do that by invoking the =literef-show-selected-subgraph= command bound to =C-c v=. Let us see how the label of this arc came about. This label consists of two citation functions. Let’s look at the notes. Here is the first citation function and here is the other one… 
+
+# Now, the central paper in this topic is certainly this paper from 2007. Suppose I would like to see only the papers that directly cite this paper and claim orthogonality to its ideas. So, I click on this paper and select the action of building a sub-graph. I am interested in the papers that cite this one and claim orthogonality with its ideas. So, I am interested in the incoming arcs at depth 1 that satisfy the =claims-orthogonality= predicate. Here we go… 
 
 #+BEGIN_HTML
 <p align="middle">

@@ -69,24 +69,20 @@
 		 :buffer-node-name nil
 		 :filter-string "t")))
 
-(defun literef-subgraph-select-source()
-  "Select the source for forming the current subgraph."
+(defun literef-subgraph-select-source(&optional key)
+  "Select the source for forming the current subgraph. If KEY is specified, it is considered to be the currently active key."
   (let* ((source (literef-subgraph-source))
-	 (current-key (literef-current-key))
-	 (ans (literef-read-char
-	       (concat "Choose the source of initial keys:  "
-		       "All keys (a)  |  Current buffer (b)"
-		       (when current-key
-			 (concat "  |  " current-key "(c)")))
-	       (if current-key '(?a ?b ?c) '(?a ?b)))))
-    (cond ((eq ans ?a)
-	   (literef-plist-put source :source-type :all-keys))
-	  ((eq ans ?b)
-	   (literef-plist-put source :source-type :buffer)
-	   (literef-plist-put source :source-name (buffer-name)))
-	  ((eq ans ?c)
+	 (current-key
+	  (if key
+	      key
+	    (literef-current-key))))
+    (if current-key
+	(progn
 	   (literef-plist-put source :source-type :current-key)
-	   (literef-plist-put source :source-name current-key)))))
+	   (literef-plist-put source :source-name current-key))
+      (progn
+	(literef-plist-put source :source-type :buffer)
+	(literef-plist-put source :source-name (buffer-name))))))
 
 (defun literef-subgraph-initial-keys()
   "Compute initial keys for forming the current subgraph."
@@ -226,14 +222,14 @@
 	  (literef-subgraph-add-generating-arc buffer-node-name key))))
     (literef-uniform-cost-search initial-keys)))
 
-(defun literef-select-subgraph()
-  "Select subgraph of the graph of keys `literef-subgraph'."
+(defun literef-select-subgraph(&optional key)
+  "Select subgraph of the graph of keys `literef-subgraph'. If KEY is specified, it is considered to be the currently active key to be used as the source."
   (interactive)
   (unwind-protect
       (progn
 	(org-ref-cancel-link-messages)
 	(setq current-subgraph (literef-init-subgraph))
-	(literef-subgraph-select-source)
+	(literef-subgraph-select-source key)
 	(when (eq (literef-subgraph-source-property :source-type)
 		  :buffer)
 	  (let* ((default-buffer-name

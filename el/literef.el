@@ -42,12 +42,14 @@
 		      "Choose action:  "
 		      "  Notes (n)  |"
 		      "  PDF (p)  |"
-		      "  BibFile (b)")
-		     '(?n ?b ?p))))
+		      "  BibFile (b)  |"
+		      "  Citation sub-graph (s)")
+		     '(?n ?p ?b ?s))))
       (org-ref-show-link-messages))
     (when (eq ans ?n) (literef-open-notes))
     (when (eq ans ?p) (literef-open-pdf))
-    (when (eq ans ?b) (literef-open-bibfile))))
+    (when (eq ans ?b) (literef-open-bibfile))
+    (when (eq ans ?s) (literef-select-subgraph))))
 
 (setq org-ref-cite-onclick-function
       (lambda(_key) (literef-cite-onclick-function)))
