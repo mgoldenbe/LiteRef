@@ -71,9 +71,9 @@ Currently it returns t if the notes file is of non-zero size."
 
 It performs some pre-processing and then calls the original `org-export-to-file'."
   (message "In literef-export-to-file")
-  (let* ((source-type
-	  (plist-get literef-subgraph-properties :source-type))
-	 (source (plist-get literef-subgraph-properties :source))
+  (let* ((current-subgraph literef-subgraph)
+	 (source-type (literef-subgraph-source-property :source-type))
+	 (source (literef-subgraph-source-property :source-name))
 	 (buffer-name
 	  (if (not (boundp 'literef-subgraph-export))
 	      (buffer-name)
@@ -97,8 +97,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       (when buffer-string
 	(when (boundp 'literef-subgraph-export)
 	  (let* ((default-section-name
-		   (plist-get literef-subgraph-properties
-			      :buffer-node-name))
+		   (literef-subgraph-source-property :buffer-node-name))
 		 (section-name
 		  (read-string
 		   (concat "Enter the title of the buffer secion "

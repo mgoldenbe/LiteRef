@@ -341,7 +341,7 @@ One of the keywords understood by =org-mode= is =#+INCLUDE=, which allows one to
 All this is shown in the following [[demo]].
 
 # **** Scenario
-# Suppose we are maintaining notes about two topics: Anytime Search and Pathfinding. Suppose also that notes about the Pattern Databases are maintained in a separate file (for example, by a student)… To produce a document containing all of the notes, we can include the other file. export the file into PDF… and open that PDF. The bibliography has been inserted… The bibfile containing the entries used in this small survey has been produced as well… Now, suppose we would like to produce a document that contains only the notes on Pathfinding. We narrow the buffer to the corresponding subtree and invoke the export. Here is the result… 
+# Suppose we are maintaining notes about two topics: Anytime Search and Pathfinding… Suppose also that notes about the Pattern Databases are maintained in a separate file (for example, by a student)… To produce a document containing all of the notes, we can include the other file… I invoke =org-export-dispatch= command, export into PDF… and open that PDF. The document contains all the notes including those of the student. Also, the bibliography has been inserted… The bibfile containing the entries used in this small survey has been produced as well… Now, suppose we would like to produce a document that contains only the notes on Pathfinding. We narrow the buffer to the corresponding subtree and invoke the export. Here is the result… 
 
 #+BEGIN_HTML
 <p align="middle">
