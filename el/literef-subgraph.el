@@ -134,30 +134,29 @@
 	    (literef-subgraph-add-generating-arc from-key to-key)
 	  (literef-subgraph-add-generating-arc to-key from-key))))))
 
-(defun literef-neighbor-pairs(cur-direction next-direction cur-properties)
-  "Compute the neighbors pairs consisting of key and properies that fit the direction of the key being expanded (CUR-DIRECTION) the required direction of the arc (NEXT-DIRECTION) and the properties of the key being expanded (CUR-PROPERTIES)."
+(defun literef-neighbor-pairs(direction cur-properties)
+  "Compute the neighbors pairs consisting of key and properies that fit the required DIRECTION of the arc. The properties are computed using CUR-PROPERTIES of the key being expanded."
   (let (res)
-    (when (or (not cur-direction) (eq cur-direction next-direction))
-      (let ((neighbors
-	     (literef-hash-pairs-to-list
-	      (if (eq next-direction :out)
-		  (literef-key-out-neighbors key)
-		(literef-key-in-neighbors key)))))
-	(dolist (pair neighbors res)
-	  (let ((properties (copy-seq cur-properties)))
-	    (setq properties
-		  (plist-put properties :depth
-			     (1+ (plist-get cur-properties :depth))))
-	    (setq properties
-		  (plist-put properties :direction next-direction))
-	    (setq properties
-		  (plist-put properties :functions
-			     (if (eq next-direction :out)
-				 (literef-graph-arc-label
-				  key (elt pair 0))
+    (let ((neighbors
+	   (literef-hash-pairs-to-list
+	    (if (eq direction :out)
+		(literef-key-out-neighbors key)
+	      (literef-key-in-neighbors key)))))
+      (dolist (pair neighbors res)
+	(let ((properties (copy-seq cur-properties)))
+	  (setq properties
+		(plist-put properties :depth
+			   (1+ (plist-get cur-properties :depth))))
+	  (setq properties
+		(plist-put properties :direction direction))
+	  (setq properties
+		(plist-put properties :functions
+			   (if (eq direction :out)
 			       (literef-graph-arc-label
-				(elt pair 0) key))))
-	    (push (cons (car pair) properties) res)))))))
+				key (elt pair 0))
+			     (literef-graph-arc-label
+			      (elt pair 0) key))))
+	  (push (cons (car pair) properties) res))))))
 
 (defun literef-uniform-cost-search(initial-keys)
   "Builds the current subgraph by performing uniform-cost search from INITIAL-KEYS while respecting the current arc filter."
@@ -170,16 +169,14 @@
       (setq cur-iter next-iter)
       (setq next-iter (make-hash-table :test 'equal))
       (dolist (pair (literef-hash-pairs-to-list cur-iter) nil)
-	(let* ((key (elt pair 0))
-	       (properties (elt pair 1))
-	       (depth (plist-get properties :depth))
-	       (direction (plist-get properties :direction)))
+	(let ((key (elt pair 0))
+	      (properties (elt pair 1)))
 	  (remhash key cur-iter)
 	  (setq properties (plist-put properties :expanded t))
 	  (dolist (pair
 		   (nconc
-		    (literef-neighbor-pairs direction :out properties)
-		    (literef-neighbor-pairs direction :in properties))
+		    (literef-neighbor-pairs :out properties)
+		    (literef-neighbor-pairs :in properties))
 		   nil)
 	    (literef-add-to-next-iter key pair)))))
     nil))

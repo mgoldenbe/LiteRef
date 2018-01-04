@@ -6,10 +6,17 @@
     (pdf-info-getannots)
     (pdf-annot-show-annotation (pdf-info-getannot annot-id) t)))
 
+(defun literef-pdf-annotation-string(path &rest _args)
+  (let* ((parts (split-string path ":"))
+	 (link (elt parts 1))
+	 (link-parts (split-string link "-"))
+	 (page (elt link-parts 1)))
+    (concat "page " page)))
+	 
 (org-link-set-parameters
  literef-pdf-annotation-link
  :follow 'literef-follow-pdf-annotation-link
- :export (lambda (path desc backend) "") ; ignore the link
+ :export 'literef-pdf-annotation-string
  :face `(:foreground ,literef-pdf-annotation-color)
  :help-echo "Click to jump to the annotation in the PDF.")
 

@@ -424,32 +424,32 @@ The command =literef-show-selected-subgraph= (bound by default to =C-c v=),  all
 Two variables control what information appears on the displayed graph: 
 - When =literef-subgraph-show-only-generating-arcs= is set (i.e. is not =nil=) the visualizations shows only the generating arcs of the selected sub-graph. This variable is =nil= by default.
 - When =literef-subgraph-show-buffer= is set (i.e. is not =nil=) and the selected sub-graph originates from citations in a buffer, the source buffer is shown as a node of the selected sub-graph. This variable is =nil= by default.
-The visualization is demonstrated by the following [[demo]].
+The visualization is demonstrated by the following [[https://www.dropbox.com/s/onvbbgzszs4xjc8/visualization.mp4?dl=0][demo]].
 
 # **** Scenario
-# Suppose I would like to exlore the topic of compression of pattern databases. The PDF of the first paper on the topic is open right now, so that this paper is active. I press =C-c u= to invoke the =literef-select-subgraph= and build a citation sub-graph with this paper as the source. For this first sub-graph, I will not limit the arcs, so my filter simply evaluates to =true=. The sub-graph is built and displayed… If I want to display the selected sub-graph at any later point, I can do that by invoking the =literef-show-selected-subgraph= command bound to =C-c v=. Let us see how the label of this arc came about. This label consists of two citation functions. Let’s look at the notes. Here is the first citation function and here is the other one… 
+# Suppose I would like to explore the topic of compression of pattern databases. The PDF of the first paper on the topic is open right now, so that this paper is active. I press =C-c u= to invoke the =literef-select-subgraph= command and build a citation sub-graph with this paper as the source. For this first sub-graph, I will not limit the arcs, so my filter simply evaluates to =true=. The sub-graph is built and displayed… If I want to display the selected sub-graph at any later point, I can do that by invoking the =literef-show-selected-subgraph= command bound to =C-c v=. Let us see how the label of this arc came about. This label consists of two citation functions. Let’s look at the notes. Here is the first citation function and here is the other one… 
 
-# Now, the central paper in this topic is certainly this paper from 2007. Suppose I would like to see only the papers that directly cite this paper and claim orthogonality to its ideas. So, I click on this paper and select the action of building a sub-graph. I am interested in the papers that cite this one and claim orthogonality with its ideas. So, I am interested in the incoming arcs at depth 1 that satisfy the =claims-orthogonality= predicate. Here we go… 
+# The central paper on this topic is certainly this paper from 2007. Suppose I would like to see only the papers that directly cite this paper and claim orthogonality to its ideas. So, I click on this paper and select the action of building a sub-graph. I am interested in the papers that cite this one and claim orthogonality with its ideas. So, I am interested in the incoming arcs at depth 1 that satisfy the =claims-orthogonality= predicate. Here we go… 
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<a href="https://www.dropbox.com/s/onvbbgzszs4xjc8/visualization.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+src="https://www.dropbox.com/s/bn6m7blfv81yiim/visualization.png?raw=1">
 </a>
 </p>
 #+END_HTML   
 *** Search
-The command =literef-subgraph-helm= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#finding-the-keys-to-cite][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[demo]] shows this.
-# Suppose I’d like to make a list of papers on the topic of pattern databases in the order of increasing publication date. I build the citation sub-graph as before, only this time let’s invoke the build action using the helm interface… Now I press =C-c )= to invoke the  =literef-subgraph-helm= command, select all the papers and cite them. I order the new citation in the order of increasing publication date by pressing =C-c <down>= to invoke the =literef-sort-citation-link= command. Lastly, I split the citation to obtain the list of papers to my wanting.
+The command =literef-subgraph-helm= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#finding-the-keys-to-cite][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[https://www.dropbox.com/s/qq6a4h4u0hau87w/subgraph_search.mp4?dl=0][demo]] shows this.
+# Suppose I’d like to make a list of papers on the topic of compressed pattern databases in the order of increasing publication date. I build the citation sub-graph as before, only this time let’s invoke the build action using the helm interface… Now I press =C-c )= to invoke the  =literef-subgraph-helm= command, select all the papers and cite them. I order the new citation in the order of increasing publication date by pressing =C-c <down>= to invoke the =literef-sort-citation-link= command. Lastly, I split the citation to obtain the list of papers as desired.
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<a href="https://www.dropbox.com/s/qq6a4h4u0hau87w/subgraph_search.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+src="https://www.dropbox.com/s/9s5j6ppk6kp1gh1/subgraph_search.png?raw=1">
 </a>
 </p>
 #+END_HTML   
@@ -463,7 +463,7 @@ We already described above how =LiteRef= extends the functionality of the =org-e
 - Each paper citation is followed by a reference to the corresponding section with the notes for that paper. These notes will conveniently become hyperlinks in the exported document.
 - The bibliography is created. The underlying bibliography file created by =LiteRef= contains only the papers from the citation sub-graph, ordered by the increasing order of the BibTeX key.
 The following [[demo]] demonstrates the export in action.
-# Suppose we maintain a survey organized by topics. We would like to create a document with all the notes regarding the topic of compressed pattern databases. I narrow the buffer to the sub-tree corresponding to the topic,… use the buffer to build a citation sub-graph and invoke the =literef-subgraph-export-dispatch= command to export the selected sub-graph… Let us view the resulting document. It contains all the knowledge about the chosen topic contained in the LiteRef database, with a section dedicated to each paper,… with section references to the relevant sections for citations… and with the bibliography. 
+# In this demo, we set out to create a survey on the subject of compressed pattern databases. This survey should begin with a short summary and proceed by presenting our notes about all the papers on the subject. We would like this document to be both organized into sections and extensively cross-referenced… Here is the summary I wrote. I deliberately kept this summary very short, so it does not even cite all the papers on the subject. Let us build a citation sub-graph using this buffer as the source. I invoke the =literef-subgraph-export-dispatch= command and export the selected sub-graph into a PDF… Let us view the resulting document. It contains our summary and a section dedicated to each paper on the subject, for which non-empty notes exist.… We can see that each citation is supplied with a reference to the section discussing the cited paper. The bibliography concludes the document.
 
 #+BEGIN_HTML
 <p align="middle">

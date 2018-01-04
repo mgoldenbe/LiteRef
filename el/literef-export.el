@@ -12,7 +12,9 @@ Currently it returns t if the notes file is of non-zero size."
   (let* ((keys ;; only the keys whos notes are exported.
 	  (let (res)
 	    (dolist (key keys nil)
-	      (when (literef-key-notes-p key)	 
+	      (when
+		  (and (literef-key-in-subgraph-p key)
+		       (literef-key-notes-p key))	 
 		(push key res)))
 	    (reverse res)))
 	 (multiple-flag (> (length keys) 1))
@@ -61,7 +63,7 @@ Currently it returns t if the notes file is of non-zero size."
 (defun literef-keys-to-insert()
   "Compute the list of keys whose notes are to be inserted in the export."
   (let (res)
-    (dolist (key (literef-hash-keys-to-list literef-subgraph) nil)
+    (dolist (key (literef-hash-keys-to-list (literef-subgraph-keys)) nil)
       (when (and (literef-key-exists key) (literef-key-notes-p key))
 	(push key res)))
     (sort res 'string<)))
@@ -132,6 +134,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       (when literef-sort-citation-links (literef-sort-citation-links t))
       
       ;; Insert references to note sections.
+      ;; (message (concat "\n\n----------------\n\n" (buffer-string)))
       (when (boundp 'literef-subgraph-export)
 	(literef-insert-note-references))
       (end-of-buffer)

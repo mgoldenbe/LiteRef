@@ -63,7 +63,7 @@
     (dolist (c candidates res)
       (let ((key (literef-candidate-property "=key=" c)))
 	(when (or (not (boundp 'literef-subgraph-helm))
-		  (gethash key literef-subgraph nil))
+		  (gethash key (literef-subgraph-keys) nil))
 	  (push (cons (literef-candidate-helm-string c) (cdr c)) res))))
     (setq res (reverse res))
     res
