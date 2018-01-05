@@ -114,9 +114,7 @@
 
 (defun literef-link-end(link)
   "The actual end of the LINK without spaces after it."
-  (save-excursion
-    (goto-char (org-element-property :end link))
-    (1+ (search-backward-regexp "[^[:space:]]"))))
+  (org-element-property :end link))
 
 (defun literef-link-path(link)
   "The path in the LINK."
@@ -138,11 +136,16 @@
   (< (literef-link-begin link1) (literef-link-begin link2)))
 
 (defun literef-all-links(predicate)
-  "Compute the list of all links in the current buffer that satisfy a given PREDICATE (if PREDICATE is nil, all links are included). The links are sorted by the begin position." 
+  "Compute the list of all links in the current buffer that satisfy a given PREDICATE (if PREDICATE is nil, all links are included). The links are sorted by the begin position. The :end property is substituted to be the actual end of the link without spaces after it." 
   (let (res)
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
 	(when (or (not predicate) (funcall predicate link))
+	  (org-element-put-property
+	   link :end
+	   (save-excursion
+	     (goto-char (org-element-property :end link))
+	     (1+ (search-backward-regexp "[^[:space:]]"))))
 	  (setq res (cons link res)))))
     (sort (copy-seq res) #'literef-citation-link<)))
 

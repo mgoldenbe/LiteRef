@@ -6,6 +6,9 @@ Currently it returns t if the notes file is of non-zero size."
 	(index-of-size-attribute 7))
     (> (elt (file-attributes notes-file) index-of-size-attribute) 0)))
 
+(defvar literef-no-section-reference " <noref>"
+  "A sign that the preceding citation should not be followed by a section reference. This is currently used to avoid inserting self-references in the section headings.")
+
 (defun literef-reference-text(keys)
   "Compute text for the reference for the given KEYS."
 
@@ -33,6 +36,14 @@ Currently it returns t if the notes file is of non-zero size."
     (when keys (setq res (concat res ")")))
     res))
 
+(defun literef-debug-print-buffer-citations()
+  "Displays a string summarizing the citations in the buffer for debugging."
+  (interactive)
+  (let (res)
+    (dolist (link (literef-citation-links) nil)
+      (setq res (concat res "(begin: " (number-to-string (literef-link-begin link)) ", end: " (number-to-string (literef-link-end link)) ")    ")))
+    (message res)))
+
 (defun literef-insert-note-references()
   "For each citation in the current buffer, insert a reference to the sections corresponding to the keys in the selected subgraph. Properly handle comma-separated citations."
   (let ((shift 0))
@@ -40,8 +51,20 @@ Currently it returns t if the notes file is of non-zero size."
       (let* ((keys (literef-link-path-components link))
 	     (reference (literef-reference-text keys)))
 	(goto-char (+ (literef-link-end link) shift))
-	(insert reference)
-	(setq shift (+ shift (length reference)))))))
+	(let* ((begin (point))
+	       (end (+ begin (length literef-no-section-reference))))
+	  (if (and (< end (point-max))
+		   (equal (buffer-substring begin end)
+			  literef-no-section-reference))
+	      (progn
+		(buffer-size)
+		(delete-region begin end)
+		(buffer-size)
+		(setq shift
+		      (- shift (length literef-no-section-reference))))
+	    (progn
+	      (insert reference)
+	      (setq shift (+ shift (length reference))))))))))
 
 (defun literef-make-bib-file(bib-file-name)
   "Make the bibliography file containing only the entries for the used keys."
@@ -100,12 +123,13 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 	(when (boundp 'literef-subgraph-export)
 	  (let* ((default-section-name
 		   (literef-subgraph-source-property :buffer-node-name))
-		 (section-name
-		  (read-string
-		   (concat "Enter the title of the buffer secion "
-			   "(default: " default-section-name
-			   ") or nil to not create a section: ")
-		   nil nil default-section-name)))
+		 (section-name "nil") ;; no section for buffer.
+		  ;; (read-string
+		  ;;  (concat "Enter the title of the buffer secion "
+		  ;; 	   "(default: " default-section-name
+		  ;; 	   ") or nil to not create a section: ")
+		  ;;  nil nil default-section-name))
+		 )
 	    (unless (equal section-name "nil")
 	      (insert "* "  section-name "\n"))))
 	(insert buffer-string)
@@ -117,12 +141,13 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 	  (when (> (length keys) 0)
 	    (let* ((create-notes-section
 		   (y-or-n-p
-		    "Should a section for notes be created?"))
+		    "Should there be a section for all the notes?"))
 		   (notes-stars (if create-notes-section "**" "*")))
 	    (when create-notes-section (insert "* Notes\n"))
 	    (dolist (key keys nil)
 	      (let ((notes-file (literef-notes-filename key)))
-		(insert notes-stars " " (literef-key-string key) "\n"
+		(insert notes-stars " " (literef-key-string key)
+			" cite:" key literef-no-section-reference "\n"
 			"<<sec:" key ">>" "\n")
 		(insert "#+INCLUDE: " notes-file "\n")))))))
 		
@@ -134,7 +159,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       (when literef-sort-citation-links (literef-sort-citation-links t))
       
       ;; Insert references to note sections.
-      ;; (message (concat "\n\n----------------\n\n" (buffer-string)))
+      (message (concat "\n\n----------------\n\n" (buffer-string)))
       (when (boundp 'literef-subgraph-export)
 	(literef-insert-note-references))
       (end-of-buffer)
