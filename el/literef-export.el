@@ -44,27 +44,30 @@ Currently it returns t if the notes file is of non-zero size."
       (setq res (concat res "(begin: " (number-to-string (literef-link-begin link)) ", end: " (number-to-string (literef-link-end link)) ")    ")))
     (message res)))
 
+(defun literef-remove-citation-functions()
+  "Remove all citation function links and space before them"
+  (dolist (link (reverse (literef-citation-function-links)) nil)
+    (let* ((prev-non-space (literef-link-prev-non-space link))
+	   (begin
+	    (if prev-non-space
+		(1+ prev-non-space)   
+	      (literef-link-begin link)))
+	   (end (literef-link-end link)))
+      (delete-region begin end))))
+
 (defun literef-insert-note-references()
   "For each citation in the current buffer, insert a reference to the sections corresponding to the keys in the selected subgraph. Properly handle comma-separated citations."
-  (let ((shift 0))
-    (dolist (link (literef-citation-links) nil)
-      (let* ((keys (literef-link-path-components link))
-	     (reference (literef-reference-text keys)))
-	(goto-char (+ (literef-link-end link) shift))
+  (dolist (link (reverse (literef-citation-links)) nil)
+    (let* ((keys (literef-link-path-components link))
+	   (reference (literef-reference-text keys)))
+	(goto-char (literef-link-end link))
 	(let* ((begin (point))
 	       (end (+ begin (length literef-no-section-reference))))
 	  (if (and (< end (point-max))
 		   (equal (buffer-substring begin end)
 			  literef-no-section-reference))
-	      (progn
-		(buffer-size)
-		(delete-region begin end)
-		(buffer-size)
-		(setq shift
-		      (- shift (length literef-no-section-reference))))
-	    (progn
-	      (insert reference)
-	      (setq shift (+ shift (length reference))))))))))
+	      (delete-region begin end)
+	    (insert reference))))))
 
 (defun literef-make-bib-file(bib-file-name)
   "Make the bibliography file containing only the entries for the used keys."
@@ -151,12 +154,15 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 			"<<sec:" key ">>" "\n")
 		(insert "#+INCLUDE: " notes-file "\n")))))))
 		
-      ;; Expand INCLUDEs
+      ;; Expand INCLUDEs.
       (org-export-expand-include-keyword)
       (end-of-buffer)
 
-      ;; Sort citation links
+      ;; Sort citation links.
       (when literef-sort-citation-links (literef-sort-citation-links t))
+
+      ;; Remove citation functions and the spaces preceeding them.
+      (literef-remove-citation-functions)
       
       ;; Insert references to note sections.
       (message (concat "\n\n----------------\n\n" (buffer-string)))

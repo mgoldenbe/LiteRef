@@ -36,7 +36,7 @@
 ;;       (insert-file-contents (literef-notes-filename key))
 ;;       (dolist (annotation-link (literef-citation-function-links) nil)
 ;; 	(let ((citation-link
-;; 	       (literef-backward-adjacent-org-element annotation-link)))
+;; 	       (literef-link-prev-element annotation-link)))
 ;; 	  (when (literef-citation-link-p citation-link)
 
 ;; 	    (dolist (key (literef-link-path-components citation-link) nil)

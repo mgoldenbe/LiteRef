@@ -23,7 +23,7 @@
 	;; Handle citations that have annotation links.
 	(dolist (annotation-link (literef-citation-function-links) nil)
 	  (let ((citation-link
-		 (literef-backward-adjacent-org-element annotation-link)))
+		 (literef-link-prev-element annotation-link)))
 	    (when (literef-citation-link-p citation-link)	  
 	      (let ((functions
 		     (literef-link-path-components annotation-link)))

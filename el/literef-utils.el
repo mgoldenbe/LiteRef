@@ -1,3 +1,5 @@
+(require 'literef-util-links)
+
 (defun literef-xor(a b)
   (not (eq a b)))
 
@@ -103,74 +105,6 @@
   (let (res)
     (dolist (key (literef-hash-keys-to-list hash1) res)
       (unless (gethash key hash2 nil) (push key res)))))
-
-(defun literef-link-type(link)
-  "The type of the LINK."
-  (org-element-property :type link))
-
-(defun literef-link-begin(link)
-  "The beginning of the LINK."
-  (org-element-property :begin link))
-
-(defun literef-link-end(link)
-  "The actual end of the LINK without spaces after it."
-  (org-element-property :end link))
-
-(defun literef-link-path(link)
-  "The path in the LINK."
-  (org-element-property :path link))
-
-(defun literef-backward-adjacent-org-element(link)
-  "The org-element adjacent and before the given LINK."
-  (save-excursion
-    (goto-char (literef-link-begin link))
-    (let ((pos (search-backward-regexp "[^[:space:]]")))
-      (if pos (org-element-context) nil))))
-
-(defun literef-link-path-components(link)
-  "Extract keys from the link path."
-  (split-string (literef-link-path link) ","))
-
-(defun literef-citation-link< (link1 link2)
-  "Compare two citation links."
-  (< (literef-link-begin link1) (literef-link-begin link2)))
-
-(defun literef-all-links(predicate)
-  "Compute the list of all links in the current buffer that satisfy a given PREDICATE (if PREDICATE is nil, all links are included). The links are sorted by the begin position. The :end property is substituted to be the actual end of the link without spaces after it." 
-  (let (res)
-    (org-element-map (org-element-parse-buffer) 'link
-      (lambda (link)
-	(when (or (not predicate) (funcall predicate link))
-	  (org-element-put-property
-	   link :end
-	   (save-excursion
-	     (goto-char (org-element-property :end link))
-	     (1+ (search-backward-regexp "[^[:space:]]"))))
-	  (setq res (cons link res)))))
-    (sort (copy-seq res) #'literef-citation-link<)))
-
-(defun literef-citation-link-p(link)
-  "Return t if the link is a citation and nil otherwise"
-  (let ((type (literef-link-type link)))
-    (and type (stringp type) (>= (length type) 4) (string= (substring type 0 4) "cite"))))
-
-(defun literef-citation-function-link-p(link)
-  "Return t if the link is a citation annotation and nil otherwise"
-  (string= (literef-link-type link) literef-citation-function-link))
-
-(defun literef-citation-link-under-cursor()
-  "Return the citation link under cursor or nil."
-  (ignore-errors
-    (let ((object (org-element-context)))
-      (when (literef-citation-link-p object) object))))
-
-(defun literef-citation-links()
-  "Compute the list of all citation links in the current buffer, sorted by the begin position."
-  (literef-all-links #'literef-citation-link-p))
-
-(defun literef-citation-function-links()
-  "Compute the list of all annotation links in the current buffer, sorted by the begin position."
-  (literef-all-links #'literef-citation-function-link-p))
 
 (defun literef-buffer-keys()
   "Compute the list of all keys cited in the current buffer, sorted and with duplicates removed."
