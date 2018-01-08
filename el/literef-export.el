@@ -150,7 +150,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 	    (dolist (key keys nil)
 	      (let ((notes-file (literef-notes-filename key)))
 		(insert notes-stars " " (literef-key-string key)
-			" cite:" key literef-no-section-reference "\n"
+			" (cite:" key literef-no-section-reference ")\n"
 			"<<sec:" key ">>" "\n")
 		(insert "#+INCLUDE: " notes-file "\n")))))))
 		
@@ -171,7 +171,8 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       (end-of-buffer)
 
       ;; Insert bibliography if needed.
-      (when (> (length (literef-buffer-keys)) 0)
+      (when (and literef-bibliography-style
+		 (> (length (literef-buffer-keys)) 0))
 	(let* ((bib-file-name (concat buffer-name ".bib"))
 	       (append-text (concat "\n" "bibliographystyle:"
 				    literef-bibliography-style "\n"
@@ -179,6 +180,11 @@ It performs some pre-processing and then calls the original `org-export-to-file'
 	  (insert append-text)
 	  (literef-make-bib-file bib-file-name)))
 
+      ;; Insert bibliography package
+      (when literef-bibliography-package
+       	(goto-char (point-min))
+	(insert "#+LATEX_HEADER: \\usepackage{" literef-bibliography-package "}\n"))
+      
       (apply orig-fun args))))
 
 (defun literef-subgraph-export-dispatch()

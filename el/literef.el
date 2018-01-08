@@ -62,45 +62,50 @@
   (let ((key (literef-current-key)))
     (when key (kill-new key))))
 
-(defun test()
-  (interactive)
-  (insert-for-yank "aaa"))
+(defun literef-after-string-p(string)
+  "Returns t if point is after STRING and nil otherwise."
+  (and (> (point) (length string))
+       (equal
+	(buffer-substring (- (point) (length string)) (point))
+	string)))
+
+(defun literef-after-citation-type-p()
+  "Returns t if point is after citation type such as citeauthor: and nil otherwise."
+  (let (res)
+    (dolist (type org-ref-cite-types res)
+      (setq res (or res (literef-after-string-p (concat type ":")))))))
 
 (defun literef-insert-for-yank (orig-fun string)
   "The version of insert-for-yank that handles the keys being yanked intelligently.
 
 The string to be yanked is preceeded by the prefix computed as follows:
 
-1. If over a citation key, go to its end.
+1. Split the contents being yanked based on commas and analyze the first entry. If it is not a valid key, the prefix is empty. Otherwise, proceed to step 2. 
 
-2. Split the contents being yanked based on commas and analyze the first entry. If it is not a valid key, the prefix is empty. Otherwise, proceed to step 2. 
+2. If over a citation key, go to its end and set the prefix to be comma.
 
-3. If the point is right after 'cite:', the prefix is empty. Otherwise, proceed to step 3. 
+3. Otherwise, if right after comma that follows citation key or after citation type, the prefix is empty. 
 
-4. If the point is over a key, the prefix is ','. Otherwise, the prefix is 'cite:'.
+4. Otherwise, the prefix is 'cite:'.
 
 Once the original function is called, the current citation link (if the cursor is over one) is sorted subject to the value of `literef-sort-citation-links'. 
 "
-  (let ((link (literef-citation-link-under-cursor)))
-    (when link
-      (let ((link-end (literef-link-end link)))
-	(when (> link-end (point))
-	  (goto-char (literef-link-end link))))))
   (let* ((key (car (split-string string ",")))
-	 (prefix 
-	  (if (literef-key-exists key)
-	      (cond ((and
-		(> (point) 4)
-		(string= (buffer-substring (- (point) 5) (point)) "cite:"))
-		     ;; We are after 'cite:'
-		     "")
-		    ((literef-get-bibtex-key-under-cursor)
-		     ;; We are over a key
-		     ",")
-		    (t
-		     ;; Else
-		     "cite:"))
-	    "")))
+	 (link (literef-citation-link-under-cursor))
+	 (prefix
+	  (cond
+	   ((not (literef-key-exists key)) "")
+	   (link
+	    (let ((link-end (literef-link-end link)))
+	      (goto-char link-end)
+	      ","))
+	   ((when (literef-after-string-p ",")
+	      (save-excursion
+		(goto-char (1- (point)))
+		(literef-citation-link-under-cursor)))
+	    "")
+	   ((literef-after-citation-type-p) "")
+	   (t "cite:"))))
     (funcall orig-fun (concat prefix string))
     (when literef-sort-citation-links (literef-sort-citation-link t))
     ))
@@ -132,48 +137,53 @@ Once the original function is called, the current citation link (if the cursor i
 Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line"
   (interactive)
   (let* ((save-point (point)) ; because we'll kill the line
-	 (postfix-end (progn (end-of-line) (point)))
-	 (prefix-begin (progn (beginning-of-line) (point)))
 	 (element (progn
 		    (beginning-of-line)
 		    (car (org-element-at-point))))
-	 (prefix-end (progn (search-forward "cite:" postfix-end t) (point)))
-	 (prefix (buffer-substring prefix-begin (- prefix-end 5))))
-    (if (= prefix-begin prefix-end) 
-	(message "No citation on this line")
-      (let* ((cite (org-element-context))
-	     (keys-with-commas (org-element-property :path cite))
-	     (keys (org-ref-split-and-strip-string keys-with-commas))
-	     (postfix-begin (+ prefix-end (length keys-with-commas)))
-	     (postfix (buffer-substring postfix-begin postfix-end))
-	     (inline-tasks-flag
-	      (if (eq element 'plain-list)
-		  (progn
-		    (goto-char save-point)
-		    (unwind-protect
-			(progn
-			  (org-ref-cancel-link-messages)
-			  (y-or-n-p "Insert inline tasks?"))
-		      (org-ref-show-link-messages)))
-		nil
-		)))
-	;; set the default todo keyword
-	(setq org-inlinetask-default-state
-	      (when org-todo-keywords-1 (car org-todo-keywords-1)))
+	 (line-end (progn (end-of-line) (point)))
+	 (line-begin (progn (beginning-of-line) (point)))
+	 (link (literef-first-citation-link-on-line)))
+    (unless link
+      (goto-char save-point)
+      (error (error "No citation on this line")))
+    (let* ((link-type (literef-link-type link))
+	   (link-begin (literef-link-begin link))
+	   (link-end (literef-link-end link))
+	   (keys (literef-link-path-components link))
+	   (prefix (buffer-substring line-begin link-begin))
+	   (postfix (buffer-substring link-end line-end))
+	   (inline-tasks-flag
+	    (if (eq element 'plain-list)
+		(progn
+		  (goto-char save-point)
+		  (unwind-protect
+		      (progn
+			(org-ref-cancel-link-messages)
+			(y-or-n-p "Insert inline tasks?"))
+		    (org-ref-show-link-messages)))
+	      nil
+	      )))
+      ;; set the default todo keyword
+      (setq org-inlinetask-default-state
+	    (when org-todo-keywords-1 (car org-todo-keywords-1)))
 	
-	;; remove the original line
-	(kill-region prefix-begin postfix-end)
+      ;; remove the original line
+      (kill-region line-begin line-end)
 
-	;; insert a line for each key
-	(dolist (key keys nil)
-	  ;; get title and authors
-	  (let* ((title-author (and insert-title-author (concat (literef-key-string key) " "))))
-	    (unless (string= key (car keys)) (insert "\n"))
-	    (insert prefix (concat title-author) "cite:" key postfix))
+      ;; insert a line for each key
+      (dolist (key keys nil)
+	;; get title and authors
+	(let* ((title-author (and insert-title-author (concat (literef-key-string key) " "))))
+	  (unless (string= key (car keys)) (insert "\n"))
+	  (insert prefix (concat title-author) link-type ":" key postfix))
 	  (when inline-tasks-flag
 	    (org-inlinetask-insert-task)
 	    (search-forward "END")))))
-    (goto-char save-point)))
+    (goto-char save-point))
+
+(defun test()
+  (interactive)
+  (goto-char (literef-link-begin (literef-first-citation-link-on-line))))
 
 (defun literef-split-cite-title-author()
   "Split citation of multiple sources. Insert information about title and author before the key.

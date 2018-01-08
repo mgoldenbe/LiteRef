@@ -13,8 +13,11 @@
 (defcustom literef-citation-link-sorting-criteria "k"
   "The sorting criteria for automatic sorting of citation links. It is a comma-separated list of characters as in `literef-char-to-compare'.")
 
-(defcustom literef-bibliography-style "plain"
-  "The bibliography-style to be used for exports.")
+(defcustom literef-bibliography-package "natbib"
+  "The bibliography package to be used for LaTeX export. If nil, no package is added.")
+
+(defcustom literef-bibliography-style "plainnat"
+  "The bibliography style to be used for LaTeX export. If nil, no bibliography style is added.")
 
 (defcustom literef-citation-function-link "f"
   "The link name for specifying citation function.")
