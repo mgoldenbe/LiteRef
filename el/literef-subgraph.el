@@ -403,24 +403,27 @@ This function is constructed by `literef-make-arc-filter'.")
       (let* ((command (concat "graph-easy --boxart" " " temp-file-name))
 	     (graph-layout (shell-command-to-string command)))
 	;; (delete-file temp-file-name)
-	(switch-to-buffer-other-window "The graph of keys.")
-	(org-mode)
-	(literef-graph-mode 1)
-	(setq-local auto-hscroll-mode nil)
-	(smooth-scrolling-mode 1)
+	(if (get-buffer "The graph of keys.")
+	    (switch-to-buffer "The graph of keys.")
+	  (progn
+	    (switch-to-buffer-other-window "The graph of keys.")
+	    (org-mode)
+	    (literef-graph-mode 1)
+	    (setq-local auto-hscroll-mode nil)
+	    (smooth-scrolling-mode 1)
 	
-	;; Do not wrap lines
-	(setq-local truncate-lines t)
+	    ;; Do not wrap lines
+	    (setq-local truncate-lines t)
 
-	;;;; The following settings are for ASCII output. For BoxArt, they are not needed, but are still fine.
-	;; Do not highlight as in tabular mode.
-	;; https://emacs.stackexchange.com/a/13955/16048
-	(setq-local org-enable-table-editor nil)
-	(setq-local face-remapping-alist
-		    (cons '(org-table . default) face-remapping-alist))
-	;; Do not use strike-through.
-	;; https://stackoverflow.com/a/22493885/2725810
-	(setq-local org-emphasis-alist nil)
+	    ;; The following settings are for ASCII output. For BoxArt, they are not needed, but are still fine.
+	    ;; Do not highlight as in tabular mode.
+	    ;; https://emacs.stackexchange.com/a/13955/16048
+	    (setq-local org-enable-table-editor nil)
+	    (setq-local face-remapping-alist
+			(cons '(org-table . default) face-remapping-alist))
+	    ;; Do not use strike-through.
+	    ;; https://stackoverflow.com/a/22493885/2725810
+	    (setq-local org-emphasis-alist nil)))
 
 	;; Make sure nothing remains from the last evaluation.
 	(setq-local buffer-read-only nil)
@@ -440,6 +443,11 @@ This function is constructed by `literef-make-arc-filter'.")
 	;; Add spaces, so horizontal scrolling is available in all lines.
 	(literef-append-spaces (literef-longest-line-length))
 
+	;; Reset position and scrolling.
+	(beginning-of-buffer)
+	(set-window-hscroll (selected-window) 0)
+	(set-window-vscroll (selected-window) 0)
+	
 	;; Make the buffer read-only.
 	(setq-local buffer-read-only t)
 	)))

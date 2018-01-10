@@ -136,6 +136,8 @@ src="https://www.dropbox.com/s/xxsyd0rre2u77j5/import_html.png?raw=1">
 
 ** Working with citations
 Most of the functionalities of =LiteRef= are centered around citations. In this section, we focus on the tasks of finding the keys to cite, editing the text containing citations, splitting a list of citations and working with the currently active citation or paper. 
+
+All the functionalities presented in this and further sections work with all types of citation links supported by =org-ref= and described by the variable =org-ref-cite-types=. The video demos of this section were recorded before this enhancement and use =cite:= links exclusively. The demo in the [[#export][below section]] on advanced export capabilities of =LiteRef= shows the use of other types of citation links. 
 *** Searching the papers database
 =LiteRef= inherits from =org-ref= and significantly improves the command =org-ref-insert-link= (bound by default to =C-c ]=) for inserting a citation. 
 
@@ -330,7 +332,10 @@ src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
 Conveniently, the =literef-cite-pdf-annotation= command can be invoked even when the PDF buffer is not currently active. In this case, =LiteRef= will find such a buffer. If several buffers are visiting PDF files, the user is offered to choose the appropriate buffer.
 
 ** Basic export of notes
-=LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=. In its original form, this command was already capable of exporting notes in a variety of formats, including LaTeX and PDF. With =LiteRef=, this command appends the bibliography based on the citations found in the notes. The underlying bibliography file created by =LiteRef= contains only the papers that appear in the bibliography, ordered by the increasing order of the BibTeX key.
+=LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=. In its original form, this command was already capable of exporting notes in a variety of formats, including LaTeX and PDF. =LiteRef= extends the capabilities of this command, so that:
+- The bibliography based on the citations found in the buffer being exported is automatically built. The underlying bibliography file created by =LiteRef= contains only the papers that appear in the bibliography, ordered by the increasing order of the BibTeX key. The bibliography style and the bibliography package used for LaTeX export are determined by the variables =literef-bibliography-style= and =literef-bibliography-package=, respectively.
+- Links to PDF annotations are replaced with references to page numbers.
+- Citation functions are removed, along with any spaces that precede them.
 
 =LiteRef= also adds a much more powerful command for exporting, which we discuss below. For now, let us mention two other features of =org-ref=. Although these features are not modified by =LiteRef=, they are so useful in conjunction with the export that I would like to mention them.
 
@@ -341,11 +346,11 @@ One of the keywords understood by =org-mode= is =#+INCLUDE=, which allows one to
 All this is shown in the following [[https://www.dropbox.com/s/92pcdihsueyr879/basic_export.mp4?dl=0][demo]].
 
 # **** Scenario
-# In this simplified example, the researcher maintains notes on three topics. In fact, notes on multi-agent pathfinding are maintained by a student of his who got interested in the topic. The researcher integrated the notes of his student by simply including them. I invoke the =org-export-dispatch= command, choose exporting into PDF and open the resulting document… The document contains all the notes including those of the student. Also, the bibliography has been inserted… The bibfile containing the entries used in this small survey has been produced as well… Now, suppose we would like to produce a document that contains only the notes on the very first topic. We narrow the buffer to the sub-tree and export to PDF. Here is the result… 
+# In this simplified example, the researcher maintains notes on three topics. In fact, notes on multi-agent pathfinding are maintained by a student of his who got interested in the topic… The researcher integrated the notes of his student by simply including them. Let us look inside the notes of the researcher for one of the topics. The notes use the =citeyear=-type citation and refer to a PDF annotation. We will see in just a moment how these are exported. I invoke the =org-export-dispatch= command,… choose exporting into PDF… and open the resulting document… The document contains all the notes including those of the student. Also, the bibliography has been inserted… The bibfile containing the entries used in this small survey has been produced as well… In addition, we see that the =citeyear= citation was respected and the PDF link was translated into a reference to the relevant page in the paper’s PDF… Now, suppose we would like to produce a document that contains only the notes on the very first topic. We narrow the buffer to the sub-tree and export to PDF. Here is the result… 
 
 # Contents of notes.org:
 # * Labeling approaches to answering shortest distance queries
-# A good representative of this approach is cite:AkibaIY2013c-Fast-Exact, which uses cut-offs based on 2-hop labeling cite:CohenHKZ2003j-Reach-And to store enough information to retrieve distance between any pair of vertices. etc.
+# A good representative of this approach is cite:AkibaIY2013c-Fast-Exact, which uses cut-offs based on 2-hop labeling (see annot:AkibaIY2013c-Fast-Exact:annot-2-28 for the description of the latter) introduced by Cohen et al. (citeyear:CohenHKZ2003j-Reach-And) to store enough information to retrieve distance between any pair of vertices. etc.
 # * Modern methods for optimal pathfinding on grids
 # ** Jump-point search
 # - "Online Graph Pruning for Pathfinding On Grid Maps" by Harabor, D. D., & Grastien, A. cite:HaraborG2011c-Onlin-Graph. 
@@ -427,9 +432,9 @@ Two variables control what information appears on the displayed graph:
 The visualization is demonstrated by the following [[https://www.dropbox.com/s/onvbbgzszs4xjc8/visualization.mp4?dl=0][demo]].
 
 # **** Scenario
-# Suppose I would like to explore the topic of compression of pattern databases. The PDF of the first paper on the topic is open right now, so that this paper is active. I press =C-c u= to invoke the =literef-select-subgraph= command and build a citation sub-graph with this paper as the source. For this first sub-graph, I will not limit the arcs, so my filter simply evaluates to =true=. The sub-graph is built and displayed… If I want to display the selected sub-graph at any later point, I can do that by invoking the =literef-show-selected-subgraph= command bound to =C-c v=. Let us see how the label of this arc came about. This label consists of two citation functions. Let’s look at the notes. Here is the first citation function and here is the other one… 
+# Suppose I would like to explore the topic of compression of pattern databases. The PDF of the first paper on the topic is open right now, so that this paper is active. I press =C-c u= to invoke the =literef-select-subgraph= command and build a citation sub-graph with this paper as the source. The filter will choose only the incoming arcs, so we will choose the papers that cite the first paper and the papers that cite those papers etc. The sub-graph is built and displayed… If I want to display the selected sub-graph at any later point, I can do that by invoking the =literef-show-selected-subgraph= command bound to =C-c v=. Let us see how the label of this arc came about. This label consists of two citation functions. Let’s look at the notes. Here is the first citation function and here is the other one… 
 
-# The central paper on this topic is certainly this paper from 2007. Suppose I would like to see only the papers that directly cite this paper and claim orthogonality to its ideas. So, I click on this paper and select the action of building a sub-graph. I am interested in the papers that cite this one and claim orthogonality with its ideas. So, I am interested in the incoming arcs at depth 1 that satisfy the =claims-orthogonality= predicate. Here we go… 
+# Let us try a slighly more complex filter. The central paper on the topic of compressed pattern databases is certainly this paper from 2007. Suppose I would like to see only the papers that directly cite this paper and claim orthogonality to its ideas. So, I click on this paper and select the action of building a sub-graph. I am interested in the papers that cite this one and claim orthogonality with its ideas. So, I am interested in the incoming arcs at depth 1 that satisfy the =claims-orthogonality= predicate. Here we go… 
 
 #+BEGIN_HTML
 <p align="middle">
@@ -454,13 +459,14 @@ src="https://www.dropbox.com/s/9s5j6ppk6kp1gh1/subgraph_search.png?raw=1">
 </p>
 #+END_HTML   
 *** Export
-We already described above how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-subgraph-export-dispatch= performs export of the citation sub-graph. The document for export is constructed using the following algorithm:
+We already described [[#basic-export-of-notes][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-subgraph-export-dispatch= performs export of the citation sub-graph. The document for export is constructed using the following algorithm:
 - The buffer for export is initialized as detailed below.
   + If the initial node for construction of the citation sub-graph corresponded to a currently existing buffer, that buffer becomes the buffer for export is initialized as a copy of that buffer with the same name. If the initial node for construction of the citation sub-graph corresponded to a currently non-existing buffer, an error results and the command halts.
   + If the citation sub-graph was not based on a buffer, the user is prompted to enter a name for the buffer for export, which is initialized to be empty.
 - The export buffer is appended with notes for the papers corresponding to the nodes in the citation sub-graph. Notes of each paper appear in a section named after that paper. In addition, the user is given an option to create a super-section for all the notes.
 - The =#+INCLUDE= directives are expanded.
 - Each paper citation is followed by a reference to the corresponding section with the notes for that paper. These notes will conveniently become hyperlinks in the exported document.
+- Links to PDF annotations and citation functions are handled just like during the [[#basic-export-of-notes][basic export]].
 - The bibliography is created. The underlying bibliography file created by =LiteRef= contains only the papers from the citation sub-graph, ordered by the increasing order of the BibTeX key.
 The following [[demo]] demonstrates the export in action.
 # In this demo, we set out to create a survey on the subject of compressed pattern databases. This survey should begin with a short summary and proceed by presenting our notes about all the papers on the subject. We would like this document to be both organized into sections and extensively cross-referenced… Here is the summary I wrote. I deliberately kept this summary very short, so it does not even cite all the papers on the subject. Let us build a citation sub-graph using this buffer as the source. I invoke the =literef-subgraph-export-dispatch= command and export the selected sub-graph into a PDF… Let us view the resulting document. It contains our summary and a section dedicated to each paper on the subject, for which non-empty notes exist.… We can see that each citation is supplied with a reference to the section discussing the cited paper. The bibliography concludes the document.
