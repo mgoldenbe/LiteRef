@@ -459,24 +459,32 @@ src="https://www.dropbox.com/s/9s5j6ppk6kp1gh1/subgraph_search.png?raw=1">
 </p>
 #+END_HTML   
 *** Export
-We already described [[#basic-export-of-notes][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-subgraph-export-dispatch= performs export of the citation sub-graph. The document for export is constructed using the following algorithm:
-- The buffer for export is initialized as detailed below.
-  + If the initial node for construction of the citation sub-graph corresponded to a currently existing buffer, that buffer becomes the buffer for export is initialized as a copy of that buffer with the same name. If the initial node for construction of the citation sub-graph corresponded to a currently non-existing buffer, an error results and the command halts.
-  + If the citation sub-graph was not based on a buffer, the user is prompted to enter a name for the buffer for export, which is initialized to be empty.
-- The export buffer is appended with notes for the papers corresponding to the nodes in the citation sub-graph. Notes of each paper appear in a section named after that paper. In addition, the user is given an option to create a super-section for all the notes.
+We already described [[#basic-export-of-notes][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-subgraph-export-dispatch= performs export of the citation sub-graph. The document for export is constructed in a temporary buffer using the following algorithm:
+- If the sub-graph’s source is a buffer, the document is initialized to the contents of that buffer.
+  + The name of the buffer serves as the name of the document. If the source buffer does not exist, the commands halts with a suiting error message.
+  If the sub-graph’s source is not a buffer, the user is prompted for the name of the document. The document is initialized to be empty.
+- The export buffer is appended with notes for the papers corresponding to the nodes in the citation sub-graph. Notes of each paper appear in a section. The title of that section consists of the paper’s title and authors, followed by the citation link to the paper. Empty sections, i.e. sections dedicated to papers with empty notes, do not appear.
+- Optionally, a section containing all the notes as subsections can be created. This may be desirable when the sub-graph’s source is a buffer containing several headlines. 
 - The =#+INCLUDE= directives are expanded.
-- Each paper citation is followed by a reference to the corresponding section with the notes for that paper. These notes will conveniently become hyperlinks in the exported document.
+- Each paper citation is followed by a reference to the corresponding section with the notes for that paper. These references will conveniently become hyperlinks in the exported document.
 - Links to PDF annotations and citation functions are handled just like during the [[#basic-export-of-notes][basic export]].
-- The bibliography is created. The underlying bibliography file created by =LiteRef= contains only the papers from the citation sub-graph, ordered by the increasing order of the BibTeX key.
-The following [[demo]] demonstrates the export in action.
-# In this demo, we set out to create a survey on the subject of compressed pattern databases. This survey should begin with a short summary and proceed by presenting our notes about all the papers on the subject. We would like this document to be both organized into sections and extensively cross-referenced… Here is the summary I wrote. I deliberately kept this summary very short, so it does not even cite all the papers on the subject. Let us build a citation sub-graph using this buffer as the source. I invoke the =literef-subgraph-export-dispatch= command and export the selected sub-graph into a PDF… Let us view the resulting document. It contains our summary and a section dedicated to each paper on the subject, for which non-empty notes exist.… We can see that each citation is supplied with a reference to the section discussing the cited paper. The bibliography concludes the document.
+- The bibliography is created. The underlying bibliography file contains only the papers cited in the document.
+The following [[https://www.dropbox.com/s/cvivo5eft1ps7h9/subgraph_export.mp4?dl=0][demo]] demonstrates the export in action.
+# In this demo, we set out to create a survey on the subject of compressed pattern databases. This survey should begin with a short summary and proceed by presenting our notes about all the papers on the subject. We would like this document to be both organized into sections and extensively cross-referenced… Here is the summary I wrote. I deliberately kept this summary very short, so it does not even cite all the papers on the subject. Let us build a citation sub-graph of the subject based on the papers cited in this summary… I invoke the =literef-subgraph-export-dispatch= command and export the selected sub-graph into a PDF. Since our buffer does not have headlines, we do not need to create a notes section. Let us view the resulting document. It contains our summary and a section dedicated to each paper on the subject.… Each citation is supplied with a reference to the section discussing the cited paper. As during the basic export, the citation functions reference specific pages in the papers. The bibliography concludes the document…
+
+# Contents of the summary file.
+# #+OPTIONS: toc:nil
+# #+TITLE: A Survey on Compressed Pattern Databases
+# #+AUTHOR: by Meir Goldenberg
+
+# This survey explores the subject of /compressed pattern databases/ as described in the work of Felner et al. (citeyear:FelnerMHK2004c-Compr-Patter) and followed up by a number of more recent papers. Approaches taken by the latter papers are, in many cases, very different from the approach taken by Felner et al.
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/tfozcxx7r1pcuqb/annotation_link.mp4?dl=0">
+<a href="https://www.dropbox.com/s/cvivo5eft1ps7h9/subgraph_export.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
+src="https://www.dropbox.com/s/5n3wf5umzaorbb6/subgraph_export.png?raw=1">
 </a>
 </p>
 #+END_HTML 
