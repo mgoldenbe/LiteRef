@@ -105,7 +105,7 @@ The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches f
 <a href="https://www.dropbox.com/s/e4wuod3dplyodfr/import_bib_online.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/bod6bheyhed7y3v/import_bib_online.png?raw=1">
+src="https://www.dropbox.com/s/61y40ctl8xmj1um/import_bib_online.png?raw=1">
 </a>
 </p>
 #+END_HTML
