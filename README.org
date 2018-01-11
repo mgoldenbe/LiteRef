@@ -155,7 +155,8 @@ Note that one can perform actions other than inserting a citation on a candidate
 href="https://www.dropbox.com/s/7qr2rv9lsl43g5e/search.mp4?dl=0"> <img
 width=50%
 src="https://www.dropbox.com/s/hs07fkeiq2apz59/search.mp3?raw=1"> </a>
-</p> #+END_HTML
+</p> 
+#+END_HTML
 
 One can also insert citations based on searching for a given string in the first page of all the paper PDFs. This is done with the =literef-search-pdfs= command. The following [[https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0][demo]] shows how to find all papers written by researchers from Toronto (which can be useful if the researcher wants to establish contacts with researchers in his area of research in Toronto).
 
