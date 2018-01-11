@@ -154,7 +154,7 @@ Note that one can perform actions other than inserting a citation on a candidate
 <p align="middle"> <a
 href="https://www.dropbox.com/s/7qr2rv9lsl43g5e/search.mp4?dl=0"> <img
 width=50%
-src="https://www.dropbox.com/s/hs07fkeiq2apz59/search.mp3?raw=1"> </a>
+src="https://www.dropbox.com/s/prdwne1fpmy6x8r/search.png?raw=1"> </a>
 </p> 
 #+END_HTML
 
@@ -168,7 +168,7 @@ One can also insert citations based on searching for a given string in the first
 <a href="https://www.dropbox.com/s/ie73e07layhktp8/toronto.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/sky71cr0bj597qn/toronto.mp3?raw=1">
+src="https://www.dropbox.com/s/augo3zrm80ifmfv/toronto.png?raw=1">
 </a>
 </p>
 #+END_HTML
