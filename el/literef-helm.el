@@ -266,8 +266,10 @@
 
 (defun literef-helm-insert-action(_c)
   "The insert-action of helm."
-  (dolist (key (literef-helm-marked-keys) nil)
-    (insert-for-yank key)))
+  (if (boundp 'literef-helm-no-insert)
+      (car (literef-helm-marked-keys))
+    (dolist (key (literef-helm-marked-keys) nil)
+      (insert-for-yank key))))
 
 (defun literef-kill-ring-action-yank(orig_fun _string)
   "The LiteRef version of helm-kill-ring-action-yank."

@@ -21,6 +21,12 @@
       (setq res (read-string prompt nil nil default)))
     (floor (literef-number-or-nil res))))
 
+(defun literef-string-or-nil-to-string(string)
+  "If STRING is nil, return \"nil\", otherwise return STRING."
+  (if string
+      string
+    "nil"))
+
 ;; Source: https://emacs.stackexchange.com/a/34665/16048
 (defun literef-replace-in-string-whole-words(what with in)
   "Like 'replace-in-string, but replaces whole words."

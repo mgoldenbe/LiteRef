@@ -75,6 +75,7 @@ def firstLink(source, searchType, page):
     from the HTML source page. If the link is just the same page, 
     return an empty string.
     """
+    # pdb.set_trace()
     try:
         if searchType == "pdf":
             page, position = source.afterLinkForPDF(driver, page)

@@ -307,6 +307,8 @@ src="https://www.dropbox.com/s/9x9jqnqk74bl8uw/import_pdf.png?raw=1">
 </p>
 #+END_HTML
 
+*Update (<2018-01-14 Sun>):* It is possible that Semantic Scholar disallows accesses using a headless browser. Until this is clarified, =LiteRef= will not be able to fetch automatically from this online source. 
+
 ** Working with PDF
 When it comes to working with the PDF of a paper, the rendering speed and features of the =pdf-tools= package of =Emacs= are prodigious. In particular, the researcher gets great tools for annotating the paper.
 

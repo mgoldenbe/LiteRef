@@ -44,25 +44,29 @@ class GoogleScholar:
         begin= page.find("@")
         end = page.find("</pre>")
         return page[begin:end]
-    
-class SemanticScholar:
-    name = 'Semantic Scholar'
-    queryAddress = 'https://semanticscholar.org/search?q='
-    searchPageElementName = 'paper-link'
 
-    @staticmethod
-    def afterLinkForPDF(driver, page):
-        return page, page.find(".pdf")
+# TOS has the clause: "make any automated use of the system"
+# Disabling this source until clarified whether and how we can fetch
+# from this source legally.
+# class SemanticScholar:
+#     name = 'Semantic Scholar'
+#     queryAddress = 'https://semanticscholar.org/search?q='
+#     searchPageElementName = 'paper-link'
 
-    @staticmethod
-    def bibEntry(driver):
-        driver.find_element_by_class_name('paper-actions-toggle').click()
-        getClassElement(driver, 'cite-button').click()
-        getClassElement(driver, 'formatted-citation')
-        page = driver.page_source
-        end = page.find("</cite>")
-        begin=page[:end].rfind("@")
-        return page[begin:end]
+#     @staticmethod
+#     def afterLinkForPDF(driver, page):
+#         position = page.find(".pdf")
+#         return page, page[position + 1:].find(".pdf")
+
+#     @staticmethod
+#     def bibEntry(driver):
+#         driver.find_element_by_class_name('paper-actions-toggle').click()
+#         getClassElement(driver, 'cite-button').click()
+#         getClassElement(driver, 'formatted-citation')
+#         page = driver.page_source
+#         end = page.find("</cite>")
+#         begin=page[:end].rfind("@")
+#         return page[begin:end]
 
 class DBLP:
     name = 'DBLP'

@@ -7,7 +7,19 @@
 ;;                     <key1><space><key2>.
 ;; :source -- the source for the search for generating the subgraph.
 (defvar literef-subgraph nil
-  "The selected subgraph: hash of keys that make it up.")
+  "The selected subgraph: 
+
+:keys -- the hash of keys in the subgraph 
+:initial-keys -- the list of keys, which served as the root of the search
+:generating-arcs -- the arcs that were tranversed by the search began
+:source -- the source, based on which the subgraph was constructed and detailed below.
+
+The source consists of:
+:source-type -- the type of the source for building the graph. This can be :all-keys, :key or :buffer.
+:source-name -- the name of key or buffer.
+:buffer-node-name -- the name to be used for the node corresponding to the buffer in the visualization.
+:file-name -- the file which the source buffer was visiting at the time of building the subgraph.
+:filter-string -- the arcs filter that was used to construct the graph.")
 
 ;; Note: to avoid passing around subgraph,
 ;; all of the below functions operate on the current subgraph,
@@ -16,6 +28,14 @@
 (defun literef-subgraph-keys()
   "Return the keys of the current subgraph."
   (plist-get current-subgraph :keys))
+
+(defun literef-subgraph-initial-keys()
+  "Return the initial keys of the current subgraph."
+  (plist-get current-subgraph :initial-keys))
+
+(defun literef-subgraph-set-initial-keys(keys)
+  "Set the initial keys of the current subgraph to KEYS."
+  (plist-put current-subgraph :initial-keys keys))
 
 (defun literef-subgraph-generating-arcs()
   "Return the generating arcs of the current subgraph."
@@ -60,13 +80,14 @@
     (when (gethash (concat from-key " " to-key) generating-arcs) t)))
 
 (defun literef-init-subgraph()
-  "Return a subgraph using INIT-KEYS as the list of keys and return the new subgraph."
+  "Return a subgraph and return the new subgraph."
   (list :keys (make-hash-table :test 'equal)
 	:generating-arcs (make-hash-table :test 'equal)
 	:source (list
 		 :source-type :all-keys
 		 :source-name nil
 		 :buffer-node-name nil
+		 :file-name nil
 		 :filter-string "t")))
 
 (defun literef-subgraph-select-source(&optional key)
@@ -82,19 +103,21 @@
 	   (literef-plist-put source :source-name current-key))
       (progn
 	(literef-plist-put source :source-type :buffer)
-	(literef-plist-put source :source-name (buffer-name))))))
-
-(defun literef-subgraph-initial-keys()
-  "Compute initial keys for forming the current subgraph."
+	(literef-plist-put source :source-name (buffer-name))
+	(literef-plist-put
+	 source :file-name
+	 (let ((file (buffer-file-name)))
+	   (when (and file (file-exists-p file))
+	     (expand-file-name file))))))))
+			     
+(defun literef-subgraph-compute-initial-keys()
+  "Compute initial keys for forming the subgraph. If the source is a buffer, it is assumed to be currently active."
   (let ((source-type (literef-subgraph-source-property :source-type))
 	(source-name (literef-subgraph-source-property :source-name)))
   (cond ((eq source-type :all-keys)
 	 (literef-all-keys))
 	((eq source-type :buffer)
-	 (condition-case nil
-	     (with-current-buffer source-name
-	       (literef-hash-keys-to-list (literef-out-citations)))
-	   (error (error (concat "The buffer " source-name " does not exist anymore. Consider running literef-subgraph-reset-selection to reset the subgraph selection.")))))
+	 (literef-hash-keys-to-list (literef-out-citations)))
 	((eq source-type :current-key)
 	   (list source-name)))))
 
@@ -203,10 +226,12 @@
     (eval-buffer)))
 
 (defun literef-subgraph-build-from-source()
-  "Build the current subgraph based on its source. If the source type is :buffer, makes sure that the buffer exists. If not, offers to reset the subgraph."
+  "Build the current subgraph based on its source. If the source type is :buffer, assumes that it is currently active."
   (interactive)
   (literef-make-arc-filter
    (literef-subgraph-source-property :filter-string))
+  (literef-subgraph-set-initial-keys
+   (literef-subgraph-compute-initial-keys))
   (let ((initial-keys (literef-subgraph-initial-keys)))
     (dolist (key initial-keys nil)
       (literef-subgraph-add-key key))
@@ -219,8 +244,32 @@
 	  (literef-subgraph-add-generating-arc buffer-node-name key))))
     (literef-uniform-cost-search initial-keys)))
 
+(defun literef-select-subgraph-for-export
+    (key-or-file filter buffer-node-name)
+  "Select subgraph of the graph of keys `literef-graph' for exporting its visualization, with KEY-OR-FILE used as the source, FILTER used as the filter string and BUFFER-NODE-NAME used as the name of the buffer node in the visualization. In contrast to `literef-select-subgraph', this function is non-interactive. It is to be called from a source block."
+  (let ((current-subgraph (literef-init-subgraph)))
+    (when (not (or (literef-key-exists key-or-file)
+		   (file-exists-p key-or-file)))
+      (error (error (concat key-or-file " is neither key or file."))))
+    (literef-subgraph-set-source-property :filter-string filter)
+    (if (not (literef-key-exists key-or-file))
+	(with-temp-buffer
+	  (with-silent-modifications ;; prevent query when closing
+	                             ;; this temp buffer
+	    (org-mode)
+	    (insert-file-contents key-or-file)
+	    (set-visited-file-name key-or-file t)
+	    (literef-subgraph-select-source)
+	    (literef-subgraph-set-source-property
+	     :buffer-node-name buffer-node-name)
+	    (literef-subgraph-build-from-source)))
+      (progn
+	(literef-subgraph-select-source key-or-file)
+	(literef-subgraph-build-from-source)))
+    current-subgraph))
+
 (defun literef-select-subgraph(&optional key)
-  "Select subgraph of the graph of keys `literef-subgraph'. If KEY is specified, it is considered to be the currently active key to be used as the source."
+  "Select subgraph of the graph of keys `literef-graph'. If KEY is specified, it is considered to be the currently active key to be used as the source."
   (interactive)
   (unwind-protect
       (progn
@@ -229,15 +278,13 @@
 	(literef-subgraph-select-source key)
 	(when (eq (literef-subgraph-source-property :source-type)
 		  :buffer)
-	  (let* ((default-buffer-name
-		   (concat "Buffer \"" (buffer-name) "\""))
+	  (let* ((default-buffer-name (buffer-name))
 		 (buffer-node-name
-		  (read-string
-		   (concat
-		    "Enter the name of the buffer node. "
-		    "This name will be used for the export as well"
-		    " [" default-buffer-name "]: ")
-		   nil nil default-buffer-name)))
+		  (if literef-subgraph-show-buffer
+		      (read-string
+		       "Enter the name of the buffer node: "
+		       default-buffer-name)
+		    default-buffer-name)))
 	    (literef-subgraph-set-source-property
 	     :buffer-node-name buffer-node-name)))
 	(let ((filter-string
@@ -355,9 +402,10 @@ This function is constructed by `literef-make-arc-filter'.")
   "LiteRef mode for viewing the selected subgraph."
   nil " LiteRefGraph" literef-graph-mode-map)  
 
-(defun literef-selected-subgraph-string()
-  "Return a string representation of the current subgraph. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
+(defun literef-selected-subgraph-string(format)
+  "Return a string representation of the current subgraph. For \"txt\" or \"boxart\" FORMAT, keys and labels are links. For other formats, such as \"png\" they are not to save space. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
   (let ((res "graph { flow: south; }\n") ;; http://bloodgate.com/perl/graph/manual/hinting.html
+	(textual-format (member format '("ascii" "boxart")))
 	(buffer-node-name
 	 (literef-subgraph-source-property :buffer-node-name))
 	(keys (literef-subgraph-keys)))
@@ -376,67 +424,89 @@ This function is constructed by `literef-make-arc-filter'.")
 			 (literef-generating-arc-p key to-key)))
 	    (setq res (concat
 		       res "[ "
-		       (when (literef-key-exists key) "cite:")
+		       (when (and textual-format
+				  (literef-key-exists key)) "cite:")
 		       key " ]"
 		       (let ((functions
 			      (mapcar
-			       (lambda(f) (concat
-					   literef-citation-function-link
-					   ":" f))
+			       (lambda(f)
+				 (concat
+				  (when textual-format
+				    (concat
+				     literef-citation-function-link ":"))
+				    f))
 			       (elt out-neighbor 1))))
 			 (if functions
 			     (concat
 			      " -- "
 			      (literef-join-strings functions "\\n"))
 			   ""))
-		       " --> " "[ cite:" to-key  " ]\n")))))))
+		       " --> " "[ "
+		       (when textual-format "cite:") to-key  " ]\n")))))))
     res))
 
-(defun literef-show-selected-subgraph()
-  "Visualize the selected subgraph. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
+(defun literef-subgraph-save-image(format)
+  "Save the visualization of the selected subgraph using FORMAT, such as \"boxart\" or \"png\" in a temporary file and return the file's name. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
   (interactive)
   (save-selected-window
     (let ((current-subgraph literef-subgraph)
-	  (temp-file-name (make-temp-file "foo")))
-      (with-temp-file temp-file-name
-	(insert (literef-selected-subgraph-string)))
-      (let* ((command (concat "graph-easy --boxart" " " temp-file-name))
-	     (graph-layout (shell-command-to-string command)))
-	;; (delete-file temp-file-name)
-	(if (get-buffer "The graph of keys.")
-	    (switch-to-buffer "The graph of keys.")
-	  (progn
-	    (switch-to-buffer-other-window "The graph of keys.")
-	    (org-mode)
-	    (literef-graph-mode 1)
-	    (setq-local auto-hscroll-mode nil)
-	    (smooth-scrolling-mode 1)
-	
-	    ;; Do not wrap lines
-	    (setq-local truncate-lines t)
+	  (description-file-name
+	   (concat
+	    (make-temp-file "literef-subgraph-description-") ".txt"))
+	  (image-file-name
+	   (concat (make-temp-file "literef-subgraph-image-")
+		   "." format)))
+      (with-temp-file description-file-name
+	(insert (literef-selected-subgraph-string format)))
+      (let* ((command (concat "graph-easy --as " format
+			      " --output " image-file-name " "
+			      description-file-name))
+	     (output (shell-command-to-string command)))
+	(message output))
+      image-file-name)))
 
-	    ;; The following settings are for ASCII output. For BoxArt, they are not needed, but are still fine.
-	    ;; Do not highlight as in tabular mode.
-	    ;; https://emacs.stackexchange.com/a/13955/16048
-	    (setq-local org-enable-table-editor nil)
-	    (setq-local face-remapping-alist
-			(cons '(org-table . default) face-remapping-alist))
+(defun literef-show-selected-subgraph-raw(format)
+  "Visualize the selected subgraph using FORMAT, such as \"boxart\" or \"png\". Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
+  (save-selected-window
+    (let* ((buffer-name "The graph of keys.")
+	   (last-buffer (get-buffer buffer-name))
+	   (textual-format (member format '("ascii" "boxart")))
+	   (current-subgraph literef-subgraph)
+	   (image-file-name (literef-subgraph-save-image format)))
+      (if last-buffer
+	  (progn
+	    (let ((window (get-buffer-window last-buffer))) 
+	      (if window
+		  (select-window window)
+		(set-buffer last-buffer)))
+	    (kill-buffer last-buffer)
+	    (find-file image-file-name))
+	(find-file-other-window image-file-name))
+      (rename-buffer buffer-name)
+      (when textual-format
+	(org-mode)
+	(literef-graph-mode 1)
+	(setq-local auto-hscroll-mode nil)
+	(smooth-scrolling-mode 1)
+	
+	;; Do not wrap lines
+	(setq-local truncate-lines t)
+	
+	;; The following settings are for ASCII output. For BoxArt, they are not needed, but are still fine.
+	;; Do not highlight as in tabular mode.
+	;; https://emacs.stackexchange.com/a/13955/16048
+	(setq-local org-enable-table-editor nil)
+	(setq-local face-remapping-alist
+		    (cons '(org-table . default) face-remapping-alist))
 	    ;; Do not use strike-through.
 	    ;; https://stackoverflow.com/a/22493885/2725810
-	    (setq-local org-emphasis-alist nil)))
-
-	;; Make sure nothing remains from the last evaluation.
-	(setq-local buffer-read-only nil)
-	(erase-buffer)
+	(setq-local org-emphasis-alist nil)
 
 	;; Make sure that the font is monospace.
 	(face-remap-add-relative 'default
 				 :family "Monospace"
 				 :height literef-graph-font-height)
 	
-	;; At last insert the layout.
-	(insert (substring graph-layout 0 -1))
-
 	;; Smooth horizontal scrolling.
 	(setq-local hscroll-margin 0)
 	(setq-local hscroll-step 1)
@@ -447,11 +517,24 @@ This function is constructed by `literef-make-arc-filter'.")
 	(beginning-of-buffer)
 	(set-window-hscroll (selected-window) 0)
 	(set-window-vscroll (selected-window) 0)
+
+	;; Save buffer, so wouldn't be prompted afterwards
+	(basic-save-buffer)
 	
 	;; Make the buffer read-only.
 	(setq-local buffer-read-only t)
 	)))
     nil)
+
+(defun literef-show-selected-subgraph()
+  "Visualize the selected subgraph. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
+  (interactive)
+  (literef-show-selected-subgraph-raw "boxart"))
+
+(defun literef-show-selected-subgraph-png()
+  "Visualize the selected subgraph using the png format. Respects `literef-subgraph-show-only-generating-arcs' and `literef-subgraph-show-buffer'."
+  (interactive)
+  (literef-show-selected-subgraph-raw "png"))
 
 (defun literef-longest-line-length()
   "Compute the length of the longest line in the buffer."

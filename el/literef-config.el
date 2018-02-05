@@ -55,6 +55,12 @@
 (defcustom literef-subgraph-show-buffer nil
   "Determines whether the buffer source node is to be shown in the visualization.")
 
+(defcustom literef-default-image-latex-attrs ":width 0.9\\\\linewidth"
+  "The default attributes for an inline image for LaTeX export. See `https://www.gnu.org/software/emacs/manual/html_node/org/LaTeX-specific-attributes.html' for the description of the possible attributes. Note that, when backslash is used, four backslashes need to be put.")
+
+(defcustom literef-default-image-html-attrs ":width 90%"
+  "The default attributes for an inline image for HTML export. See `https://www.gnu.org/software/emacs/manual/html_node/org/Images-in-HTML-export.html' and `https://orgmode.org/worg/org-tutorials/images-and-xhtml-export.html' for the description of the possible attributes.")
+
 ;; Headlines are always sections, no matter the level.
 ;; (otherwise, when sections are deeply nested,
 ;; Latex creates numbered lists using alphabet, which may result

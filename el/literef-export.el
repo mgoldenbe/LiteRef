@@ -93,34 +93,52 @@ Currently it returns t if the notes file is of non-zero size."
       (when (and (literef-key-exists key) (literef-key-notes-p key))
 	(push key res)))
     (sort res 'string<)))
-    
-(defun literef-export-to-file(orig-fun &rest args)
-  "The version of `org-export-to-file' that supports exporting the subgraph.
 
-It performs some pre-processing and then calls the original `org-export-to-file'."
-  (message "In literef-export-to-file")
+(defun literef-export-file-name-without-ext(orig-file-name)
+  "Returns the file name for export without extension based on the original file name ORIG-FILE-NAME passed to `literef-export-to-file'."
+  (let ((res
+	 (when (boundp 'literef-subgraph-export)
+	   (literef-subgraph-source-property :file-name))))
+    (unless res (setq res orig-file-name))
+    (file-name-sans-extension res)))
+
+(defun literef-source-buffer-string()
+  "Returns the contents of the source buffer:
+-- If not exporting the selected sub-graph, return contents of the current buffer. 
+-- If the source buffer of the selected sub-graph exists and is visiting the source file, then the buffer's contents is returned. 
+-- Otherwise, return the source file's contents if that file exists. 
+-- Report an error."
+  (let* ((res
+	  (unless (boundp 'literef-subgraph-export)
+	    (buffer-string))))
+    (unless res ;; exporting the selected sub-graph
+      (let ((buffer
+	     (get-buffer (literef-subgraph-source-property :source-name)))
+	    (file-name (literef-subgraph-source-property :file-name)))
+	(when buffer
+	  (with-current-buffer buffer
+	    (when (equal file-name (expand-file-name (buffer-file-name)))
+	      (setq res (buffer-string)))))
+	(unless res
+	  (with-temp-buffer
+	    (when (not (file-exists-p file-name))
+	      (error (error (concat "The source does not exist anymore."))))
+	    (insert-file-contents file-name)
+	    (setq res (buffer-string))))))
+    res))
+
+(defun literef-export-to-file(orig-fun backend file &rest args)
+  "The version of `org-export-to-file' that supports exporting the selected sub-graph. BACKEND and FILE are as in `org-export-to-file'.
+
+It performs some pre-processing and then calls ORIG-FUN, which is the original `org-export-to-file'. When exporting the selected sub-graph, the pre-processing includes computing the file name for export to be passed to `org-export-to-file'."
   (let* ((current-subgraph literef-subgraph)
-	 (source-type (literef-subgraph-source-property :source-type))
-	 (source (literef-subgraph-source-property :source-name))
-	 (buffer-name
-	  (if (not (boundp 'literef-subgraph-export))
-	      (buffer-name)
-	    (if (eq source-type :buffer)
-		(condition-case nil
-		    (with-current-buffer source (buffer-name))
-		  (error (error (concat "The buffer " source " does not exist anymore. Consider running literef-reset-subgraph-selection to reset the subgraph selection."))))
-	      (read-string "Enter the name of export buffer: "))))
-	 (buffer-string
-	  (if (not (boundp 'literef-subgraph-export))
-	      (buffer-string)
-	    (when (eq source-type :buffer)
-	      (with-current-buffer source (buffer-string))))))
+	 (file-no-ext (literef-export-file-name-without-ext file))
+	 (extension (file-name-extension file))
+	 (file (concat file-no-ext "." extension))
+	 (buffer-string (literef-source-buffer-string)))
     (with-temp-buffer
       (org-mode)
       
-      ;; Name the buffer.
-      (rename-buffer buffer-name t)
-	
       ;; Insert contents of a buffer if necessary.
       (when buffer-string
 	(when (boundp 'literef-subgraph-export)
@@ -165,7 +183,6 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       (literef-remove-citation-functions)
       
       ;; Insert references to note sections.
-      (message (concat "\n\n----------------\n\n" (buffer-string)))
       (when (boundp 'literef-subgraph-export)
 	(literef-insert-note-references))
       (end-of-buffer)
@@ -173,7 +190,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
       ;; Insert bibliography if needed.
       (when (and literef-bibliography-style
 		 (> (length (literef-buffer-keys)) 0))
-	(let* ((bib-file-name (concat buffer-name ".bib"))
+	(let* ((bib-file-name (concat file-no-ext ".bib"))
 	       (append-text (concat "\n" "bibliographystyle:"
 				    literef-bibliography-style "\n"
 				    "bibliography:" bib-file-name)))
@@ -185,7 +202,7 @@ It performs some pre-processing and then calls the original `org-export-to-file'
        	(goto-char (point-min))
 	(insert "#+LATEX_HEADER: \\usepackage{" literef-bibliography-package "}\n"))
       
-      (apply orig-fun args))))
+      (apply orig-fun backend file args))))
 
 (defun literef-subgraph-export-dispatch()
   "The version of `org-export-dispatch' that works with the selected subgraph."
@@ -193,6 +210,91 @@ It performs some pre-processing and then calls the original `org-export-to-file'
   (let ((literef-subgraph-export t))
     (org-export-dispatch)))
 
+(defun literef-subgraph-image-file-link
+    (key-or-file literef-subgraph-show-buffer buffer-node-name filter
+		 caption name attr-latex attr-html)
+  "Create an image for the subgraph with the source specified by KEY-OR-FILE and the filter string FILTER, while respecting the given `literef-subgraph-show-buffer'. Return a link to the created image. The caption, name and export attributes are set using the corresponding arguments."
+  (let* ((literef-subgraph
+	  (literef-select-subgraph-for-export
+	   key-or-file filter buffer-node-name))
+	 (image-file (literef-subgraph-save-image "png")))
+    (concat
+      (format "#+CAPTION: %s\n" caption)
+      (format "#+NAME: %s\n" name)
+      (format "#+ATTR_LATEX: %s\n" attr-latex)
+      (format "#+ATTR_HTML: %s\n" attr-html)
+      (format "[[file:%s]]" image-file))))
+
+(defun literef-subgraph-image-file-name(file-name)
+  "If FILE-NAME is under the LiteRef directory, return the lisp expression that constructs the file name using `literef-directory'. Otherwise, return FILE-NAME as is in string quotes."
+  (let* ((ignore-case)
+	 (literef (expand-file-name literef-directory))
+	 (file (expand-file-name file-name)))
+    (if (string-prefix-p literef (file-name-directory file))
+	(concat
+	 "(concat literef-directory "
+	 "\""
+	 (substring file (length literef-directory))
+	 "\""
+	 ")")
+      (concat "\"" file-name "\""))))
+
+(defun literef-insert-subgraph-image-file-link()
+  "The interactive interface for inserting the code block that calls `literef-subgraph-image-file-link'."
+  (interactive)
+  (let* ((key (literef-current-key))
+	 (source-quotes "\"")
+	 (source
+	  (let* ((prompt
+		  (concat
+		   "Source file or key:    "
+		   (if key
+		       "Current key (c)  |  Other key (o)  | File (f)"
+		     "Current file (c)  |  Other file (o)  | Key (k)")))
+		 (choice (literef-read-char
+			  prompt
+			  (list ?c ?o (if key ?f ?k)))))
+	    (cond
+	     ((eq choice ?c) (if key key (buffer-file-name)))
+	     ((or (and key (eq choice ?o)) (eq choice ?k))
+	      (let (literef-helm-no-insert)
+		(org-ref-insert-link nil)))
+	     (t (progn
+		  (setq source-quotes "")
+		  (literef-subgraph-image-file-name
+		   (read-file-name "Choose file: ")))))))
+	 (file-node
+	  (when (not (literef-key-exists source))
+	    (y-or-n-p "Show file node?")))
+	 (file-node-name
+	  (when file-node
+	    (read-string "File node name: "
+			 (file-name-nondirectory source))))
+	 (filter (literef-read-arc-filter "Arc filter: "))
+	 (caption (read-string "#+CAPTION: "))
+	 (name (read-string "#+NAME: "))
+	 (latex-attrs
+	  (read-string "#+ATTR_LATEX: "
+		       literef-default-image-latex-attrs))
+	 (html-attrs
+	  (read-string "#+ATTR_HTML: "
+		       literef-default-image-html-attrs)))
+    (insert
+     "#+BEGIN_SRC emacs-lisp :exports results :results raw\n"
+     "(literef-subgraph-image-file-link "
+     source-quotes source source-quotes " "
+     (if file-node "t" "nil") " "
+     (if file-node-name (concat "\"" file-node-name "\"") "nil") " "
+     "\"" filter "\"" " " 
+     "\"" caption "\"" " "
+     "\"" name "\"" " " 
+     "\"" latex-attrs "\"" " "
+     "\"" html-attrs "\"" " " 
+     ")\n"
+     "#+END_SRC")))
+
+(setq org-image-actual-width nil)
+(setq org-latex-prefer-user-labels t)
 (advice-add 'org-export-to-file :around #'literef-export-to-file)
 
 (provide 'literef-export)
