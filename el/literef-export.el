@@ -98,9 +98,20 @@ Currently it returns t if the notes file is of non-zero size."
   "Returns the file name for export without extension based on the original file name ORIG-FILE-NAME passed to `literef-export-to-file'."
   (let ((res
 	 (when (boundp 'literef-subgraph-export)
-	   (literef-subgraph-source-property :file-name))))
+	   (let ((source-type (literef-subgraph-source-property :source-type)))
+	     (cond
+	      ((eq source-type :buffer)
+	       (literef-subgraph-source-property :file-name))
+	      ((eq source-type :current-key)
+	       (read-file-name
+		"Choose the document name (no extension): "
+		(file-name-directory
+		  (literef-notes-filename
+		   (literef-subgraph-source-property :source-name)))
+		nil nil
+		"survey")))))))
     (unless res (setq res orig-file-name))
-    (file-name-sans-extension res)))
+    (file-name-sans-extension (expand-file-name res))))
 
 (defun literef-source-buffer-string()
   "Returns the contents of the source buffer:
@@ -112,9 +123,20 @@ Currently it returns t if the notes file is of non-zero size."
 	  (unless (boundp 'literef-subgraph-export)
 	    (buffer-string))))
     (unless res ;; exporting the selected sub-graph
-      (let ((buffer
-	     (get-buffer (literef-subgraph-source-property :source-name)))
-	    (file-name (literef-subgraph-source-property :file-name)))
+      (let* ((source-type
+	      (literef-subgraph-source-property :source-type))
+	     (key
+	      (when (eq source-type :current-key)
+		(literef-subgraph-source-property :source-name)))
+	     (buffer
+	      (when (eq source-type :buffer)
+		(get-buffer
+		 (literef-subgraph-source-property :source-name))))
+	     (file-name
+	      (when (eq source-type :buffer)
+		(literef-subgraph-source-property :file-name))))
+	(when key
+	  (setq res ""))
 	(when buffer
 	  (with-current-buffer buffer
 	    (when (equal file-name (expand-file-name (buffer-file-name)))
@@ -140,7 +162,8 @@ It performs some pre-processing and then calls ORIG-FUN, which is the original `
       (org-mode)
       
       ;; Insert contents of a buffer if necessary.
-      (when buffer-string
+      (when (and (stringp buffer-string)
+		 (> (length buffer-string) 0))
 	(when (boundp 'literef-subgraph-export)
 	  (let* ((default-section-name
 		   (literef-subgraph-source-property :buffer-node-name))

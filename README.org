@@ -411,33 +411,34 @@ All the operations described [[#Operations-on-the-citation-sub-graph][below]] wo
 *** Building a citation sub-graph
 A citation sub-graph is built by performing a uniform-cost search, with the root being either the [[actions-on-a-paper][active paper]] or (if there is no current paper) all the papers cited in the active buffer. The user can specify a filter for the arcs to be followed by the search. These arcs are called the /generating arcs/ of the resulting sub-graph. The latter is formed by the the keys reached by the search. 
 
-Note that the search can follow both incoming and outgoing arcs. However, when a vertex of the citation graph was reached by following an incoming/outgoing arc, then only incoming/outgoing arcs, respectively, will be considered to determine the neighbors of that vertex.
-
 The filter on the arcs is an expression in =Emacs Lisp=. This expression is evaluated for each candidate arc. A candidate arc is followed if and only if the filter evaluates to a value other than =nil=. When writing the filter, one can use the following variables:
-- The variable named after a citation function is not =nil= if and only if the candidate label contains the corresponding citation function. For example, if a citation function =develops= is defined, then the variable =develops= is not =nil= if and only if the candidate label contains this citation function. 
-- =in= is not =nil= if and only if the candidate arc is incoming.  
-- =out= is not =nil= if and only if the candidate arc is outgoing.  
-- =depth=. The current depth of the search. The keys at the root of the search are at depth 0. The arcs (traversed either along or against the direction of the arc) leaving the root of the search (and the keys that these arcs enter in the direction of traversal) are at depth 1, etc.
+- The variable named after a citation function. This variable’s value is =t= if and only if the candidate label contains the corresponding citation function. Otherwise, it is =nil=. For example, if a citation function =develops= is defined, then the variable =develops= indicates whether the candidate label contains this specific citation function. 
+- =in=, which is =t= if and only if the candidate arc is incoming. Otherwise, it is =nil=.  
+- =out=, which is =t= if and only if the candidate arc is outgoing. Otherwise, it is =nil=.   
+- =depth=, which is the current depth of the search. The keys at the root of the search are at depth 0. The arcs (traversed either along or against the direction of the arc) leaving the root of the search are at depth 1, etc.
 
-Here is an example of a filter: =(and (or (and develops-ideas (< depth 3)) compares-results) out)=. The filter says that we would like to follow the arcs having the =develops-ideas= citation function in their label up to depth 3 and the arcs with the =develops-ideas= citation function in their label regardless of the depth. Furthermore, we would like to follow only the outgoing arcs.
+Here is an example of a filter: =(and (or (and develops-ideas (< depth 3)) compares-results) out)=. The filter says that we would like to follow the arcs having the =develops-ideas= citation function in their label up to depth 2 and the arcs with the =compares-results= citation function in their label regardless of the depth. Furthermore, we would like to follow only the outgoing arcs.
 
 Basing arc filters on =Emacs Lisp= expressions augmented by special variables allows for great flexibility in specifying the citation sub-graph. 
 
-We will demonstrate the citation sub-graph selection process in the [[#Visualization][next section]], in which we will learn, in particular, how the selected sub-graph can be visualized.
+Since a [[#Visualization][later section]] introduces the visualization of the selected sub-graph, we delay the demonstration of selecting the sub-graph till that section. 
 ** Operations on the citation sub-graph
 The operations on the citation sub-graph are simple and yet very potent. The below descriptions reflect the simplicity of these operations, while the demonstrations attempt to reveal some of their potential applications.
 *** Visualization
 The command =literef-show-selected-subgraph= (bound by default to =C-c v=),  allows the researcher to view a whole research area as represented by the selected sub-graph at a glance. This command visualizes the selected sub-graph in an =org= buffer, so that the nodes of the selected sub-graph contain regular citation links that allow all the operations described above. In addition, the buffer can be scrolled by pressing an arrow while holding the Meta key. 
 
-Two variables control what information appears on the displayed graph: 
+One can also obtain a graphical representation of the selected sub-graph by using the =literef-show-selected-subgraph-png=.
+
+Whichever of the commands is used, two variables control what information appears in the visualization: 
 - When =literef-subgraph-show-only-generating-arcs= is set (i.e. is not =nil=) the visualizations shows only the generating arcs of the selected sub-graph. This variable is =nil= by default.
 - When =literef-subgraph-show-buffer= is set (i.e. is not =nil=) and the selected sub-graph originates from citations in a buffer, the source buffer is shown as a node of the selected sub-graph. This variable is =nil= by default.
-The visualization is demonstrated by the following [[https://www.dropbox.com/s/onvbbgzszs4xjc8/visualization.mp4?dl=0][demo]].
+The visualization is demonstrated by the following two demos. The first [[https://www.dropbox.com/s/onvbbgzszs4xjc8/visualization.mp4?dl=0][demo]] shows visualization in the org buffer. The second [[https://www.dropbox.com/s/ebhlmkcvo8n74oj/visualization_png.mp4?dl=0][demo]] one uses a graphical representation.
 
 # **** Scenario
 # Suppose I would like to explore the topic of compression of pattern databases. The PDF of the first paper on the topic is open right now, so that this paper is active. I press =C-c u= to invoke the =literef-select-subgraph= command and build a citation sub-graph with this paper as the source. The filter will choose only the incoming arcs, so we will choose the papers that cite the first paper and the papers that cite those papers etc. The sub-graph is built and displayed… If I want to display the selected sub-graph at any later point, I can do that by invoking the =literef-show-selected-subgraph= command bound to =C-c v=. Let us see how the label of this arc came about. This label consists of two citation functions. Let’s look at the notes. Here is the first citation function and here is the other one… 
 
 # Let us try a slighly more complex filter. The central paper on the topic of compressed pattern databases is certainly this paper from 2007. Suppose I would like to see only the papers that directly cite this paper and claim orthogonality to its ideas. So, I click on this paper and select the action of building a sub-graph. I am interested in the papers that cite this one and claim orthogonality with its ideas. So, I am interested in the incoming arcs at depth 1 that satisfy the =claims-orthogonality= predicate. Here we go… 
+
 
 #+BEGIN_HTML
 <p align="middle">
@@ -447,7 +448,21 @@ width=50%
 src="https://www.dropbox.com/s/bn6m7blfv81yiim/visualization.png?raw=1">
 </a>
 </p>
-#+END_HTML   
+#+END_HTML
+
+# **** Scenario
+# Just like in the last demo, let us build the citation graph based on our survey of the topic of compressed pattern databases… Now, let us invoke the =literef-show-selected-subgraph-png= command to show a graphical representation of the graph. Here we go…
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/ebhlmkcvo8n74oj/visualization_png.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/4q6wntjip0dfe5p/visualization_png.png?raw=1">
+</a>
+</p>
+#+END_HTML
+   
 *** Search
 The command =literef-subgraph-helm= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#finding-the-keys-to-cite][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[https://www.dropbox.com/s/qq6a4h4u0hau87w/subgraph_search.mp4?dl=0][demo]] shows this.
 # Suppose I’d like to make a list of papers on the topic of compressed pattern databases in the order of increasing publication date. I build the citation sub-graph as before, only this time let’s invoke the build action using the helm interface… Now I press =C-c )= to invoke the  =literef-subgraph-helm= command, select all the papers and cite them. I order the new citation in the order of increasing publication date by pressing =C-c <down>= to invoke the =literef-sort-citation-link= command. Lastly, I split the citation to obtain the list of papers as desired.
@@ -463,13 +478,13 @@ src="https://www.dropbox.com/s/9s5j6ppk6kp1gh1/subgraph_search.png?raw=1">
 #+END_HTML   
 *** Export
 We already described [[#basic-export-of-notes][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-subgraph-export-dispatch= performs export of the citation sub-graph. The document for export is constructed in a temporary buffer using the following algorithm:
-- If the sub-graph’s source is a buffer, the document is initialized to the contents of that buffer.
-  + The name of the buffer serves as the name of the document. If the source buffer does not exist, the commands halts with a suiting error message.
-  If the sub-graph’s source is not a buffer, the user is prompted for the name of the document. The document is initialized to be empty.
-- The export buffer is appended with notes for the papers corresponding to the nodes in the citation sub-graph. Notes of each paper appear in a section. The title of that section consists of the paper’s title and authors, followed by the citation link to the paper. Empty sections, i.e. sections dedicated to papers with empty notes, do not appear.
+- The document is initialized based on the sub-graph’s source. In particular:
+  + If the sub-graph’s source is a buffer, the document is initialized to the contents of that buffer. However, if the source buffer does not exist or is visiting a different file, then the contents of the file visited by the source buffer at the time of building the sub-graph is used instead. In any case, that file is used to compute the name of the exported document.  
+  + If the sub-graph’s source is a paper, the document is initialized to be empty. The user is requested to provide the name of the exported document. The default name is =survey= with appropriate extension in the folder of the source paper.
+- The document is appended with notes for the papers in the citation sub-graph. Notes of each paper appear in a section of their own. The title of that section consists of the paper’s title and authors, followed by the citation link to the paper. Empty sections, i.e. sections dedicated to papers with empty notes, do not appear.
 - Optionally, a section containing all the notes as subsections can be created. This may be desirable when the sub-graph’s source is a buffer containing several headlines. 
 - The =#+INCLUDE= directives are expanded.
-- Each paper citation is followed by a reference to the corresponding section with the notes for that paper. These references will conveniently become hyperlinks in the exported document.
+- A reference to the appropriate notes section is supplied for each paper citation. These references will conveniently become hyperlinks in the exported document.
 - Links to PDF annotations and citation functions are handled just like during the [[#basic-export-of-notes][basic export]].
 - The bibliography is created. The underlying bibliography file contains only the papers cited in the document.
 The following [[https://www.dropbox.com/s/cvivo5eft1ps7h9/subgraph_export.mp4?dl=0][demo]] demonstrates the export in action.
@@ -491,6 +506,25 @@ src="https://www.dropbox.com/s/5n3wf5umzaorbb6/subgraph_export.png?raw=1">
 </a>
 </p>
 #+END_HTML 
+*** Visualization in export
+The researcher can put visualizations of various parts of the citation graph into the exported document. This is done by inserting a [[https://orgmode.org/guide/Working-With-Source-Code.html][code block]] that calls the =literef-subgraph-image-file-link= function, which builds a sub-graph, saves its graphical visualization into a temporary file and returns a link to that file along with the necessary attributes for export. Although this function takes quite a few arguments, LiteRef makes things easy by providing the =literef-insert-subgraph-image-file-link= command, which is basically a wizard for constructing a call to =literef-subgraph-image-file-link=. Once the researcher provides the information requested by this command, the corresponding code block is inserted automatically.
+
+The following [[][demo]] shows the use of this feature. In addition, it shows how the exported document looks in HTML as well.
+
+# **** Scenario
+# Let us once again use this short introduction and build a citation sub-graph for the topic of compressed pattern databases… But this time, let us also include a visualization of this sub-graph into the exported document… To conveniently insert the needed source block, I call the =literef-insert-subgraph-image-file-link= command. I will choose the current file as the source for the sub-graph and specify the same filter as for the selected sub-graph. Of course, I could choose to visualize any other sub-graph. Understanding some of the queries of the wizard may require reading up on the export attributes of image links. All the queries are self-explanatory otherwise… OK, the source block is inserted. Let us now export the selected sub-graph into PDF and open the resulting document… We now have a handy graphical summary of the topic on the first page… 
+
+# Let us now see how our document would look in HTML. Here we go… 
+
+#+BEGIN_HTML
+<p align="middle">
+<a href="https://www.dropbox.com/s/ebhlmkcvo8n74oj/visualization_png.mp4?dl=0">
+<img 
+width=50%
+src="https://www.dropbox.com/s/4q6wntjip0dfe5p/visualization_png.png?raw=1">
+</a>
+</p>
+#+END_HTML
 * Installation and configuration
 * Version and license information
 * Bug reports and future work
