@@ -509,7 +509,7 @@ src="https://www.dropbox.com/s/5n3wf5umzaorbb6/subgraph_export.png?raw=1">
 *** Visualization in export
 The researcher can put visualizations of various parts of the citation graph into the exported document. This is done by inserting a [[https://orgmode.org/guide/Working-With-Source-Code.html][code block]] that calls the =literef-subgraph-image-file-link= function, which builds a sub-graph, saves its graphical visualization into a temporary file and returns a link to that file along with the necessary attributes for export. Although this function takes quite a few arguments, LiteRef makes things easy by providing the =literef-insert-subgraph-image-file-link= command, which is basically a wizard for constructing a call to =literef-subgraph-image-file-link=. Once the researcher provides the information requested by this command, the corresponding code block is inserted automatically.
 
-The following [[][demo]] shows the use of this feature. In addition, it shows how the exported document looks in HTML as well.
+The following [[https://www.dropbox.com/s/4o3gek4f4afeuw4/export_visualization.mp4?dl=0][demo]] shows the use of this feature. In addition, it shows how the exported document looks in HTML as well.
 
 # **** Scenario
 # Let us once again use this short introduction and build a citation sub-graph for the topic of compressed pattern databases… But this time, let us also include a visualization of this sub-graph into the exported document… To conveniently insert the needed source block, I call the =literef-insert-subgraph-image-file-link= command. I will choose the current file as the source for the sub-graph and specify the same filter as for the selected sub-graph. Of course, I could choose to visualize any other sub-graph. Understanding some of the queries of the wizard may require reading up on the export attributes of image links. All the queries are self-explanatory otherwise… OK, the source block is inserted. Let us now export the selected sub-graph into PDF and open the resulting document… We now have a handy graphical summary of the topic on the first page… 
@@ -518,10 +518,10 @@ The following [[][demo]] shows the use of this feature. In addition, it shows ho
 
 #+BEGIN_HTML
 <p align="middle">
-<a href="https://www.dropbox.com/s/ebhlmkcvo8n74oj/visualization_png.mp4?dl=0">
+<a href="https://www.dropbox.com/s/4o3gek4f4afeuw4/export_visualization.mp4?dl=0">
 <img 
 width=50%
-src="https://www.dropbox.com/s/4q6wntjip0dfe5p/visualization_png.png?raw=1">
+src="https://www.dropbox.com/s/g8mm4r0prsdvxy2/export_visualization.png?raw=1">
 </a>
 </p>
 #+END_HTML
