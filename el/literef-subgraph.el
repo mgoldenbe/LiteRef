@@ -90,8 +90,8 @@ The source consists of:
 		 :file-name nil
 		 :filter-string "t")))
 
-(defun literef-subgraph-select-source(&optional key)
-  "Select the source for forming the current subgraph. If KEY is specified, it is considered to be the currently active key."
+(defun literef-subgraph-select-source(&optional key file-name)
+  "Select the source for forming the current subgraph. If KEY is specified, it is considered to be the currently active key. If FILE is specified, it is used instead of the value returned by `buffer-file-name'."
   (let* ((source (literef-subgraph-source))
 	 (current-key
 	  (if key
@@ -106,7 +106,7 @@ The source consists of:
 	(literef-plist-put source :source-name (buffer-name))
 	(literef-plist-put
 	 source :file-name
-	 (let ((file (buffer-file-name)))
+	 (let ((file (if file-name file-name (buffer-file-name))))
 	   (when (and file (file-exists-p file))
 	     (expand-file-name file))))))))
 			     
@@ -254,15 +254,12 @@ The source consists of:
     (literef-subgraph-set-source-property :filter-string filter)
     (if (not (literef-key-exists key-or-file))
 	(with-temp-buffer
-	  (with-silent-modifications ;; prevent query when closing
-	                             ;; this temp buffer
-	    (org-mode)
-	    (insert-file-contents key-or-file)
-	    (set-visited-file-name key-or-file t)
-	    (literef-subgraph-select-source)
-	    (literef-subgraph-set-source-property
-	     :buffer-node-name buffer-node-name)
-	    (literef-subgraph-build-from-source)))
+	  (org-mode)
+	  (insert-file-contents key-or-file)
+	  (literef-subgraph-select-source nil key-or-file)
+	  (literef-subgraph-set-source-property
+	   :buffer-node-name buffer-node-name)
+	  (literef-subgraph-build-from-source))
       (progn
 	(literef-subgraph-select-source key-or-file)
 	(literef-subgraph-build-from-source)))
