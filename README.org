@@ -13,13 +13,28 @@
   - [[#cite][2.4 Working with the papers]]
 - [[#features][3 Features]]
   - [[#import-bib][3.1 Importing BibTeX entries]]
+    + [[#import-bib-drop][3.1.1 By putting a /.bib/ file into the =drop/= folder]]
+    + [[#import-bib-clipboard][3.1.2 By copying a BibTeX entry into the clipboard]]
+    + [[#import-search-online][3.1.3 By searching in on-line sources]]
+    + [[#import-html][3.1.4 By downloading an HTML containing a number of papers]]
   - [[#working-cite][3.2 Working with citations]]
+    + [[#search][3.2.1 Searching the papers database]]
+    + [[#copy-paste][3.2.2 Intelligent handling of copying and pasting citations]]
+    + [[#split][3.2.3 Splitting a multi-paper citation]]
+    + [[#actions][3.2.4 Actions on a paper]]
   - [[#import-pdf][3.3 Importing PDF of a paper]]
   - [[#working-pdf][3.4 Working with PDF]]
   - [[#basic-export][3.5 Basic export of notes]]
   - [[#df][3.6 Defining and using citation functions]]
   - [[#subgraph][3.7 The citation (sub-)graph]]
+    + [[#graph-notion][3.7.1 The notion of the citation graph]]
+    + [[#subgraph-notion][3.7.2 The notion of the citation sub-graph]]
+    + [[#subgraph-build][3.7.3 Building a citation sub-graph]]
   - [[#subgraph-operations][3.8 Operations on the citation sub-graph]]
+    + [[#subgraph-vis][3.8.1 Visualization]]
+    + [[#subgraph-search][3.8.2 Search]]
+    + [[#subgraph-export][3.8.3 Export]]
+    + [[#subgraph-vis-export][3.8.4 Visualization in export]]
 - [[#install][4 Installation and configuration]]
 - [[#license][5 Version and license information]]
 - [[#future][6 Bug reports and future work]]
@@ -90,7 +105,7 @@ Besides the paper citations, two other types of links are used. First, a paper c
 
 Second, a paper’s notes can contain [[#working-pdf][links to particular annotations in the paper’s PDF]]. This feature allows the researcher to easily relate his comments to particular clauses in the paper.
 
-* Features @@html:<a name="features">@@
+* 3 Features @@html:<a name="features">@@
 :PROPERTIES:
 :CUSTOM_ID: features
 :END:
@@ -100,7 +115,7 @@ This section describes the features of =LiteRef= in detail.
 :CUSTOM_ID: import-bib
 :END:
 There are several ways to import a new BibTeX entry into the database of =LiteRef=. We describe each way in a section with an accompanying video.
-*** 3.1.1 By putting a /.bib/ file into the =drop/= folder. @@html:<a 3.1.2 name="import-bib-drop">@@
+*** 3.1.1 By putting a /.bib/ file into the =drop/= folder. @@html:<a name="import-bib-drop">@@
 :PROPERTIES:
 :CUSTOM_ID: import-bib-drop
 :END:
@@ -128,7 +143,7 @@ src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
 </a>
 </p>
 #+END_HTML
-*** 3.1.3 By copying a BibTeX entry into the clipboard @@html:<a name="import-bib-clipboard">@@
+*** 3.1.2 By copying a BibTeX entry into the clipboard @@html:<a name="import-bib-clipboard">@@
 :PROPERTIES:
 :CUSTOM_ID: import-bib-clipboard
 :END:
@@ -146,7 +161,7 @@ src="https://www.dropbox.com/s/m8rrpxehodwri81/import_by_download.png?raw=1">
 </a>
 </p>
 #+END_HTML
-*** 3.1.4 By searching in on-line sources @@html:<a name="import-search-online">@@
+*** 3.1.3 By searching in on-line sources @@html:<a name="import-search-online">@@
 :PROPERTIES:
 :CUSTOM_ID: import-search-online
 :END:
@@ -168,7 +183,7 @@ The researcher can configure =LiteRef= to search several on-line sources. This i
 
 The currently implemented on-line sources for BibTeX entries are Google Scholar, Semantic Scholar and DBLP. The user can add more sources by implementing classes with interfaces similar to the classes of the existing sources. These interfaces are well documented in the [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/online_sources.py][online_sources.py]] module of the server.
 
-*** 3.1.5 By downloading an HTML containing a number of papers @@html:<a name="import-html">@@
+*** 3.1.4 By downloading an HTML containing a number of papers @@html:<a name="import-html">@@
 :PROPERTIES:
 :CUSTOM_ID: import-html
 :END:
