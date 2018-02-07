@@ -4,6 +4,26 @@
 
 # An example of Wiki is here: https://raw.githubusercontent.com/jkitchin/org-ref/master/README.org
 
+* Table of contents                                                     :TOC:
+- [[#introduction][Introduction]]
+- [[#the-overall-design][The overall design]]
+  - [[#physical-structure][Physical structure]]
+  - [[#the-user-interface][The user interface]]
+  - [[#import-of-entries][Import of entries]]
+  - [[#working-with-the-papers][Working with the papers]]
+- [[#features][Features]]
+  - [[#importing-bibtex-entries][Importing BibTeX entries]]
+  - [[#working-with-citations][Working with citations]]
+  - [[#importing-pdf-of-a-paper][Importing PDF of a paper]]
+  - [[#working-with-pdf][Working with PDF]]
+  - [[#basic-export-of-notes][Basic export of notes]]
+  - [[#defining-and-using-citation-functions][Defining and using citation functions]]
+  - [[#the-citation-sub-graph][The citation (sub-)graph]]
+  - [[#operations-on-the-citation-sub-graph][Operations on the citation sub-graph]]
+- [[#installation-and-configuration][Installation and configuration]]
+- [[#version-and-license-information][Version and license information]]
+- [[#bug-reports-and-future-work][Bug reports and future work]]
+
 * Introduction
 Managing knowledge of related literature is an important activity for both graduate students and researchers. A central piece of this activity is maintaining notes both about individual research papers and, more importantly, about whole branches of research. Notes that cover branches of research are extremely useful. These notes are tools for uncovering connections between papers and discovering venues for new research. The purpose of =LiteRef= is to provide a thin layer of software that would make it natural and easy to collect papers, maintain notes about both individual papers and branches of research, explore connections between papers and export all or part of this body of knowledge into a coherent document.
 
