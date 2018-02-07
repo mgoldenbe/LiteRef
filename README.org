@@ -1,8 +1,6 @@
 # #+OPTIONS:   num:t
 # -*- org-edit-src-content-indentation: 0; -*-
-#+TITLE: LiteRef: a Framework for Managing Knowledge of Research Literature
-
-# An example of Wiki is here: https://raw.githubusercontent.com/jkitchin/org-ref/master/README.org
+# #+TITLE: LiteRef: a Framework for Managing Knowledge of Research Literature
 
 * Table of contents                                                     :TOC:
 - [[#intro][1 Introduction]]
@@ -39,7 +37,8 @@
 - [[#license][5 Version and license information]]
 - [[#future][6 Bug reports and future work]]
 
-* 1 Introduction @@html:<a name="intro">@@
+@@html:<a name="intro">@@
+* 1 Introduction
 :PROPERTIES:
 :CUSTOM_ID: intro
 :END:
@@ -61,12 +60,15 @@ There are many software packages for reference management out there. The main di
 
 The following sections describe both the overall design of =LiteRef= and its features. Each feature’s description is accompanied by a short video demonstrating the feature’s usage. 
   
-* 2 The overall design @@html:<a name="design">@@
+@@html:<a name="design">@@
+* 2 The overall design
 :PROPERTIES:
 :CUSTOM_ID: design
 :END:
-The purpose of this section is to describe the conceptual design of =LiteRef= and thereby make reading the sections that describe particular features comfortable. 
-** 2.1 Physical structure @@html:<a name="phys">@@
+The purpose of this section is to describe the conceptual design of =LiteRef= and thereby make reading the sections that describe particular features comfortable.
+
+@@html:<a name="phys">@@ 
+** 2.1 Physical structure
 :PROPERTIES:
 :CUSTOM_ID: phys
 :END:
@@ -74,15 +76,19 @@ As far as the user is concerned, two folders in the distribution are of interest
 
 The database of papers has a very simple structure, whereby each paper gets a folder whose name is the key of that paper’s BibTeX entry (=LiteRef= generates these keys automatically). A paper’s folder contains at least two files: /paper.bib/ (the BibTeX entry of the paper) and /paper.org/ (the notes about the paper). In addition, it may contain /paper.pdf/ (the PDF of the paper) and any other additional note files that the researcher wishes to associate with the paper.
 
-=LiteRef= does not impose any restrictions on the format of the notes. Thus, all the arsenal of =org-mode= is put at the researcher’s disposal. In addition, the researcher can maintain any number of survey notes, usually dedicated to branches of research rather than to a particular paper.  
-** 2.2 The user interface @@html:<a name="ui">@@
+=LiteRef= does not impose any restrictions on the format of the notes. Thus, all the arsenal of =org-mode= is put at the researcher’s disposal. In addition, the researcher can maintain any number of survey notes, usually dedicated to branches of research rather than to a particular paper.
+
+@@html:<a name="ui">@@  
+** 2.2 The user interface
 :PROPERTIES:
 :CUSTOM_ID: ui
 :END:
 Most features of =LiteRef= are implemented in Emacs Lisp. These features use uniquely =Emacs= ways for doing things. These ways may come as a surprise to an uninitiated user, but inevitably prove to be extremely time-effective. Once having got used to using =Emacs= properly, one rejoices for the rest of his life at having found the ultimate tool for everything related to editing text, maintaining notes and too many other tasks to list.     
 
 The functionalities related to watching the /drop folder/ and creating/fetching new entries are delegated to a server written in =Python=. In contrast to the functionalities that are executed entirely inside =Emacs=, the server relies on dialog windows for its features’ user interface. One positive effect of this difference is that the user can visually and easily distinguish a /candidate/ BibTeX entry or PDF that has just been found and downloaded automatically from an entry that is already in the =LiteRef= database. Thus, the overall user experience only wins from this non-uniformness of presentation means.
-** 2.3 Import of entries @@html:<a name="import">@@
+
+@@html:<a name="import">@@
+** 2.3 Import of entries
 :PROPERTIES:
 :CUSTOM_ID: import
 :END:
@@ -95,7 +101,9 @@ After duplicate detection, the new entries are entered into the database. Both /
 [[#import-pdf][Searching for a PDF file]] is triggered by trying to open a paper’s PDF file in any one of the ways described [[#actions][below]]. When this happens, if the =drop/= folder contains PDF files, these become the first candidates. If the user rejects these candidates, automated search in the on-line sources ensues.
 
 The on-line source for searching for BibTeX and PDF files are defined in an extensible way in the [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/online_sources.py][online_sources.py]] module of the server. This module documents in detail how one can extend the set of online sources with sources of his own. If such an extension takes place, it is up to the user to respect the terms of service of whatever sites are searched. The author of =LiteRef= does not assume any responsibility for violations.
-** 2.4 Paper citations @@html:<a name="cite">@@
+
+@@html:<a name="cite">@@
+** 2.4 Paper citations
 :PROPERTIES:
 :CUSTOM_ID: cite
 :END:
@@ -105,17 +113,22 @@ Besides the paper citations, two other types of links are used. First, a paper c
 
 Second, a paper’s notes can contain [[#working-pdf][links to particular annotations in the paper’s PDF]]. This feature allows the researcher to easily relate his comments to particular clauses in the paper.
 
-* 3 Features @@html:<a name="features">@@
+@@html:<a name="features">@@
+* 3 Features
 :PROPERTIES:
 :CUSTOM_ID: features
 :END:
 This section describes the features of =LiteRef= in detail.
-** 3.1 Importing BibTeX entries @@html:<a name="import-bib">@@
+
+@@html:<a name="import-bib">@@
+** 3.1 Importing BibTeX entries
 :PROPERTIES:
 :CUSTOM_ID: import-bib
 :END:
 There are several ways to import a new BibTeX entry into the database of =LiteRef=. We describe each way in a section with an accompanying video.
-*** 3.1.1 By putting a /.bib/ file into the =drop/= folder. @@html:<a name="import-bib-drop">@@
+
+@@html:<a name="import-bib-drop">@@
+*** 3.1.1 By putting a /.bib/ file into the =drop/= folder.
 :PROPERTIES:
 :CUSTOM_ID: import-bib-drop
 :END:
@@ -143,7 +156,9 @@ src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
 </a>
 </p>
 #+END_HTML
-*** 3.1.2 By copying a BibTeX entry into the clipboard @@html:<a name="import-bib-clipboard">@@
+
+@@html:<a name="import-bib-clipboard">@@
+*** 3.1.2 By copying a BibTeX entry into the clipboard
 :PROPERTIES:
 :CUSTOM_ID: import-bib-clipboard
 :END:
@@ -161,7 +176,9 @@ src="https://www.dropbox.com/s/m8rrpxehodwri81/import_by_download.png?raw=1">
 </a>
 </p>
 #+END_HTML
-*** 3.1.3 By searching in on-line sources @@html:<a name="import-search-online">@@
+
+@@html:<a name="import-search-online">@@
+*** 3.1.3 By searching in on-line sources
 :PROPERTIES:
 :CUSTOM_ID: import-search-online
 :END:
@@ -183,7 +200,8 @@ The researcher can configure =LiteRef= to search several on-line sources. This i
 
 The currently implemented on-line sources for BibTeX entries are Google Scholar, Semantic Scholar and DBLP. The user can add more sources by implementing classes with interfaces similar to the classes of the existing sources. These interfaces are well documented in the [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/online_sources.py][online_sources.py]] module of the server.
 
-*** 3.1.4 By downloading an HTML containing a number of papers @@html:<a name="import-html">@@
+@@html:<a name="import-html">@@
+*** 3.1.4 By downloading an HTML containing a number of papers
 :PROPERTIES:
 :CUSTOM_ID: import-html
 :END:
@@ -206,14 +224,17 @@ src="https://www.dropbox.com/s/xxsyd0rre2u77j5/import_html.png?raw=1">
 </p>
 #+END_HTML
 
-** 3.2 Working with citations @@html:<a name="working-cite">@@
+@@html:<a name="working-cite">@@
+** 3.2 Working with citations
 :PROPERTIES:
 :CUSTOM_ID: working-cite
 :END:
 Most of the functionalities of =LiteRef= are centered around citations. In this section, we focus on the tasks of finding the keys to cite, editing the text containing citations, splitting a list of citations and working with the currently active citation or paper. 
 
 All the functionalities presented in this and further sections work with all types of citation links supported by =org-ref= and described by the variable =org-ref-cite-types=. The video demos of this section were recorded before this enhancement and use =cite:= links exclusively. The demo in the [[#export][below section]] on advanced export capabilities of =LiteRef= shows the use of other types of citation links. 
-*** 3.2.1 Searching the papers database @@html:<a name="search">@@
+
+@@html:<a name="search">@@
+*** 3.2.1 Searching the papers database
 :PROPERTIES:
 :CUSTOM_ID: search
 :END:
@@ -250,7 +271,9 @@ src="https://www.dropbox.com/s/augo3zrm80ifmfv/toronto.png?raw=1">
 </a>
 </p>
 #+END_HTML
-*** 3.2.2 Intelligent handling of copying and pasting citations @@html:<a name="copy-paste">@@
+
+@@html:<a name="copy-paste">@@
+*** 3.2.2 Intelligent handling of copying and pasting citations
 :PROPERTIES:
 :CUSTOM_ID: copy-paste
 :END:
@@ -305,7 +328,8 @@ src="https://www.dropbox.com/s/wzu61s974xhls70/collect.png?raw=1">
 
 Currently, if one yanks a LiteRef key and that key gets relocated  by automated ordering, the following =yank-pop= command will not function properly. However, given the superior convenience offered by =helm-show-kill-ring=, this limitation should not discourage one from using automated ordering of citation keys.
 
-*** 3.2.3 Splitting a multi-paper citation @@html:<a name="split">@@
+@@html:<a name="split">@@
+*** 3.2.3 Splitting a multi-paper citation
 :PROPERTIES:
 :CUSTOM_ID: split
 :END:
@@ -341,7 +365,8 @@ src="https://www.dropbox.com/s/rits0gcws7jak5f/split.png?raw=1">
 </p>
 #+END_HTML
 
-*** 3.2.4 Actions on a paper @@html:<a name="actions">@@
+@@html:<a name="actions">@@
+*** 3.2.4 Actions on a paper
 :PROPERTIES:
 :CUSTOM_ID: actions
 :END:
@@ -368,7 +393,9 @@ src="https://www.dropbox.com/s/625bc7e06x11vur/actions.png?raw=1">
 #+END_HTML
 
 In addition, one can use the active citation/paper as a root for defining a sub-graph of the citation graph. This is described in a separate section below.
-** 3.3 Importing PDF of a paper @@html:<a name="import-pdf">@@
+
+@@html:<a name="import-pdf">@@
+** 3.3 Importing PDF of a paper
 :PROPERTIES:
 :CUSTOM_ID: import-pdf
 :END:
@@ -399,7 +426,8 @@ src="https://www.dropbox.com/s/9x9jqnqk74bl8uw/import_pdf.png?raw=1">
 
 *Update (<2018-01-14 Sun>):* It is possible that Semantic Scholar disallows accesses using a headless browser. Until this is clarified, =LiteRef= will not be able to fetch automatically from this online source. 
 
-** 3.4 Working with PDF @@html:<a name="working-pdf">@@
+@@html:<a name="working-pdf">@@
+** 3.4 Working with PDF
 :PROPERTIES:
 :CUSTOM_ID: working-pdf
 :END:
@@ -427,7 +455,8 @@ src="https://www.dropbox.com/s/g65qiwz6rxz08mc/annotation_link.png?raw=1">
 
 Conveniently, the =literef-cite-pdf-annotation= command can be invoked even when the PDF buffer is not currently active. In this case, =LiteRef= will find such a buffer. If several buffers are visiting PDF files, the user is offered to choose the appropriate buffer.
 
-** 3.5 Basic export of notes @@html:<a name="basic-export">@@
+@@html:<a name="basic-export">@@
+** 3.5 Basic export of notes
 :PROPERTIES:
 :CUSTOM_ID: intro
 :END:
@@ -477,7 +506,9 @@ src="https://www.dropbox.com/s/os5tc2x9okq044v/basic_export.png?raw=1">
 </a>
 </p>
 #+END_HTML
-** 3.6 Defining and using citation functions @@html:<a name="cf">@@
+
+@@html:<a name="cf">@@
+** 3.6 Defining and using citation functions
 :PROPERTIES:
 :CUSTOM_ID: cf
 :END:
@@ -496,18 +527,24 @@ src="https://www.dropbox.com/s/qsk7v8c8mrkhp9r/citation_function.png?raw=1">
 </a>
 </p>
 #+END_HTML
-** 3.7 The citation (sub-)graph @@html:<a name="subgraph">@@
+
+@@html:<a name="subgraph">@@
+** 3.7 The citation (sub-)graph
 :PROPERTIES:
 :CUSTOM_ID: subgraph
 :END:
-*** 3.7.1 The notion of the citation graph @@html:<a name="graph-notion">@@
+
+@@html:<a name="graph-notion">@@
+*** 3.7.1 The notion of the citation graph
 :PROPERTIES:
 :CUSTOM_ID: graph-notion
 :END:
 The most powerful features of =LiteRef= are based on the observation that the papers and the citations (possibly labeled with citation functions) induce a directed graph with labeled arcs. The vertex set of this /citation graph/ is the set of all papers in the database. If the notes for the paper /A/ cite paper /B/ with citation functions $F_1, F2, \ldots, F_n$ then there is an arc from /A/ to be labeled by the set $\{F_1, F2, \ldots, F_n\}$. If the notes of /A/ cite /B/ without specifying citation functions, the arc from /A/ to /B/ is labeled with an empty set. It is convenient, though not totally accurate, to call such an arc /unlabeled/ and we do so hereafter. If the notes for the paper /A/ cite paper /B/ multiple times, then the arc from /A/ to /B/ is labeled by the union of the labels induced by each citation.
 
 =LiteRef= maintains the citation graph automatically. Namely it is computed at the beginning of the =Emacs= session and updated whenever a notes file is saved.
-*** 3.7.2 The notion of the citation sub-graph @@html:<a name="subgraph-notion">@@
+
+@@html:<a name="subgraph-notion">@@
+*** 3.7.2 The notion of the citation sub-graph
 :PROPERTIES:
 :CUSTOM_ID: subgraph-notion
 :END:
@@ -516,7 +553,9 @@ The /citation sub-graph/ is a sub-graph of the citation graph, possibly appended
 At any given time, there is a single active citation sub-graph, called the /selected sub-graph/. When the =Emacs= session begins, the selected sub-graph consists of all the keys in the database. This sub-graph can be selected again at any time by invoking the =literef-subgraph-reset-selection= command.
 
 All the operations described [[#subgraph-operations][below]] work with the selected subgraph. In principle, this design allows working with multiple sub-graphs, one being selected at a time. However, this is not yet supported. 
-*** 3.7.3 Building a citation sub-graph @@html:<a name="subgraph-build">@@
+
+@@html:<a name="subgraph-build">@@
+*** 3.7.3 Building a citation sub-graph
 :PROPERTIES:
 :CUSTOM_ID: subgraph-build
 :END:
@@ -533,12 +572,16 @@ Here is an example of a filter: =(and (or (and develops-ideas (< depth 3)) compa
 Basing arc filters on =Emacs Lisp= expressions augmented by special variables allows for great flexibility in specifying the citation sub-graph. 
 
 Since a [[#subgraph-vis][later section]] introduces the visualization of the selected sub-graph, we delay the demonstration of selecting the sub-graph till that section. 
-** 3.8 Operations on the citation sub-graph @@html:<a name="subgraph-operations">@@
+
+@@html:<a name="subgraph-operations">@@
+** 3.8 Operations on the citation sub-graph
 :PROPERTIES:
 :CUSTOM_ID: subgraph-operations
 :END:
 The operations on the citation sub-graph are simple and yet very potent. The below descriptions reflect the simplicity of these operations, while the demonstrations attempt to reveal some of their potential applications.
-*** 3.8.1 Visualization @@html:<a name="subgraph-vis">@@
+
+@@html:<a name="subgraph-vis">@@
+*** 3.8.1 Visualization
 :PROPERTIES:
 :CUSTOM_ID: subgraph-vis
 :END:
@@ -580,7 +623,8 @@ src="https://www.dropbox.com/s/4q6wntjip0dfe5p/visualization_png.png?raw=1">
 </p>
 #+END_HTML
    
-*** 3.8.2 Search @@html:<a name="subgraph-search">@@
+@@html:<a name="subgraph-search">@@
+*** 3.8.2 Search
 :PROPERTIES:
 :CUSTOM_ID: subgraph-search
 :END:
@@ -595,8 +639,10 @@ width=50%
 src="https://www.dropbox.com/s/9s5j6ppk6kp1gh1/subgraph_search.png?raw=1">
 </a>
 </p>
-#+END_HTML   
-*** 3.8.3 Export @@html:<a name="subgraph-export">@@
+#+END_HTML  
+
+@@html:<a name="subgraph-export">@@ 
+*** 3.8.3 Export
 :PROPERTIES:
 :CUSTOM_ID: subgraph-export
 :END:
@@ -629,7 +675,9 @@ src="https://www.dropbox.com/s/5n3wf5umzaorbb6/subgraph_export.png?raw=1">
 </a>
 </p>
 #+END_HTML 
-*** 3.8.4 Visualization in export @@html:<a name="subgraph-vis-export">@@
+
+@@html:<a name="subgraph-vis-export">@@
+*** 3.8.4 Visualization in export
 :PROPERTIES:
 :CUSTOM_ID: subgraph-vis-export
 :END:
@@ -651,14 +699,20 @@ src="https://www.dropbox.com/s/g8mm4r0prsdvxy2/export_visualization.png?raw=1">
 </a>
 </p>
 #+END_HTML
-* 4 Installation and configuration @@html:<a name="install">@@
+
+@@html:<a name="install">@@
+* 4 Installation and configuration
 :PROPERTIES:
 :CUSTOM_ID: install
 :END:
-* 5 Version and license information @@html:<a name="license">@@
+
+@@html:<a name="license">@@
+* 5 Version and license information
 :PROPERTIES:
 :CUSTOM_ID: license
 :END:
+
+@@html:<a name="license">@@
 * 6 Bug reports and future work @@html:<a name="future">@@
 :PROPERTIES:
 :CUSTOM_ID: future
