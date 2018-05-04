@@ -58,14 +58,14 @@ Currently only from DBLP.
 | *Writing + video*                                                                          |                       |
 |--------------------------------------------------------------------------------------------+-----------------------|
 | Motivation                                                                                 | DONE                  |
-| Overall design                                                                             |                       |
-| Adding papers                                                                              |                       |
-| Working with citations                                                                     |                       |
-| Working with PDF                                                                           |                       |
-| Switching to notes                                                                         |                       |
-| Export                                                                                     |                       |
-| Working with annotations (use https://academia.stackexchange.com/a/97241/74651 as example) |                       |
-| Installation, Version etc., future work etc.                                               |                       |
+| Overall design                                                                             | DONE                  |
+| Adding papers                                                                              | DONE                  |
+| Working with citations                                                                     | DONE                  |
+| Working with PDF                                                                           | DONE                  |
+| Switching to notes                                                                         | DONE                  |
+| Export                                                                                     | DONE                  |
+| Working with annotations (use https://academia.stackexchange.com/a/97241/74651 as example) | DONE                  |
+| Installation, Version etc., future work etc.                                               | DONE                  |
 |--------------------------------------------------------------------------------------------+-----------------------|
 * Ideas of implementation
 ** Working with pdf

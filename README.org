@@ -3,74 +3,76 @@
 # #+TITLE: LiteRef: a Framework for Managing Knowledge of Research Literature
 
 * Table of contents                                                     :TOC:
-- [[#intro][1 Introduction]]
-- [[#design][2 The overall design]]
-  - [[#phys][2.1 Physical structure]]
-  - [[#ui][2.2 The user interface]]
-  - [[#import][2.3 Import of entries]]
-  - [[#cite][2.4 Working with the papers]]
-- [[#features][3 Features]]
-  - [[#import-bib][3.1 Importing BibTeX entries]]
-    + [[#import-bib-drop][3.1.1 By putting a /.bib/ file into the =drop/= folder]]
-    + [[#import-bib-clipboard][3.1.2 By copying a BibTeX entry into the clipboard]]
-    + [[#import-search-online][3.1.3 By searching in on-line sources]]
-    + [[#import-html][3.1.4 By downloading an HTML containing a number of papers]]
-  - [[#working-cite][3.2 Working with citations]]
-    + [[#search][3.2.1 Searching the papers database]]
-    + [[#copy-paste][3.2.2 Intelligent handling of copying and pasting citations]]
-    + [[#split][3.2.3 Splitting a multi-paper citation]]
-    + [[#actions][3.2.4 Actions on a paper]]
-  - [[#import-pdf][3.3 Importing PDF of a paper]]
-  - [[#working-pdf][3.4 Working with PDF]]
-  - [[#basic-export][3.5 Basic export of notes]]
-  - [[#df][3.6 Defining and using citation functions]]
-  - [[#subgraph][3.7 The citation (sub-)graph]]
-    + [[#graph-notion][3.7.1 The notion of the citation graph]]
-    + [[#subgraph-notion][3.7.2 The notion of the citation sub-graph]]
-    + [[#subgraph-build][3.7.3 Building a citation sub-graph]]
-  - [[#subgraph-operations][3.8 Operations on the citation sub-graph]]
-    + [[#subgraph-vis][3.8.1 Visualization]]
-    + [[#subgraph-search][3.8.2 Search]]
-    + [[#subgraph-export][3.8.3 Export]]
-    + [[#subgraph-vis-export][3.8.4 Visualization in export]]
-- [[#install][4 Installation and configuration]]
-- [[#license][5 Version and license information]]
-- [[#future][6 Bug reports and future work]]
+- [[#user-content-intro][1 Introduction]]
+- [[#user-content-design][2 The overall design]]
+  - [[#user-content-phys][2.1 Physical structure]]
+  - [[#user-content-ui][2.2 The user interface]]
+  - [[#user-content-import][2.3 Import of entries]]
+  - [[#user-content-cite][2.4 Working with the papers]]
+- [[#user-content-features][3 Features]]
+  - [[#user-content-import-bib][3.1 Importing BibTeX entries]]
+    + [[#user-content-import-bib-drop][3.1.1 By putting a /.bib/ file into the =drop/= folder]]
+    + [[#user-content-import-bib-clipboard][3.1.2 By copying a BibTeX entry into the clipboard]]
+    + [[#user-content-import-search-online][3.1.3 By searching in on-line sources]]
+    + [[#user-content-import-html][3.1.4 By downloading an HTML containing a number of papers]]
+  - [[#user-content-working-cite][3.2 Working with citations]]
+    + [[#user-content-search][3.2.1 Searching the papers database]]
+    + [[#user-content-copy-paste][3.2.2 Intelligent handling of copying and pasting citations]]
+    + [[#user-content-split][3.2.3 Splitting a multi-paper citation]]
+    + [[#user-content-actions][3.2.4 Actions on a paper]]
+  - [[#user-content-import-pdf][3.3 Importing PDF of a paper]]
+  - [[#user-content-working-pdf][3.4 Working with PDF]]
+  - [[#user-content-basic-export][3.5 Basic export of notes]]
+  - [[#user-content-df][3.6 Defining and using citation functions]]
+  - [[#user-content-subgraph][3.7 The citation (sub-)graph]]
+    + [[#user-content-graph-notion][3.7.1 The notion of the citation graph]]
+    + [[#user-content-subgraph-notion][3.7.2 The notion of the citation sub-graph]]
+    + [[#user-content-subgraph-build][3.7.3 Building a citation sub-graph]]
+  - [[#user-content-subgraph-operations][3.8 Operations on the citation sub-graph]]
+    + [[#user-content-subgraph-vis][3.8.1 Visualization]]
+    + [[#user-content-subgraph-search][3.8.2 Search]]
+    + [[#user-content-subgraph-export][3.8.3 Export]]
+    + [[#user-content-subgraph-vis-export][3.8.4 Visualization in export]]
+- [[#user-content-install][4 Installation and configuration]]
+- [[#user-content-license][5 Version and license information]]
+- [[#user-content-future][6 Bug reports and future work]]
 
 @@html:<a name="intro">@@
 * 1 Introduction
 :PROPERTIES:
-:CUSTOM_ID: intro
+:CUSTOM_ID: user-content-intro
 :END:
 Managing knowledge of related literature is an important activity for both graduate students and researchers. A central piece of this activity is maintaining notes both about individual research papers and, more importantly, about whole branches of research. Notes that cover branches of research are extremely useful. These notes are tools for uncovering connections between papers and discovering venues for new research. The purpose of =LiteRef= is to provide a thin layer of software that would make it natural and easy to collect papers, maintain notes about both individual papers and branches of research, explore connections between papers and export all or part of this body of knowledge into a coherent document.
 
 There are many software packages for reference management out there. The main difference between =LiteRef= and these packages is the focus. While the focus of existing reference management software is on maintaining the database of bibliography entries, the focus of =LiteRef= is on providing the researcher with tools that would aid him in growing his /understanding/ of the research field. Consequently, =LiteRef= is centered around the /notes/ written by the researcher.
 
-=LiteRef= runs under [[https://www.gnu.org/software/emacs/][Emacs]], an extremely powerful and flexible text editor. In particular, =Emacs= comes with an awesome major mode for organizing notes called [[http://orgmode.org/][org-mode]]. =LiteRef= harnesses the power of =org-mode= and several other packages (most notably [[https://github.com/jkitchin/org-ref][org-ref]]) to put at the researcher’s disposal a potent tool for maintaining his knowledge of related literature. =LiteRef= offers:
-- A variety of means for [[#import-bib][importing BibTeX entries]] into the database and [[#actions][performing actions on these entries]]. In particular, BibTeX entries can be fetched from an extensible set of online resources. Also, one can import entries for all the papers in a given journal volume or conference proceedings. This feature supports maintaining an edge in the knowledge of the papers in the narrow specialization of the researcher. The researcher can conveniently [[#split][track his progress]] on studying these papers.
-- Powerful tools for [[#search][citing papers]] and for [[#copy-paste][intelligently handling citations]] in the notes to enhance the experience of maintaining the notes using =org-mode=.
-- Automated [[#import-pdf][fetching of paper PDFs]] from an extensible set of online resources.
-- A way to [[#working-pdf][refer to a particular annotation in a paper PDF]] from a notes file. The annotations themselves are handled by the awesome [[https://github.com/politza/pdf-tools][pdf-tools]] package of =Emacs=.
-- Automated generation of bibliography for [[#basic-export][export]] and powerful synergies with the standard =org-mode= tools such as narrowing to sub-trees and inclusion directives. 
-- [[#df][Annotation of citations]] by their role. This seemingly trivial feature gives raise to some of the most powerful features of =LiteRef=. In particular, the annotated citations in the notes associated with the papers in the notes induce a graph, where related papers are connected by arcs labeled by citation functions. We call this a /citation graph/.
-- A general way of [[#subgraph-build][defining a sub-graph]] of the citation graph, possibly augmented with papers cited in an arbitrary buffer. We call this the /citation sub-graph/.
-- The ability to obtain much insight by [[#subgraph-vis][visualizing the citation sub-graph]].
-- Further enhancement of the user experience of maintaining notes by restricting the actions such as [[#search][searching for papers]] to the citation sub-graph.
-- [[#export][Export]] that integrates all the notes relevant to the citation sub-graph into a coherent document. Thus, one can quickly obtain a well-formed survey of a branch of his research area. 
+=LiteRef= runs under [[https://www.gnu.org/software/emacs/][Emacs]], an extremely powerful and flexible text editor. In particular, =Emacs= comes with an awesome major mode for organizing notes called [[http://orgmode.org/][org-mode]]. =LiteRef= harnesses the power of =org-mode= and several other packages (most notably [[https://github.com/jkitchin/org-ref][org-ref]]) to put at the researcher’s disposal a potent tool for maintaining his knowledge of related literature. 
+
+=LiteRef= offers:
+- A variety of means for [[#user-content-import-bib][importing BibTeX entries]] into the database and [[#user-content-actions][performing actions on these entries]]. In particular, BibTeX entries can be fetched from an extensible set of online resources. Also, one can import entries for all the papers in a given journal volume or conference proceedings. This feature supports maintaining an edge in the knowledge of the papers in the narrow specialization of the researcher. The researcher can conveniently [[#user-content-split][track his progress]] on studying these papers.
+- Powerful tools for [[#user-content-search][citing papers]] and for [[#user-content-copy-paste][intelligently handling citations]] in the notes to enhance the experience of maintaining the notes using =org-mode=.
+- Automated [[#user-content-import-pdf][fetching of paper PDFs]] from an extensible set of online resources.
+- A way to [[#user-content-working-pdf][refer to a particular annotation in a paper PDF]] from a notes file. The annotations themselves are handled by the awesome [[https://github.com/politza/pdf-tools][pdf-tools]] package of =Emacs=.
+- Automated generation of bibliography for [[#user-content-basic-export][export]] and powerful synergies with the standard =org-mode= tools such as narrowing to sub-trees and inclusion directives. 
+- [[#user-content-df][Annotation of citations]] by their role. This seemingly trivial feature gives raise to some of the most powerful features of =LiteRef=. In particular, the annotated citations in the notes associated with the papers in the notes induce a graph, where related papers are connected by arcs labeled by citation functions. We call this a /citation graph/.
+- A general way of [[#user-content-subgraph-build][defining a sub-graph]] of the citation graph, possibly augmented with papers cited in an arbitrary buffer. We call this the /citation sub-graph/.
+- The ability to obtain much insight by [[#user-content-subgraph-vis][visualizing the citation sub-graph]].
+- Further enhancement of the user experience of maintaining notes by restricting the actions such as [[#user-content-search][searching for papers]] to the citation sub-graph.
+- [[#user-content-export][Export]] that integrates all the notes relevant to the citation sub-graph into a coherent document. Thus, one can quickly obtain a well-formed survey of a branch of his research area. 
 
 The following sections describe both the overall design of =LiteRef= and its features. Each feature’s description is accompanied by a short video demonstrating the feature’s usage. 
   
 @@html:<a name="design">@@
 * 2 The overall design
 :PROPERTIES:
-:CUSTOM_ID: design
+:CUSTOM_ID: user-content-design
 :END:
 The purpose of this section is to describe the conceptual design of =LiteRef= and thereby make reading the sections that describe particular features comfortable.
 
 @@html:<a name="phys">@@ 
 ** 2.1 Physical structure
 :PROPERTIES:
-:CUSTOM_ID: phys
+:CUSTOM_ID: user-content-phys
 :END:
 As far as the user is concerned, two folders in the distribution are of interest: =papers/= and =drop/=. As suggested by their names, the =papers/= folder contains the database of papers, while the =drop/= folder is the place where new BibTeX and PDF entries are to be deposited for subsequent handling by =LiteRef=.
 
@@ -81,7 +83,7 @@ The database of papers has a very simple structure, whereby each paper gets a fo
 @@html:<a name="ui">@@  
 ** 2.2 The user interface
 :PROPERTIES:
-:CUSTOM_ID: ui
+:CUSTOM_ID: user-content-ui
 :END:
 Most features of =LiteRef= are implemented in Emacs Lisp. These features use uniquely =Emacs= ways for doing things. These ways may come as a surprise to an uninitiated user, but inevitably prove to be extremely time-effective. Once having got used to using =Emacs= properly, one rejoices for the rest of his life at having found the ultimate tool for everything related to editing text, maintaining notes and too many other tasks to list.     
 
@@ -90,54 +92,54 @@ The functionalities related to watching the /drop folder/ and creating/fetching 
 @@html:<a name="import">@@
 ** 2.3 Import of entries
 :PROPERTIES:
-:CUSTOM_ID: import
+:CUSTOM_ID: user-content-import
 :END:
-[[#import-bib][Insertion of a new BibTeX entry]] into the =LiteRef= database is triggered by the appearance of a /.bib/ file in the =drop/= folder. This can happen in a large number of ways from manual creation of this file to automated search in on-line sources. Whatever way is chosen, /each/ BibTeX entry in the new /.bib/ file receives an automatically generated key. This key consists of three parts:
+[[#user-content-import-bib][Insertion of a new BibTeX entry]] into the =LiteRef= database is triggered by the appearance of a /.bib/ file in the =drop/= folder. This can happen in a large number of ways from manual creation of this file to automated search in on-line sources. Whatever way is chosen, /each/ BibTeX entry in the new /.bib/ file receives an automatically generated key. This key consists of three parts:
 - Last name of the first author followed by a capital letter for each co-author,
 - Year of publication followed by a letter signifying the type of venue, e.g. 2000c (a conference proceedings in 2000) or 2005j (a journal volume in 2005).
 - Two (possibly abbreviated) words from the title. 
 After duplicate detection, the new entries are entered into the database. Both /paper.bib/ and (an empty) /paper.org/ for the new entries are created at this point.
  
-[[#import-pdf][Searching for a PDF file]] is triggered by trying to open a paper’s PDF file in any one of the ways described [[#actions][below]]. When this happens, if the =drop/= folder contains PDF files, these become the first candidates. If the user rejects these candidates, automated search in the on-line sources ensues.
+[[#user-content-import-pdf][Searching for a PDF file]] is triggered by trying to open a paper’s PDF file in any one of the ways described [[#user-content-actions][below]]. When this happens, if the =drop/= folder contains PDF files, these become the first candidates. If the user rejects these candidates, automated search in the on-line sources ensues.
 
 The on-line source for searching for BibTeX and PDF files are defined in an extensible way in the [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/online_sources.py][online_sources.py]] module of the server. This module documents in detail how one can extend the set of online sources with sources of his own. If such an extension takes place, it is up to the user to respect the terms of service of whatever sites are searched. The author of =LiteRef= does not assume any responsibility for violations.
 
 @@html:<a name="cite">@@
 ** 2.4 Paper citations
 :PROPERTIES:
-:CUSTOM_ID: cite
+:CUSTOM_ID: user-content-cite
 :END:
-The features that distinguish =LiteRef= are centered around working with paper citations. A paper is cited using the =org-ref= citation link, which consists of =cite:= followed by the keys of the BibTeX entries of the papers being cited, e.g. =cite:AbrahamDGW2011c-Hub-Based,ChakrabortiSSKK2016c-Compl-Condit=. In most cases, one would cite a paper by using the =helm= search, which is the =Emacs= way of searching in a large collection of candidates by gradually narrowing the candidate set. The candidates for this search can be either [[#search][the whole paper database]] or the papers that form the current [[#subgraph-notion][citation sub-graph]]. Once some paper citations are added, [[#working-cite][a number of features]] of =LiteRef= dedicated to making the editing tasks related to paper citations effective are available.
+The features that distinguish =LiteRef= are centered around working with paper citations. A paper is cited using the =org-ref= citation link, which consists of =cite:= followed by the keys of the BibTeX entries of the papers being cited, e.g. =cite:AbrahamDGW2011c-Hub-Based,ChakrabortiSSKK2016c-Compl-Condit=. In most cases, one would cite a paper by using the =helm= search, which is the =Emacs= way of searching in a large collection of candidates by gradually narrowing the candidate set. The candidates for this search can be either [[#user-content-search][the whole paper database]] or the papers that form the current [[#user-content-subgraph-notion][citation sub-graph]]. Once some paper citations are added, [[#user-content-working-cite][a number of features]] of =LiteRef= dedicated to making the editing tasks related to paper citations effective are available.
 
-Besides the paper citations, two other types of links are used. First, a paper citation can be followed by a list of [[#df][citation functions]], e.g. =cite:AlfeldZB2016c-Machin-Teach= =f:develops,compares=. Citation functions allow the researcher to characterize the relationships between the two papers. For example, suppose the notes for the paper /X/ cite the paper /Y/. This citation could signify that /X/ develops the ideas of /Y/, that the ideas presented in /X/ bear a degree of resemblance to those of /Y/, that /X/ compares its results to those of /Y/ etc. =LiteRef= leaves it to the researcher to define the list of legal citation functions. One can either come up with his own list or use an existing set of citation functions such as [[http://www.sparontologies.net/ontologies/cito/source.html][the Citation Typing Ontology]]. Once such a list is defined, =LiteRef= makes inserting citation functions links convenient (again, in a uniquely =Emacs= way, of course). As mentioned earlier, citation function links are utilized by =LiteRef= to provide [[#subgraph-operations][functionalities related to the citation (sub-)graph]].
+Besides the paper citations, two other types of links are used. First, a paper citation can be followed by a list of [[#user-content-df][citation functions]], e.g. =cite:AlfeldZB2016c-Machin-Teach= =f:develops,compares=. Citation functions allow the researcher to characterize the relationships between the two papers. For example, suppose the notes for the paper /X/ cite the paper /Y/. This citation could signify that /X/ develops the ideas of /Y/, that the ideas presented in /X/ bear a degree of resemblance to those of /Y/, that /X/ compares its results to those of /Y/ etc. =LiteRef= leaves it to the researcher to define the list of legal citation functions. One can either come up with his own list or use an existing set of citation functions such as [[http://www.sparontologies.net/ontologies/cito/source.html][the Citation Typing Ontology]]. Once such a list is defined, =LiteRef= makes inserting citation functions links convenient (again, in a uniquely =Emacs= way, of course). As mentioned earlier, citation function links are utilized by =LiteRef= to provide [[#user-content-subgraph-operations][functionalities related to the citation (sub-)graph]].
 
-Second, a paper’s notes can contain [[#working-pdf][links to particular annotations in the paper’s PDF]]. This feature allows the researcher to easily relate his comments to particular clauses in the paper.
+Second, a paper’s notes can contain [[#user-content-working-pdf][links to particular annotations in the paper’s PDF]]. This feature allows the researcher to easily relate his comments to particular clauses in the paper.
 
 @@html:<a name="features">@@
 * 3 Features
 :PROPERTIES:
-:CUSTOM_ID: features
+:CUSTOM_ID: user-content-features
 :END:
 This section describes the features of =LiteRef= in detail.
 
 @@html:<a name="import-bib">@@
 ** 3.1 Importing BibTeX entries
 :PROPERTIES:
-:CUSTOM_ID: import-bib
+:CUSTOM_ID: user-content-import-bib
 :END:
 There are several ways to import a new BibTeX entry into the database of =LiteRef=. We describe each way in a section with an accompanying video.
 
 @@html:<a name="import-bib-drop">@@
 *** 3.1.1 By putting a /.bib/ file into the =drop/= folder.
 :PROPERTIES:
-:CUSTOM_ID: import-bib-drop
+:CUSTOM_ID: user-content-import-bib-drop
 :END:
 The most direct way do import BibTeX entries into the database of =LiteRef= is to either download or copy the corresponding /.bib/ file into the =drop/= folder. In case the BibTeX entry needs to be written from scratch, the /.bib/ file can be either created in the =drop/= folder or in another location and then copied over.
 The following actions are performed automatically as soon as a new /.bib/ file appears in the =drop/= folder:
 - The BibTeX entries are extracted.
 - The key for each BibTeX entry is generated.
 - All the entries are added into the database subject to duplicate detection. In case a duplicate is detected, the user may choose to keep both entries, in which case the key of the new entry is modified to guarantee uniqueness. One practical case when a need for this feature may arise is when the new entry refers to a short version of the full-size conference paper that is already present in the database.
-  + Note that all the added entries get the same creation time stamp. This detail is important when ordering papers by multiple criteria as described [[#search][below]]. 
+  + Note that all the added entries get the same creation time stamp. This detail is important when ordering papers by multiple criteria as described [[#user-content-search][below]]. 
 - The list of newly added keys is put into the clipboard, so the papers can be immediately cited in the notes by invoking the =yank= command (/yanking/ is the =Emacs= term for pasting), which is typically bound to =C-y=.
 This process is shown in the following [[https://www.dropbox.com/s/yi06fltwsvs21kw/import_by_copy.mp4?dl=0][demo]].
 # **** Scenario
@@ -160,7 +162,7 @@ src="https://www.dropbox.com/s/mhttxvskgudql8h/import_by_copy.png?raw=1">
 @@html:<a name="import-bib-clipboard">@@
 *** 3.1.2 By copying a BibTeX entry into the clipboard
 :PROPERTIES:
-:CUSTOM_ID: import-bib-clipboard
+:CUSTOM_ID: user-content-import-bib-clipboard
 :END:
 With some sites, it is easier to put a BibTeX entry into the clipboard than to download/create a /.bib/ file. The command =literef-bibtex-from-clipboard= (by default associated with =C-c c=) caters to this case as shown in the following [[https://www.dropbox.com/s/i30oguvqcmk5lkg/import_by_download.mp4?dl=0][demo]].
 # **** Scenario
@@ -180,7 +182,7 @@ src="https://www.dropbox.com/s/m8rrpxehodwri81/import_by_download.png?raw=1">
 @@html:<a name="import-search-online">@@
 *** 3.1.3 By searching in on-line sources
 :PROPERTIES:
-:CUSTOM_ID: import-search-online
+:CUSTOM_ID: user-content-import-search-online
 :END:
 The command =literef-get-region-bibtex= (bound by default to =C-c g=) searches for a BibTeX entry corresponding to the text in the active region. The region can be either in a regular =Emacs= buffer (e.g. in a notes file) or in a PDF buffer. The latter is the most widespread use case, since most often the researcher becomes interested in a paper that is cited in the paper currently being studied. When the selected region contains multiple lines with words split between lines, =LiteRef= forms the single-line query intelligently. That is, it uses spell checking to determine whether the hyphen should be kept or removed. It refers to the user’s help only in case of doubt (i.e. when both the hyphenated and the „glued“ versions are (in)correct). The following [[https://www.dropbox.com/s/e4wuod3dplyodfr/import_bib_online.mp4?dl=0][demo]] shows this.
 # **** Scenario
@@ -203,9 +205,9 @@ The currently implemented on-line sources for BibTeX entries are Google Scholar,
 @@html:<a name="import-html">@@
 *** 3.1.4 By downloading an HTML containing a number of papers
 :PROPERTIES:
-:CUSTOM_ID: import-html
+:CUSTOM_ID: user-content-import-html
 :END:
-Suppose that there is a venue that publishes paper in the narrow specialization of the researcher. The researcher needs to be knowledgeable about all the papers appearing in that venue. Thus, he may want to have a notes file, where all such papers for each year are presented. (We will see [[#split][below]] that =LiteRef= makes it easy to track his progress on studying these papers as well.)
+Suppose that there is a venue that publishes paper in the narrow specialization of the researcher. The researcher needs to be knowledgeable about all the papers appearing in that venue. Thus, he may want to have a notes file, where all such papers for each year are presented. (We will see [[#user-content-split][below]] that =LiteRef= makes it easy to track his progress on studying these papers as well.)
 
 To cater to the above scenario, =LiteRef= can handle /.html/ files downloaded into the =drop/= folder. =LiteRef= extracts from such an HTML links to BibTeX entries and downloads the entries themselves. Of the implemented on-line sources, only DBLP supports this feature. The following [[https://www.dropbox.com/s/9hwao8hkh6y8rjv/import_html.mp4?dl=0][demo]] shows this feature put to use.
 
@@ -227,16 +229,16 @@ src="https://www.dropbox.com/s/xxsyd0rre2u77j5/import_html.png?raw=1">
 @@html:<a name="working-cite">@@
 ** 3.2 Working with citations
 :PROPERTIES:
-:CUSTOM_ID: working-cite
+:CUSTOM_ID: user-content-working-cite
 :END:
 Most of the functionalities of =LiteRef= are centered around citations. In this section, we focus on the tasks of finding the keys to cite, editing the text containing citations, splitting a list of citations and working with the currently active citation or paper. 
 
-All the functionalities presented in this and further sections work with all types of citation links supported by =org-ref= and described by the variable =org-ref-cite-types=. The video demos of this section were recorded before this enhancement and use =cite:= links exclusively. The demo in the [[#export][below section]] on advanced export capabilities of =LiteRef= shows the use of other types of citation links. 
+All the functionalities presented in this and further sections work with all types of citation links supported by =org-ref= and described by the variable =org-ref-cite-types=. The video demos of this section were recorded before this enhancement and use =cite:= links exclusively. The demo in the [[#user-content-export][below section]] on advanced export capabilities of =LiteRef= shows the use of other types of citation links. 
 
 @@html:<a name="search">@@
 *** 3.2.1 Searching the papers database
 :PROPERTIES:
-:CUSTOM_ID: search
+:CUSTOM_ID: user-content-search
 :END:
 =LiteRef= inherits from =org-ref= and significantly improves the command =org-ref-insert-link= (bound by default to =C-c ]=) for inserting a citation. 
 
@@ -275,9 +277,9 @@ src="https://www.dropbox.com/s/augo3zrm80ifmfv/toronto.png?raw=1">
 @@html:<a name="copy-paste">@@
 *** 3.2.2 Intelligent handling of copying and pasting citations
 :PROPERTIES:
-:CUSTOM_ID: copy-paste
+:CUSTOM_ID: user-content-copy-paste
 :END:
-When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. If automated ordering of citation is enabled (i.e. =literef-sort-citation-links= is set to =t=), then the keys will be sorted on the criteria specified in =literef-citation-link-sorting-criteria= (see the section on [[#install][configuration]]). Keys of a citation link can also be re-ordered at any time by invoking the =literef-sort-citation-link= command (bound by default to =C-c <down>=). This command offers multi-criteria sorting capability similar to the one for sorting candidates during the [[#search][search for papers]]. The command  =literef-sort-citation-links= (not bound to a key by default) can be used to re-order all the citation links in the current buffer.
+When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. If automated ordering of citation is enabled (i.e. =literef-sort-citation-links= is set to =t=), then the keys will be sorted on the criteria specified in =literef-citation-link-sorting-criteria= (see the section on [[#user-content-install][configuration]]). Keys of a citation link can also be re-ordered at any time by invoking the =literef-sort-citation-link= command (bound by default to =C-c <down>=). This command offers multi-criteria sorting capability similar to the one for sorting candidates during the [[#user-content-search][search for papers]]. The command  =literef-sort-citation-links= (not bound to a key by default) can be used to re-order all the citation links in the current buffer.
 This is shown in the following [[https://www.dropbox.com/s/2dnxyz3yl6dus29/intelligent_pasting.mp4?dl=0][demo]].
 
 # **** Scenario
@@ -331,7 +333,7 @@ Currently, if one yanks a LiteRef key and that key gets relocated  by automated 
 @@html:<a name="split">@@
 *** 3.2.3 Splitting a multi-paper citation
 :PROPERTIES:
-:CUSTOM_ID: split
+:CUSTOM_ID: user-content-split
 :END:
 Sometimes we would like to have citations of multiple papers appear either as headlines or in a list in the same notes file. This would allow us to add notes relating to each individual citation. We can do this by splitting a multi-paper citation using either =literef-split-cite= (bound to =C-c d= by default) or =literef-split-cite-title-author= (bound to =C-c s= by default). Th latter command adds authors and title to each paper. Both commands replicate the context of the original multi-paper citation (i.e. the preceding and following text) with each resulting single-paper citation. 
 
@@ -368,16 +370,16 @@ src="https://www.dropbox.com/s/rits0gcws7jak5f/split.png?raw=1">
 @@html:<a name="actions">@@
 *** 3.2.4 Actions on a paper
 :PROPERTIES:
-:CUSTOM_ID: actions
+:CUSTOM_ID: user-content-actions
 :END:
-When the user follows a citation link (i.e. invokes the =org-mode= command =org-open-at-point= either by pressing =C-c C-o= when the cursor is on the link or by clicking on it with the mouse), a menu appears and he can choose to open (in a different window) the BibTeX entry, the notes of the PDF associated with the paper. An additional recently added action is for building a [[#subgraph][citation sub-graph]] rooted at the paper.
+When the user follows a citation link (i.e. invokes the =org-mode= command =org-open-at-point= either by pressing =C-c C-o= when the cursor is on the link or by clicking on it with the mouse), a menu appears and he can choose to open (in a different window) the BibTeX entry, the notes of the PDF associated with the paper. An additional recently added action is for building a [[#user-content-subgraph][citation sub-graph]] rooted at the paper.
 
 Each of these actions can be invoked directly when the cursor is located over a citation (the citation and the cited paper are called the /active citation/ and the /active paper/, respectively) or the active buffer is visiting a file associated  the paper (in which case paper is called /active/). They can also be invoked for an active candidate in the =helm= search. The commands for these actions are: 
 - =literef-open-bibfile= for opening the BibTeX entry is bound by default to =C-c b=.
 - =literef-open-notes= for opening the notes is bound by default to =C-c n=.
 - =literef-open-pdf= for opening the PDF is bound by default to =C-c o=. The next section describes what happens when the PDF for the paper has not yet been added. 
 
-The following [[https://www.dropbox.com/s/4rl36kkvdw4uqpy/actions.mp4?dl=0][demo]] shows the use of these actions (the action for building a [[#subgraph][citation sub-graph]] rooted at the paper is not shown in this video; it appears in a demo [[#subgraph-vis][below]]).
+The following [[https://www.dropbox.com/s/4rl36kkvdw4uqpy/actions.mp4?dl=0][demo]] shows the use of these actions (the action for building a [[#user-content-subgraph][citation sub-graph]] rooted at the paper is not shown in this video; it appears in a demo [[#user-content-subgraph-vis][below]]).
 
 # **** Scenario
 # Here is a citation of two papers. I invoke the =org-open-at-point= command by pressing =C-c C-o= and get the action menu for the BibTeX key currently under cursor… I could get the same menu by clicking on the citation. The actions are self explanatory – I can open the BibTeX entry,… the notes for the paper…, or the paper’s PDF… I could also perform these actions directly. For example, I can open the PDF by invoking the =literef-open-pdf= command by pressing =C-c o=. I can also invoke these actions when visiting a file associated with the paper. For example, right now we are visiting PDF of the paper. So, let us open this paper’s BibTeX entry. I invoke the =literef-open-bibfile= command by pressing =C-c b=… Of course, the user can rebind all these and other commands to different key combinations for his best convenience.   
@@ -397,9 +399,9 @@ In addition, one can use the active citation/paper as a root for defining a sub-
 @@html:<a name="import-pdf">@@
 ** 3.3 Importing PDF of a paper
 :PROPERTIES:
-:CUSTOM_ID: import-pdf
+:CUSTOM_ID: user-content-import-pdf
 :END:
-=LiteRef= takes a lazy approach to adding paper PDFs. Namely, importing a PDF is initiated when the user tries to open a PDF (in any one of the ways described [[#actions][above]]) that has not been added. The search for the needed PDF proceeds in three stages:
+=LiteRef= takes a lazy approach to adding paper PDFs. Namely, importing a PDF is initiated when the user tries to open a PDF (in any one of the ways described [[#user-content-actions][above]]) that has not been added. The search for the needed PDF proceeds in three stages:
 a) If one or more PDF files exist in the =drop/= folder, the user is asked whether one of these PDFs is the one being sought. If the answer for one of these PDFs is positive, that PDF is attached to the entry and opened in =Emacs=. Otherwise, the next step is taken.
 b) The PDF is searched for in the on-line sources defined by the =PDF_AUTOMATED_SOURCES= variable in the /config.py/ module of the server.
 
@@ -429,7 +431,7 @@ src="https://www.dropbox.com/s/9x9jqnqk74bl8uw/import_pdf.png?raw=1">
 @@html:<a name="working-pdf">@@
 ** 3.4 Working with PDF
 :PROPERTIES:
-:CUSTOM_ID: working-pdf
+:CUSTOM_ID: user-content-working-pdf
 :END:
 When it comes to working with the PDF of a paper, the rendering speed and features of the =pdf-tools= package of =Emacs= are prodigious. In particular, the researcher gets great tools for annotating the paper.
 
@@ -458,7 +460,7 @@ Conveniently, the =literef-cite-pdf-annotation= command can be invoked even when
 @@html:<a name="basic-export">@@
 ** 3.5 Basic export of notes
 :PROPERTIES:
-:CUSTOM_ID: intro
+:CUSTOM_ID: user-content-intro
 :END:
 =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=. In its original form, this command was already capable of exporting notes in a variety of formats, including LaTeX and PDF. =LiteRef= extends the capabilities of this command, so that:
 - The bibliography based on the citations found in the buffer being exported is automatically built. The underlying bibliography file created by =LiteRef= contains only the papers that appear in the bibliography, ordered by the increasing order of the BibTeX key. The bibliography style and the bibliography package used for LaTeX export are determined by the variables =literef-bibliography-style= and =literef-bibliography-package=, respectively.
@@ -510,7 +512,7 @@ src="https://www.dropbox.com/s/os5tc2x9okq044v/basic_export.png?raw=1">
 @@html:<a name="cf">@@
 ** 3.6 Defining and using citation functions
 :PROPERTIES:
-:CUSTOM_ID: cf
+:CUSTOM_ID: user-content-cf
 :END:
 The functionalities of =LiteRef= for grasping the overall state of research in a given area are based on the notion of a /citation function/. Citation function is the role that the cited paper plays in the paper that cites it as reflected in the notes on the latter paper. For example, suppose that a paper /X/ cites a paper /Y/, because /X/ develops the ideas of /Y/. The researcher can reflect this in the notes on /X/ by citing /Y/ while specifying the citation function corresponding to the role of developing the ideas of the cited paper. It can look something like this: =cite:Y f:develops-ideas=. 
 
@@ -531,13 +533,13 @@ src="https://www.dropbox.com/s/qsk7v8c8mrkhp9r/citation_function.png?raw=1">
 @@html:<a name="subgraph">@@
 ** 3.7 The citation (sub-)graph
 :PROPERTIES:
-:CUSTOM_ID: subgraph
+:CUSTOM_ID: user-content-subgraph
 :END:
 
 @@html:<a name="graph-notion">@@
 *** 3.7.1 The notion of the citation graph
 :PROPERTIES:
-:CUSTOM_ID: graph-notion
+:CUSTOM_ID: user-content-graph-notion
 :END:
 The most powerful features of =LiteRef= are based on the observation that the papers and the citations (possibly labeled with citation functions) induce a directed graph with labeled arcs. The vertex set of this /citation graph/ is the set of all papers in the database. If the notes for the paper /A/ cite paper /B/ with citation functions $F_1, F2, \ldots, F_n$ then there is an arc from /A/ to be labeled by the set $\{F_1, F2, \ldots, F_n\}$. If the notes of /A/ cite /B/ without specifying citation functions, the arc from /A/ to /B/ is labeled with an empty set. It is convenient, though not totally accurate, to call such an arc /unlabeled/ and we do so hereafter. If the notes for the paper /A/ cite paper /B/ multiple times, then the arc from /A/ to /B/ is labeled by the union of the labels induced by each citation.
 
@@ -546,18 +548,18 @@ The most powerful features of =LiteRef= are based on the observation that the pa
 @@html:<a name="subgraph-notion">@@
 *** 3.7.2 The notion of the citation sub-graph
 :PROPERTIES:
-:CUSTOM_ID: subgraph-notion
+:CUSTOM_ID: user-content-subgraph-notion
 :END:
 The /citation sub-graph/ is a sub-graph of the citation graph, possibly appended with a vertex corresponding to an =Emacs= buffer and the (unlabeled) arcs corresponding to the citations in that buffer.
 
 At any given time, there is a single active citation sub-graph, called the /selected sub-graph/. When the =Emacs= session begins, the selected sub-graph consists of all the keys in the database. This sub-graph can be selected again at any time by invoking the =literef-subgraph-reset-selection= command.
 
-All the operations described [[#subgraph-operations][below]] work with the selected subgraph. In principle, this design allows working with multiple sub-graphs, one being selected at a time. However, this is not yet supported. 
+All the operations described [[#user-content-subgraph-operations][below]] work with the selected subgraph. In principle, this design allows working with multiple sub-graphs, one being selected at a time. However, this is not yet supported. 
 
 @@html:<a name="subgraph-build">@@
 *** 3.7.3 Building a citation sub-graph
 :PROPERTIES:
-:CUSTOM_ID: subgraph-build
+:CUSTOM_ID: user-content-subgraph-build
 :END:
 A citation sub-graph is built by performing a uniform-cost search, with the root being either the [[actions-on-a-paper][active paper]] or (if there is no current paper) all the papers cited in the active buffer. The user can specify a filter for the arcs to be followed by the search. These arcs are called the /generating arcs/ of the resulting sub-graph. The latter is formed by the the keys reached by the search. 
 
@@ -571,19 +573,19 @@ Here is an example of a filter: =(and (or (and develops-ideas (< depth 3)) compa
 
 Basing arc filters on =Emacs Lisp= expressions augmented by special variables allows for great flexibility in specifying the citation sub-graph. 
 
-Since a [[#subgraph-vis][later section]] introduces the visualization of the selected sub-graph, we delay the demonstration of selecting the sub-graph till that section. 
+Since a [[#user-content-subgraph-vis][later section]] introduces the visualization of the selected sub-graph, we delay the demonstration of selecting the sub-graph till that section. 
 
 @@html:<a name="subgraph-operations">@@
 ** 3.8 Operations on the citation sub-graph
 :PROPERTIES:
-:CUSTOM_ID: subgraph-operations
+:CUSTOM_ID: user-content-subgraph-operations
 :END:
 The operations on the citation sub-graph are simple and yet very potent. The below descriptions reflect the simplicity of these operations, while the demonstrations attempt to reveal some of their potential applications.
 
 @@html:<a name="subgraph-vis">@@
 *** 3.8.1 Visualization
 :PROPERTIES:
-:CUSTOM_ID: subgraph-vis
+:CUSTOM_ID: user-content-subgraph-vis
 :END:
 The command =literef-show-selected-subgraph= (bound by default to =C-c v=),  allows the researcher to view a whole research area as represented by the selected sub-graph at a glance. This command visualizes the selected sub-graph in an =org= buffer, so that the nodes of the selected sub-graph contain regular citation links that allow all the operations described above. In addition, the buffer can be scrolled by pressing an arrow while holding the Meta key. 
 
@@ -626,9 +628,9 @@ src="https://www.dropbox.com/s/4q6wntjip0dfe5p/visualization_png.png?raw=1">
 @@html:<a name="subgraph-search">@@
 *** 3.8.2 Search
 :PROPERTIES:
-:CUSTOM_ID: subgraph-search
+:CUSTOM_ID: user-content-subgraph-search
 :END:
-The command =literef-subgraph-helm= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#search][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[https://www.dropbox.com/s/qq6a4h4u0hau87w/subgraph_search.mp4?dl=0][demo]] shows this.
+The command =literef-subgraph-helm= (bound by default to =C-c )=) operates similarly to =org-ref-insert-link= explained above (see [[#user-content-search][Finding the keys to cite]]) with the exception that the set of candidate papers is limited to the current citation sub-graph. The following [[https://www.dropbox.com/s/qq6a4h4u0hau87w/subgraph_search.mp4?dl=0][demo]] shows this.
 # Suppose I’d like to make a list of papers on the topic of compressed pattern databases in the order of increasing publication date. I build the citation sub-graph as before, only this time let’s invoke the build action using the helm interface… Now I press =C-c )= to invoke the  =literef-subgraph-helm= command, select all the papers and cite them. I order the new citation in the order of increasing publication date by pressing =C-c <down>= to invoke the =literef-sort-citation-link= command. Lastly, I split the citation to obtain the list of papers as desired.
 
 #+BEGIN_HTML
@@ -644,9 +646,9 @@ src="https://www.dropbox.com/s/9s5j6ppk6kp1gh1/subgraph_search.png?raw=1">
 @@html:<a name="subgraph-export">@@ 
 *** 3.8.3 Export
 :PROPERTIES:
-:CUSTOM_ID: subgraph-export
+:CUSTOM_ID: user-content-subgraph-export
 :END:
-We already described [[#basic-export][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-subgraph-export-dispatch= performs export of the citation sub-graph. The document for export is constructed in a temporary buffer using the following algorithm:
+We already described [[#user-content-basic-export][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The command =literef-subgraph-export-dispatch= performs export of the citation sub-graph. The document for export is constructed in a temporary buffer using the following algorithm:
 - The document is initialized based on the sub-graph’s source. In particular:
   + If the sub-graph’s source is a buffer, the document is initialized to the contents of that buffer. However, if the source buffer does not exist or is visiting a different file, then the contents of the file visited by the source buffer at the time of building the sub-graph is used instead. In any case, that file is used to compute the name of the exported document.  
   + If the sub-graph’s source is a paper, the document is initialized to be empty. The user is requested to provide the name of the exported document. The default name is =survey= with appropriate extension in the folder of the source paper.
@@ -654,7 +656,7 @@ We already described [[#basic-export][above]] how =LiteRef= extends the function
 - Optionally, a section containing all the notes as subsections can be created. This may be desirable when the sub-graph’s source is a buffer containing several headlines. 
 - The =#+INCLUDE= directives are expanded.
 - A reference to the appropriate notes section is supplied for each paper citation. These references will conveniently become hyperlinks in the exported document.
-- Links to PDF annotations and citation functions are handled just like during the [[#basic-export][basic export]].
+- Links to PDF annotations and citation functions are handled just like during the [[#user-content-basic-export][basic export]].
 - The bibliography is created. The underlying bibliography file contains only the papers cited in the document.
 The following [[https://www.dropbox.com/s/cvivo5eft1ps7h9/subgraph_export.mp4?dl=0][demo]] demonstrates the export in action.
 # In this demo, we set out to create a survey on the subject of compressed pattern databases. This survey should begin with a short summary and proceed by presenting our notes about all the papers on the subject. We would like this document to be both organized into sections and extensively cross-referenced… Here is the summary I wrote. I deliberately kept this summary very short, so it does not even cite all the papers on the subject. Let us build a citation sub-graph of the subject based on the papers cited in this summary… I invoke the =literef-subgraph-export-dispatch= command and export the selected sub-graph into a PDF. Since our buffer does not have headlines, we do not need to create a notes section. Let us view the resulting document. It contains our summary and a section dedicated to each paper on the subject.… Each citation is supplied with a reference to the section discussing the cited paper. As during the basic export, the citation functions reference specific pages in the papers. The bibliography concludes the document…
@@ -679,7 +681,7 @@ src="https://www.dropbox.com/s/5n3wf5umzaorbb6/subgraph_export.png?raw=1">
 @@html:<a name="subgraph-vis-export">@@
 *** 3.8.4 Visualization in export
 :PROPERTIES:
-:CUSTOM_ID: subgraph-vis-export
+:CUSTOM_ID: user-content-subgraph-vis-export
 :END:
 The researcher can put visualizations of various parts of the citation graph into the exported document. This is done by inserting a [[https://orgmode.org/guide/Working-With-Source-Code.html][code block]] that calls the =literef-subgraph-image-file-link= function, which builds a sub-graph, saves its graphical visualization into a temporary file and returns a link to that file along with the necessary attributes for export. Although this function takes quite a few arguments, LiteRef makes things easy by providing the =literef-insert-subgraph-image-file-link= command, which is basically a wizard for constructing a call to =literef-subgraph-image-file-link=. Once the researcher provides the information requested by this command, the corresponding code block is inserted automatically.
 
@@ -703,20 +705,59 @@ src="https://www.dropbox.com/s/g8mm4r0prsdvxy2/export_visualization.png?raw=1">
 @@html:<a name="install">@@
 * 4 Installation and configuration
 :PROPERTIES:
-:CUSTOM_ID: install
+:CUSTOM_ID: user-content-install
 :END:
 
 @@html:<a name="license">@@
+The server uses the following software packages. The Ubuntu commands for installing the packages are provided in parentheses.
+- pyinotify (installed by default in Ubuntu 18.04 LTS. In 16.04 LTS, install by running =sudo pip install pyinotify=).
+- PybTex (=sudo pip install pybtex=)
+- Pyperclip (=sudo pip install pyperclip=)
+- Selenium (=sudo pip install selenium=)
+- Tkinter (=sudo apt install python-tk=)
+- pdfgrep (=sudo apt install pdfgrep=)
+- Graph::Easy (=sudo apt install libgraph-easy-perl=)
+- npm (=sudo apt install npm=)
+- PhantomJS (=npm install phantomjs-prebuilt=)
+  The path to phantomjs executable will be displayed (look for the line beginning with the word =Done=). Either copy this executable to /usr/bin/ (or /usr/local/bin/) or update the =PATH= environment variable to include the displayed path.
+
+=LiteRef= relies on the following =Emacs= packages:
+- org
+- org-ref
+- pdf-tools (you will need to run the =pdf-tools-install= interactive command in =Emacs= after installing the package from the package manager).
+- smooth-scrolling
+- company
+
+The following lines need to appear in the =Emacs= configuration file:
+#+BEGIN_SRC emacs-lisp
+(setq org-ref-completion-library 'org-ref-helm-cite)
+(require 'org-ref)
+
+(setq org-latex-pdf-process
+      '("pdflatex -interaction nonstopmode -output-directory %o %f"
+	"bibtex %b"
+	"pdflatex -interaction nonstopmode -output-directory %o %f"
+	"pdflatex -interaction nonstopmode -output-directory %o %f"))
+
+(add-to-list 'load-path "<path to LiteRef>/el/")
+(load-file "<path to LiteRef>/el/literef.el")
+#+END_SRC
+The absolute path to the root folder of =LiteRef= needs to appear in the specified place in the last two lines.
 * 5 Version and license information
 :PROPERTIES:
-:CUSTOM_ID: license
+:CUSTOM_ID: user-content-license
 :END:
 
 @@html:<a name="license">@@
+- *Version:* 0.1
+- *Author:* Meir Goldenberg ([[mailto:mgoldenbe@gmail.com][mgoldenbe@gmail.com]])
+- *Copyright:* GNU General Public License
+- *Warning:* The packages used by =LiteRef= come with their respective licenses.
+
 * 6 Bug reports and future work @@html:<a name="future">@@
 :PROPERTIES:
-:CUSTOM_ID: future
+:CUSTOM_ID: user-content-future
 :END:
 
-
-
+@@html:<a name="future">@@
+Please send bug reports and feature requests to the author. The current list of requested features and bug reports can be found in the files =future.org= and =bugs.org= in the root folder of =LiteRef=.
