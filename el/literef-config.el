@@ -1,6 +1,3 @@
-(defcustom literef-directory "/home/meir/LiteRef/"
-  "The root directory of the bibliography.")
-
 (setq literef-papers-directory (concat literef-directory "papers/"))
 (setq literef-drop-directory (concat literef-directory "drop/"))
 

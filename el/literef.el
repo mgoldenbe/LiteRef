@@ -1,3 +1,8 @@
+(require 'org)
+
+(setq org-ref-completion-library 'org-ref-helm-cite)
+(require 'org-ref)
+
 (require 'bibtex-completion)
 (require 'org-inlinetask)
 
@@ -28,6 +33,16 @@
 (defun bibtex-completion-fallback-candidates ()
   "Overrides bibtex-completion-fallback-candidates to not offer adding an entry to each bib file."
   bibtex-completion-fallback-options)
+
+;; Turn off code evaluation security.
+(setq org-confirm-babel-evaluate nil)
+
+;; Set up pdflatex compilation.
+(setq org-latex-pdf-process
+      '("pdflatex -interaction nonstopmode -output-directory %o %f"
+	"bibtex %b"
+	"pdflatex -interaction nonstopmode -output-directory %o %f"
+	"pdflatex -interaction nonstopmode -output-directory %o %f"))
 
 ;;;; BEGIN: Clicking citation link ------------------------------
 
