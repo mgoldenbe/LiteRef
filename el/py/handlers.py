@@ -10,7 +10,7 @@ import pdb
 from pybtex.database import parse_file, BibliographyData, Entry, OrderedCaseInsensitiveDict
 from pybtex import errors as pybtexErrors
 import tkMessageBox
-import pyperclip
+#import pyperclip
 from get_pdf import getResourceAutomated, getResourceManual, pdfExists
 
 from online_sources import *
@@ -198,7 +198,8 @@ def handleNewBib(fileName):
             os.system("touch " + orgFileName) # create the org file
             os.system("rm -f " + fileName)     # remove the bib file in drop/
             clipboard += newKey + ','
-            pyperclip.copy(clipboard[:-1])
+            #pyperclip.copy(clipboard[:-1])
+            os.system("echo -n {s} | xsel -bi".format(s=clipboard[:-1]))
         except:
             tkMessageBox.showerror(
             'LiteRef Error',

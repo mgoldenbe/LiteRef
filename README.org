@@ -134,7 +134,7 @@ There are several ways to import a new BibTeX entry into the database of =LiteRe
 :PROPERTIES:
 :CUSTOM_ID: user-content-import-bib-drop
 :END:
-The most direct way do import BibTeX entries into the database of =LiteRef= is to either download or copy the corresponding /.bib/ file into the =drop/= folder. In case the BibTeX entry needs to be written from scratch, the /.bib/ file can be either created directly in the =drop/= folder or in another location and then copied over.
+The most direct way to import BibTeX entries into the database of =LiteRef= is to either download or copy the corresponding /.bib/ file into the =drop/= folder. Should you like to write the BibTeX entry from scratch, the /.bib/ file can be either created directly in the =drop/= folder or in another location and then copied over.
 The following actions are performed automatically as soon as a new /.bib/ file appears in the =drop/= folder:
 - The BibTeX entries are extracted.
 - The key for each BibTeX entry is generated.
@@ -148,7 +148,7 @@ The following actions are performed automatically as soon as a new /.bib/ file a
 
 # We get a message about the second entry being a duplicate. Let’s choose to include this entry anyways. However, we do not wish to apply this choice to the remaining entries of the file. Now we get a message about the third entry being a duplicate. Let’s discard that entry. Note that we did not get any message about the first entry. That entry will be silently added to the database. Now, let’s switch to an Emacs session with an org-buffer open. I invoke the yank command and the newly added papers are cited! Note the automatically generated keys and, in particular, the suffix added to the key of the second paper.
 
-# Running a little bit ahead, let’s run a paper search and sort the candidates in the decreasing order of the creation time stamp. The top two candidates are the two papers that we have just added. Note that their creation time stamp is same, so that we can order them on an additional criteria. So, let’s order them by the type of venue. 
+# Running a little bit ahead, let’s run a paper search and sort the candidates in the decreasing order of the creation time stamp. The top two candidates are the two papers that we have just added. Note that their creation time stamp is same, so that we can order them on an additional criteria. So, let’s order them by the type of venue.
 
 #+BEGIN_HTML
 <p align="middle">
@@ -711,12 +711,13 @@ src="https://www.dropbox.com/s/g8mm4r0prsdvxy2/export_visualization.png?raw=1">
 
 @@html:<a name="license">@@
 The server uses the following software packages. The Ubuntu commands for installing the packages are provided in parentheses.
-- pyinotify (installed by default in Ubuntu 18.04 LTS. In 16.04 LTS, install by running =sudo pip install pyinotify=).
+- pyinotify (=sudo pip install pyinotify=).
 - PybTex (=sudo pip install pybtex=)
-- Pyperclip (=sudo pip install pyperclip=)
+# - Pyperclip (=sudo pip install pyperclip=)
 - requests (=sudo pip install requests=)
 - Selenium (=sudo pip install selenium=)
 - Tkinter (=sudo apt install python-tk=)
+# - xsel (=sudo apt install xsel=)
 - pdfgrep (=sudo apt install pdfgrep=)
 - Graph::Easy (=sudo apt install libgraph-easy-perl=)
 - npm (=sudo apt install npm=)
