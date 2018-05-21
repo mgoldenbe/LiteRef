@@ -196,7 +196,6 @@ def handleNewBib(fileName):
             os.system("mkdir -p " + paperDir) # create the paper directory
             saveEntry(newKey, entry, bibFileName)
             os.system("touch " + orgFileName) # create the org file
-            os.system("rm -f " + fileName)     # remove the bib file in drop/
             clipboard += newKey + ','
             #pyperclip.copy(clipboard[:-1])
             os.system("echo -n {s} | xsel -bi".format(s=clipboard[:-1]))
@@ -205,6 +204,7 @@ def handleNewBib(fileName):
             'LiteRef Error',
             'Could not create the files for the key: ' + newKey +
             '\nAbandoning the key.')
+    os.system("mv {fileName} {archive}".format(fileName=fileName, archive=config.DROP_DIR + ".last.bib"))
             
     #getPdf(entry)
 
