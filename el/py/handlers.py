@@ -204,6 +204,7 @@ def handleNewBib(fileName):
             'LiteRef Error',
             'Could not create the files for the key: ' + newKey +
             '\nAbandoning the key.')
+            config.root.update()
     os.system("mv {fileName} {archive}".format(fileName=fileName, archive=config.DROP_DIR + ".last.bib"))
             
     #getPdf(entry)
@@ -233,6 +234,7 @@ def handleNewHTML(fileName):
     os.system(command)
     tkMessageBox.showinfo('LiteRef Info',
                           'All entries have been fetched.')
+    config.root.update()
 
 ## Read request created from Emacs session.
 def readRequest(fileName):
@@ -266,6 +268,7 @@ def handleRequest(fileName):
             entry = requestKey(request)
     except:
         tkMessageBox.showerror('LiteRef Error', "Bad request.")
+        config.root.update()
         os.system("rm -f " + fileName)
         return
     os.system("rm -f " + fileName)
@@ -311,6 +314,7 @@ def handleNewFile(fileName):
         handler = None
         tkMessageBox.showerror('LiteRef Error',
                                "Unknown file extension: " + ext)
+        config.root.update()
 
     if handler != None:
         sleep(0.1) # Make sure that the file is fully written

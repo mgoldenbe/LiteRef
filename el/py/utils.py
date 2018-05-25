@@ -70,10 +70,12 @@ class ProgressBox:
     
     def __exit__(self, type, value, traceback):
         self.box.destroy()
+        config.root.update()
     
 def wideYesNo(title, text):
     config.root.option_add("*Dialog.msg.wrapLength", "10i")
     res = tkMessageBox.askyesno(title, text)
+    config.root.update()
     config.root.option_add("*Dialog.msg.wrapLength", "3i")
     return res
 

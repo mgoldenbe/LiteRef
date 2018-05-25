@@ -9,6 +9,7 @@ from utils import ProgressBox, dirFiles, wideYesNo
 import Tkinter as tk
 
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import re
 import requests
 
@@ -16,8 +17,12 @@ from online_sources import *
 
 # driver = webdriver.Firefox()
 
-driver = webdriver.PhantomJS(service_args=['--ignore-ssl-errors=true',
-                                            '--ssl-protocol=any'])
+chrome_options = Options()  
+chrome_options.add_argument("--headless")  
+driver = webdriver.Chrome(chrome_options=chrome_options)
+
+# driver = webdriver.PhantomJS(service_args=['--ignore-ssl-errors=true',
+#                                             '--ssl-protocol=any'])
 driver.set_window_size(1124, 850) # Avoid the error of the element not being displayed
 
 def confirmPDF(fileName):
@@ -30,6 +35,7 @@ def confirmPDF(fileName):
     time.sleep(config.EVINCE_STARTUP_DELAY)
     answer = tkMessageBox.askyesno('LiteRef: confirm PDF',
                                    'Is this the required PDF?')
+    config.root.update()
     proc.terminate()
     return answer
 
@@ -124,10 +130,11 @@ def candidatePDFFeedback(link, paperDir):
     """
     Download the candidate PDF and ask the user whether it is the one.
     """
+    # pdb.set_trace()
     with ProgressBox('Downloading the PDF...'):
         os.system("cd {dir}; " \
-                  "wget --no-check-certificate " \
-                  "-O paper.temp.pdf {link}".
+                  "wget -q --no-check-certificate " \
+                  "-O paper.temp.pdf '{link}'".
                   format(dir = paperDir, link = link))
         return confirmPDF(paperDir + "/paper.temp.pdf")
 
@@ -204,6 +211,7 @@ def getResourceAutomated(entry, searchType, paperDir):
                 source.name + "\n" + \
                 "It is possible that there are no resources "
                 "matching the query.")
+            config.root.update()
     return False
 
 def getResourceManual(entry, searchType):
