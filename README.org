@@ -283,7 +283,7 @@ src="https://www.dropbox.com/s/augo3zrm80ifmfv/toronto.png?raw=1">
 :PROPERTIES:
 :CUSTOM_ID: user-content-copy-paste
 :END:
-When a citation is added or a BibTeX entry’s key is yanked from the kill ring (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. If automated ordering of citation is enabled (i.e. =literef-sort-citation-links= is set to =t=), then the keys will be sorted on the criteria specified in =literef-citation-link-sorting-criteria= (see the section on [[#user-content-install][configuration]]). Keys of a citation link can also be re-ordered at any time by invoking the =literef-sort-citation-link= command (bound by default to =C-c <down>=). This command offers multi-criteria sorting capability similar to the one for sorting candidates during the [[#user-content-search][search for papers]]. The command  =literef-sort-citation-links= (not bound to a key by default) can be used to re-order all the citation links in the current buffer.@@html:</p>@@
+When a (multi-)paper citation is inserted as shown [[#user-content-search][above]] or a BibTeX entry’s key is yanked from the /kill ring/ (which is the =Emacs= way of storing multiple pieces of text for future use) on top of an already existing citation, =LiteRef= makes sure that a well-formed multi-paper citation results. If automated ordering of citation is enabled (i.e. =literef-sort-citation-links= is set to =t=), then the keys will be sorted on the criteria specified by =literef-citation-link-sorting-criteria=. The order of keys appearing in a multi-paper citation can be changed at any time by invoking the =literef-sort-citation-link= command (bound by default to =C-c <down>=). This command offers the multi-criteria sorting capability familiar to the reader from the above section on [[#user-content-search][searching the papers database]]. The command  =literef-sort-citation-links= (not bound to a key by default) can be used to re-order all the citation links in the current buffer.@@html:</p>@@
 
 # **** Scenario
 # Suppose we would like to add a paper to this three-paper citation. The cursor just happens to be in the middle of this long citation. We can simply cite more papers and leave it to =LiteRef= to take care of the formatting and ordering issues. So,… let’s cite these two papers. We see that a well-formed multi-paper citation resulted and the keys have been ordered according to the configuration, which is the alphabetic order of keys in my case…
@@ -299,7 +299,7 @@ src="https://www.dropbox.com/s/j6v15naeqmc2q06/intelligent_pasting.png?raw=1">
 </p>
 #+END_HTML
 
-In addition, =LiteRef= offers the =literef-copy-current-key= command (bound by default to =C-c w=), which puts the currently active citation key into the kill ring. When used in conjunction with =helm-show-kill-ring= and [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bookmarks.html][bookmarks]] (which are of those many tools Emacs has to make your life easier once you discover them), one can easily collect citations scattered all over his notes. The following [[https://www.dropbox.com/s/b6n2ffwf3eatvo8/collect.mp4?dl=0][demo]] shows this.
+In addition, =LiteRef= offers the =literef-copy-current-key= command (bound by default to =C-c w=), which puts the currently active citation key into the kill ring. When used in conjunction with =helm-show-kill-ring= and [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bookmarks.html][bookmarks]] (which are one of those many tools Emacs has to make your life easier once you discover them), one can easily collect citations scattered all over his notes. The following [[https://www.dropbox.com/s/b6n2ffwf3eatvo8/collect.mp4?dl=0][demo]] shows this.
 
 # Suppose we are working on our notes and would like to cite some of the papers already cited above… We are going to do this by putting the citations of interest into the kill ring. First, I save my place in a bookmark by pressing =C-x r m=. Now, I go over the notes and press =C-c w= to invoke the =literef-copy-current-key= command for each citation that I care to copy. Now I go back to the bookmarked place by pressing =C-x r b=.… I invoke the =helm-show-kill-ring= command, which allows one to search in the kill-ring. =LiteRef= modifies the default action of =helm-show-kill-ring=, so that we can yank all of the selected candidates. We rely on =LiteRef= for yanking the BibTeX keys in an intelligent manner. Thus, we obtain a well-formed multi-paper citation that we were looking for.
 
@@ -331,7 +331,7 @@ src="https://www.dropbox.com/s/wzu61s974xhls70/collect.png?raw=1">
 </p>
 #+END_HTML
 
-Currently, if one yanks a LiteRef key and that key gets relocated  by automated ordering, the following =yank-pop= command will not function properly. However, given the superior convenience offered by =helm-show-kill-ring=, this limitation should not discourage one from using automated ordering of citation keys.
+Note that automated ordering of keys in multi-paper citations may affect the proper operation of the =yank-pop= command. However, given the superior convenience offered by =helm-show-kill-ring=, this limitation should not discourage one from using automated ordering of citation keys.
 
 @@html:<a name="split">@@
 *** 3.2.3 Splitting a multi-paper citation
@@ -734,7 +734,7 @@ The following lines need to appear in the =Emacs= configuration file:
 #+END_SRC
 Please make sure to edit the path in the definition of =literef-directory=.
 
-The configuration variables of the server and of the command layer are defined and documented in [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/config.py][config.py]] and [[https://github.com/mgoldenbe/LiteRef/blob/master/el/literef-config.el][config.el]], respectively.
+The configuration variables of the server and of the command layer are defined and documented in [[https://github.com/mgoldenbe/LiteRef/blob/master/el/py/config.py][config.py]] and [[https://github.com/mgoldenbe/LiteRef/blob/master/el/literef-config.el][literef-config.el]], respectively.
 * 5 Version and license information
 :PROPERTIES:
 :CUSTOM_ID: user-content-license

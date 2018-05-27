@@ -272,8 +272,15 @@ Splits the first citation of multiple sources found on the current line, so that
 The function relies on the `pdfgrep` shell command. The string pattern must be a valid pattern for that command."
   (interactive "sSearch pattern: ")
   (let* ((command (concat "pdfgrep -Hno -m 1" " " string " " literef-papers-directory "*/paper.pdf | grep '1:'"))
-	 (raw-output (substring (shell-command-to-string command) 0 -1))
+	 (temp (shell-command-to-string command))
+	 (raw-output
+	  (if (> (length temp) 0)
+	      (substring temp 0 -1)
+	    ""))
 	 (output (split-string raw-output "\n")))
+    (when (eq (length (car output)) 0)
+      (setq output nil)
+      (message "No matches found."))
     (dolist (line output nil)
       (let* ((prefix-length (length literef-papers-directory))
 	     (line-no-prefix (substring line prefix-length))
