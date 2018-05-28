@@ -193,8 +193,8 @@ Splits the first citation of multiple sources found on the current line, so that
 	  (insert prefix (concat title-author) link-type ":" key postfix))
 	  (when inline-tasks-flag
 	    (org-inlinetask-insert-task)
-	    (search-forward "END")))))
-    (goto-char save-point))
+	    (search-forward "END"))))
+    (goto-char save-point)))
 
 (defun test()
   (interactive)

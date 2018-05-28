@@ -1,3 +1,5 @@
+(pdf-tools-install)
+
 (defun literef-follow-pdf-annotation-link(path)
   (let* ((parts (split-string path ":"))
 	 (key (elt parts 0))
