@@ -274,7 +274,7 @@
 (defun literef-kill-ring-action-yank(orig_fun _string)
   "The LiteRef version of helm-kill-ring-action-yank."
   (dolist (c (helm-marked-candidates) nil)
-    (funcall orig_fun c)))
+    (insert-for-yank c)))
 
 (advice-add 'helm-kill-ring-action-yank
 	    :around 'literef-kill-ring-action-yank)

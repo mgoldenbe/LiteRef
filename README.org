@@ -299,7 +299,7 @@ src="https://www.dropbox.com/s/j6v15naeqmc2q06/intelligent_pasting.png?raw=1">
 </p>
 #+END_HTML
 
-In addition, =LiteRef= offers the =literef-copy-current-key= command (bound by default to =C-c w=), which puts the currently active citation key into the kill ring. When used in conjunction with =helm-show-kill-ring= and [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bookmarks.html][bookmarks]] (which are one of those many tools Emacs has to make your life easier once you discover them), one can easily collect citations scattered all over his notes. The following [[https://www.dropbox.com/s/b6n2ffwf3eatvo8/collect.mp4?dl=0][demo]] shows this.
+In addition, =LiteRef= offers the =literef-copy-current-key= command (bound by default to =C-c w=), which puts the currently active citation key into the kill ring. When used in conjunction with =helm-show-kill-ring= and [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bookmarks.html][bookmarks]] (which are one of those many tools Emacs has to make your life easier once you discover them), one can easily collect citations scattered all over his notes. 
 
 # Suppose we are working on our notes and would like to cite some of the papers already cited above… We are going to do this by putting the citations of interest into the kill ring. First, I save my place in a bookmark by pressing =C-x r m=. Now, I go over the notes and press =C-c w= to invoke the =literef-copy-current-key= command for each citation that I care to copy. Now I go back to the bookmarked place by pressing =C-x r b=.… I invoke the =helm-show-kill-ring= command, which allows one to search in the kill-ring. =LiteRef= modifies the default action of =helm-show-kill-ring=, so that we can yank all of the selected candidates. We rely on =LiteRef= for yanking the BibTeX keys in an intelligent manner. Thus, we obtain a well-formed multi-paper citation that we were looking for.
 
@@ -331,18 +331,18 @@ src="https://www.dropbox.com/s/wzu61s974xhls70/collect.png?raw=1">
 </p>
 #+END_HTML
 
-Note that automated ordering of keys in multi-paper citations may affect the proper operation of the =yank-pop= command. However, given the superior convenience offered by =helm-show-kill-ring=, this limitation should not discourage one from using automated ordering of citation keys.
+Note that automated ordering of keys in multi-paper citations may affect the operation of the =yank-pop= command. However, given the superior convenience offered by =helm-show-kill-ring=, this limitation should not discourage one from using automated ordering of citation keys.
 
 @@html:<a name="split">@@
 *** 3.2.3 Splitting a multi-paper citation
 :PROPERTIES:
 :CUSTOM_ID: user-content-split
 :END:
-Sometimes we would like to have citations of multiple papers appear either as headlines or in a list in the same notes file. This would allow us to add notes relating to each individual citation. We can do this by splitting a multi-paper citation using either =literef-split-cite= (bound to =C-c d= by default) or =literef-split-cite-title-author= (bound to =C-c s= by default). Th latter command adds authors and title to each paper. Both commands replicate the context of the original multi-paper citation (i.e. the preceding and following text) with each resulting single-paper citation.@@html:</p>@@ 
+Many a time it helps to organize a notes file such that each paper under study is given a headline or a list item. In =LiteRef=, this is easy to achieve by splitting a multi-paper citation using either =literef-split-cite= (bound to =C-c d= by default) or =literef-split-cite-title-author= (bound to =C-c s= by default). The latter adds authors and title to each paper. Both commands replicate the context of the original multi-paper citation (i.e. the preceding and the following text) with each resulting single-paper citation.@@html:</p>@@ 
 
-In addition, when the original multi-paper citation appears as a list item, =LiteRef= will offer to create an =org-mode= [[http://orgmode.org/w/?p=org-mode.git;a=blob_plain;f=lisp/org-inlinetask.el;hb=HEAD][inline task]] for each paper.
+In addition, when the original multi-paper citation appears as a list item, =LiteRef= will offer to create an =org-mode= [[https://stackoverflow.com/q/11718401/2725810][inline task]] for each paper.
 
-This feature is particularly powerful when the researcher would like to study the papers appearing in a particular journal volume or conference proceeding. The feature in action is shown in the following [[https://www.dropbox.com/s/misp2pwkeeoypyu/split.mp4?dl=0][demo]].  
+# This feature is particularly powerful when the researcher would like to study the papers appearing in a particular journal volume or conference proceeding. The feature in action is shown in the following [[https://www.dropbox.com/s/misp2pwkeeoypyu/split.mp4?dl=0][demo]].  
  
 # **** Scenario
 # In this video, we show the various ways of splitting a multi-paper citation in preparation for further study of each of the cited papers. So, let us add some context before and after the citation… Now we press =C-c d= to invoke the =literef-split-cite= command. We see that each paper is now cited separately and the context is attached to each citation.
@@ -681,7 +681,7 @@ src="https://www.dropbox.com/s/5n3wf5umzaorbb6/subgraph_export.png?raw=1">
 :PROPERTIES:
 :CUSTOM_ID: user-content-subgraph-vis-export
 :END:
-The researcher can put visualizations of various parts of the citation graph into the exported document. This is done by inserting a [[https://orgmode.org/guide/Working-With-Source-Code.html][code block]] that calls the =literef-subgraph-image-file-link= function, which builds a sub-graph, saves its graphical visualization into a temporary file and returns a link to that file along with the necessary attributes for export. Although this function takes quite a few arguments, LiteRef makes things easy by providing the =literef-insert-subgraph-image-file-link= command, which is basically a wizard for constructing a call to =literef-subgraph-image-file-link=. Once the researcher provides the information requested by this command, the corresponding code block is inserted automatically.@@html:</p>@@  
+The researcher can put visualizations of various parts of the citation graph into the exported document. This is done by inserting a [[https://orgmode.org/guide/Working-With-Source-Code.html][code block]] that calls the =literef-subgraph-image-file-link= function, which builds a sub-graph, saves its graphical visualization into a temporary file and returns a link to that file along with the necessary attributes for export. Although this function takes quite a few arguments, =LiteRef= makes things easy by providing the =literef-insert-subgraph-image-file-link= command, which is basically a wizard for constructing a call to =literef-subgraph-image-file-link=. Once the researcher provides the information requested by this command, the corresponding code block is inserted automatically.@@html:</p>@@  
 
 The following [[https://www.dropbox.com/s/4o3gek4f4afeuw4/export_visualization.mp4?dl=0][demo]] shows the use of this feature. In addition, it shows how the exported document looks in HTML as well.
 
