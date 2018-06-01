@@ -639,8 +639,8 @@ src="https://www.dropbox.com/s/9s5j6ppk6kp1gh1/subgraph_search.png?raw=1">
 :PROPERTIES:
 :CUSTOM_ID: user-content-subgraph-export
 :END:
-We already described [[#user-content-basic-export][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command of =org-mode=, which is a command for exporting notes in a variety of formats. The =literef-subgraph-export-dispatch= command performs export of the citation subgraph. The document for export is constructed in a temporary buffer using the following algorithm:
-- The document is initialized based on the subgraph’s source. In particular:
+We already described [[#user-content-basic-export][above]] how =LiteRef= extends the functionality of the =org-export-dispatch= command. The =literef-subgraph-export-dispatch= command performs export of the citation subgraph. The document for export is constructed in a temporary buffer using the following algorithm:
+- The document is initialized based on the subgraph’s source (i.e. the root of the [[#user-content-subgraph-build][search for building the citation subgraph]]). In particular:
   + If the subgraph’s source is a buffer, the document is initialized to the contents of that buffer. However, if the source buffer does not exist or is visiting a different file, then the contents of the file visited by the source buffer at the time of building the subgraph is used instead. In any case, that file is used to compute the name of the exported document.  
   + If the subgraph’s source is a paper, the document is initialized to be empty. The user is requested to provide the name of the exported document. The default name is =survey= with appropriate extension in the folder of the source paper.
 - The document is appended with notes for the papers in the citation subgraph. Notes of each paper appear in a section of their own. The title of that section consists of the paper’s title and authors, followed by the citation link to the paper. Empty sections, i.e. sections dedicated to papers with empty notes, do not appear.

@@ -309,7 +309,8 @@
 ;;;; Citing from the selected subgraph
 (defun literef-subgraph-helm()
   (interactive)
-  (let ((literef-subgraph-helm t))
+  (let* ((current-subgraph literef-subgraph)
+	 (literef-subgraph-helm t))
     (org-ref-helm-cite)))
 
 (provide 'literef-helm)
