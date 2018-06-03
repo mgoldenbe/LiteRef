@@ -85,7 +85,7 @@ The source consists of:
 	:generating-arcs (make-hash-table :test 'equal)
 	:source (list
 		 :source-type :all-keys
-		 :source-name nil
+		 :source-name "survey"
 		 :buffer-node-name nil
 		 :file-name nil
 		 :filter-string "t")))

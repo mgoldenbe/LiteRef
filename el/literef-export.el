@@ -102,12 +102,14 @@ Currently it returns t if the notes file is of non-zero size."
 	     (cond
 	      ((eq source-type :buffer)
 	       (literef-subgraph-source-property :file-name))
-	      ((eq source-type :current-key)
+	      ((member source-type '(:current-key :all-keys))
 	       (read-file-name
 		"Choose the document name (no extension): "
-		(file-name-directory
-		  (literef-notes-filename
-		   (literef-subgraph-source-property :source-name)))
+		(if (eq source-type :current-key) 
+		    (file-name-directory
+		     (literef-notes-filename
+		      (literef-subgraph-source-property :source-name)))
+		  literef-survey-directory)
 		nil nil
 		"survey")))))))
     (unless res (setq res orig-file-name))
@@ -115,7 +117,8 @@ Currently it returns t if the notes file is of non-zero size."
 
 (defun literef-source-buffer-string()
   "Returns the contents of the source buffer:
--- If not exporting the selected sub-graph, return contents of the current buffer. 
+-- If not exporting the selected sub-graph, return contents of the current buffer.
+-- If the source is a paper or the whole citation graph, then return empty string. 
 -- If the source buffer of the selected sub-graph exists and is visiting the source file, then the buffer's contents is returned. 
 -- Otherwise, return the source file's contents if that file exists. 
 -- Report an error."
@@ -135,7 +138,7 @@ Currently it returns t if the notes file is of non-zero size."
 	     (file-name
 	      (when (eq source-type :buffer)
 		(literef-subgraph-source-property :file-name))))
-	(when key
+	(when (or key (eq source-type :all-keys))
 	  (setq res ""))
 	(when buffer
 	  (with-current-buffer buffer

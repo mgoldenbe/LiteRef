@@ -1,5 +1,6 @@
 (setq literef-papers-directory (concat literef-directory "papers/"))
 (setq literef-drop-directory (concat literef-directory "drop/"))
+(setq literef-survey-directory (concat literef-directory "survey/"))
 
 (defcustom literef-equal-timestamps 5
   "The number of seconds, within which entries for two papers as candidates in helm are considered to have been created at the same time.")
