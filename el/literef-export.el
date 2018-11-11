@@ -1,16 +1,37 @@
-(defun literef-key-notes-p(key)
-  "Predicate showing whether the notes for KEY are to be inserted.
+;;; literef-export.el --- functions for handling exporting a survey.
 
-Currently it returns t if the notes file is of non-zero size."
+;; Copyright(C) 2017-2018 Meir Goldenberg
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;; This module contains functions for creating the survey, including
+;; the the wizard for inserting subgraph visualizations.
+
+;;; Code:
+(defun literef-key-notes-p(key)
+  "Return t if the notes for KEY are valid notes that can be inserted into a survey and nil otherwise. Currently the notes are considered valid if they are not empty."
   (let ((notes-file (literef-notes-filename key))
 	(index-of-size-attribute 7))
     (> (elt (file-attributes notes-file) index-of-size-attribute) 0)))
 
 (defvar literef-no-section-reference " <noref>"
-  "A sign that the preceding citation should not be followed by a section reference. This is currently used to avoid inserting self-references in the section headings.")
+  "The value of this variable is inserted by the exporter before citations that should not be supplied by reference during the later phase of export. This trick is used to avoid inserting self-references in the section headings of the survey.")
 
 (defun literef-reference-text(keys)
-  "Compute text for the reference for the given KEYS."
+  "Compute text for the reference for the given KEYS, e.g. \"[1,4,10]\"."
 
   (let* ((keys ;; only the keys whos notes are exported.
 	  (let (res)
@@ -36,16 +57,16 @@ Currently it returns t if the notes file is of non-zero size."
     (when keys (setq res (concat res ")")))
     res))
 
-(defun literef-debug-print-buffer-citations()
-  "Displays a string summarizing the citations in the buffer for debugging."
-  (interactive)
-  (let (res)
-    (dolist (link (literef-citation-links) nil)
-      (setq res (concat res "(begin: " (number-to-string (literef-link-begin link)) ", end: " (number-to-string (literef-link-end link)) ")    ")))
-    (message res)))
+;; (defun literef-debug-print-buffer-citations()
+;;   "Displays a string summarizing the citations in the buffer for debugging."
+;;   (interactive)
+;;   (let (res)
+;;     (dolist (link (literef-citation-links) nil)
+;;       (setq res (concat res "(begin: " (number-to-string (literef-link-begin link)) ", end: " (number-to-string (literef-link-end link)) ")    ")))
+;;     (message res)))
 
 (defun literef-remove-citation-functions()
-  "Remove all citation function links and space before them"
+  "Remove all citation function links and the spaces preceding them in the current buffer."
   (dolist (link (reverse (literef-citation-function-links)) nil)
     (let* ((prev-non-space (literef-link-prev-non-space link))
 	   (begin
@@ -70,7 +91,7 @@ Currently it returns t if the notes file is of non-zero size."
 	    (insert reference))))))
 
 (defun literef-make-bib-file(bib-file-name)
-  "Make the bibliography file containing only the entries for the used keys."
+  "Make the bibliography file named BIB-FILE-NAME containing only the entries for the keys appearing in the survey."
   (let ((keys (literef-buffer-keys)))
     (when (file-exists-p bib-file-name) (delete-file bib-file-name))
     (when literef-sort-citation-links
@@ -87,7 +108,7 @@ Currently it returns t if the notes file is of non-zero size."
 	(insert "\n")))))
 
 (defun literef-keys-to-insert()
-  "Compute the list of keys whose notes are to be inserted in the export."
+  "Compute the list of keys whose notes are to be inserted into the survey."
   (let (res)
     (dolist (key (literef-hash-keys-to-list (literef-subgraph-keys)) nil)
       (when (and (literef-key-exists key) (literef-key-notes-p key))
@@ -95,7 +116,7 @@ Currently it returns t if the notes file is of non-zero size."
     (sort res 'string<)))
 
 (defun literef-export-file-name-without-ext(orig-file-name)
-  "Returns the file name for export without extension based on the original file name ORIG-FILE-NAME passed to `literef-export-to-file'."
+  "Returns the file name for export without extension. ORIG-FILE-NAME is like FILE in `org-export-to-file'. Thus, the file name may need to be computed from the selected subgraph's source or input by the user."
   (let ((res
 	 (when (boundp 'literef-subgraph-export)
 	   (let ((source-type (literef-subgraph-source-property :source-type)))
@@ -116,16 +137,21 @@ Currently it returns t if the notes file is of non-zero size."
     (file-name-sans-extension (expand-file-name res))))
 
 (defun literef-source-buffer-string()
-  "Returns the contents of the source buffer:
--- If not exporting the selected sub-graph, return contents of the current buffer.
--- If the source is a paper or the whole citation graph, then return empty string. 
--- If the source buffer of the selected sub-graph exists and is visiting the source file, then the buffer's contents is returned. 
--- Otherwise, return the source file's contents if that file exists. 
--- Report an error."
+  "Return the contents of the source buffer, as follows:
+
+1. During basic export, i.e. if not exporting the selected subgraph, return contents of the current buffer.
+
+2. Otherwise, if the source is a paper or the whole citation graph, then return empty string. 
+
+3. Otherwise, if the source buffer of the selected subgraph exists and is visiting the source file, then the source buffer's contents is returned. 
+
+4. Otherwise, return the source file's contents if that file exists. 
+
+5. Otherwise, abort the export and report an error."
   (let* ((res
 	  (unless (boundp 'literef-subgraph-export)
 	    (buffer-string))))
-    (unless res ;; exporting the selected sub-graph
+    (unless res ;; exporting the selected subgraph
       (let* ((source-type
 	      (literef-subgraph-source-property :source-type))
 	     (key
@@ -153,9 +179,9 @@ Currently it returns t if the notes file is of non-zero size."
     res))
 
 (defun literef-export-to-file(orig-fun backend file &rest args)
-  "The version of `org-export-to-file' that supports exporting the selected sub-graph. BACKEND and FILE are as in `org-export-to-file'.
+  "The version of `org-export-to-file' that supports exporting the selected subgraph. BACKEND and FILE are as in `org-export-to-file'.
 
-It performs some pre-processing and then calls ORIG-FUN, which is the original `org-export-to-file'. When exporting the selected sub-graph, the pre-processing includes computing the file name for export to be passed to `org-export-to-file'."
+It performs some pre-processing and then calls ORIG-FUN, which is the original `org-export-to-file'. When exporting the selected subgraph, the pre-processing includes computing the file name for export to be passed to `org-export-to-file'."
   (let* ((current-subgraph literef-subgraph)
 	 (file-no-ext (literef-export-file-name-without-ext file))
 	 (extension (file-name-extension file))
@@ -239,7 +265,7 @@ It performs some pre-processing and then calls ORIG-FUN, which is the original `
 (defun literef-subgraph-image-file-link
     (key-or-file literef-subgraph-show-buffer buffer-node-name filter
 		 caption name attr-latex attr-html)
-  "Create an image for the subgraph with the source specified by KEY-OR-FILE and the filter string FILTER, while respecting the given `literef-subgraph-show-buffer'. Return a link to the created image. The caption, name and export attributes are set using the corresponding arguments."
+  "Create an image for the subgraph with the source specified by KEY-OR-FILE and the arcs filter string FILTER, while respecting the value of LITEREF-SUBGRAPH-SHOW-BUFFER (see the variable `literef-subgraph-show-buffer') and BUFFER-NODE-NAME (see `literef-select-subgraph-for-export' and the variable `literef-subgraph-show-buffer'). Return a link to the created image. The caption, name and export attributes are set using the last three arguments."
   (let* ((literef-subgraph
 	  (literef-select-subgraph-for-export
 	   key-or-file filter buffer-node-name))
@@ -252,7 +278,7 @@ It performs some pre-processing and then calls ORIG-FUN, which is the original `
       (format "[[file:%s]]" image-file))))
 
 (defun literef-subgraph-image-file-name(file-name)
-  "If FILE-NAME is under the LiteRef directory, return the lisp expression that constructs the file name using `literef-directory'. Otherwise, return FILE-NAME as is in string quotes."
+  "Compute the file name for the image visualizing the subgraph. If FILE-NAME is under the LiteRef directory, return the ELisp expression that constructs the file name using the value of the variable `literef-directory', which must be defined in `Emacs' configuration (hence not linked in the HTML documentation). Otherwise, return FILE-NAME as is surrounded by quotes."
   (let* ((ignore-case)
 	 (literef (expand-file-name literef-directory))
 	 (file (expand-file-name file-name)))
@@ -266,7 +292,7 @@ It performs some pre-processing and then calls ORIG-FUN, which is the original `
       (concat "\"" file-name "\""))))
 
 (defun literef-insert-subgraph-image-file-link()
-  "The interactive interface for inserting the code block that calls `literef-subgraph-image-file-link'."
+  "The interactive wizard for inserting the code block that calls `literef-subgraph-image-file-link', with the purpose of having a subgraph visualization in the survey."
   (interactive)
   (let* ((key (literef-current-key))
 	 (source-quotes "\"")

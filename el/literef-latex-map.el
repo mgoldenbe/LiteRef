@@ -1,5 +1,28 @@
-;; This is a modified map from: https://raw.githubusercontent.com/clarkgrubb/latex-input/master/latex.el
-(setq latex-full-map
+;;; literef-latex-map.el --- handling accented characters.
+
+;; Copyright(C) 2017-2018 Meir Goldenberg
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;; This module contains mappings for handling accented characters and
+;; functions for correctly displaying BibTeX entries containing such
+;; characters.
+
+;;; Code:
+(defvar literef-latex-full-map
       '(("!" ?!)
 	("!'" ?¡)
 	("--" ?–)
@@ -1487,12 +1510,11 @@
 	;; It turns out that ?′ is not recognized by inputenc at all.
 	("''" ?″)
 	("'''" ?‴)
-	))
+	)
+      "This is a modified map from `https://raw.githubusercontent.com/clarkgrubb/latex-input/master/latex.el'."
+      )
 
-;; This is a shorter version of the above mapping.
-;; It can be shortened further if needed.
-;; See this: https://stackoverflow.com/a/4580132/2725810
-(setq latex-small-map
+(defvar literef-latex-small-map
       '(("--" ?–)
 	("---" ?—)
 	("\\`A" ?À)
@@ -1688,24 +1710,22 @@
 	("\\\"{u}" ?ü)
 	("\\\"{w}" ?ẅ)
 	("\\\"{x}" ?ẍ)
-	("\\\"{y}" ?ÿ)))
+	("\\\"{y}" ?ÿ))
+      "A shorter version of the mapping contained in the variable `literef-latex-full-map' used for performance considerations. It can be shortened further if needed. See `https://stackoverflow.com/a/4580132/2725810'."
+      )
 
-(setq latex-map latex-small-map)
-
-;; Source: https://stackoverflow.com/a/17325791/2725810 
-(defun replace-in-string (what with in)
-  (let (case-fold-search)
-    (replace-regexp-in-string (regexp-quote what) with in nil 'literal)))
+(defvar literef-latex-map literef-latex-small-map
+  "The mapping to be used, must be either `literef-latex-full-map' or `literef-latex-small-map'.")
 
 (defun literef-translate-latex(str)
-  "Apply latex-map to translate escaped characters in the given string"
+  "Apply the mapping given by the value of the variable `literef-latex-map' to translate escaped characters in the string STR."
   (when str
-    (dolist (pair latex-map str)
+    (dolist (pair literef-latex-map str)
       (setq str (replace-in-string (concat "{" (elt pair 0) "}") (char-to-string (elt pair 1)) str))
       (setq str (replace-in-string (elt pair 0) (char-to-string (elt pair 1)) str)))))
 
 (defun literef-bibtex-completion-get-value(orig-fun &rest args)
-  "The version of bibtex-completion-get-value that translates latex special characters."
+  "The version of `bibtex-completion-get-value' that maps accented characters. ARGS are simply forwarded to `bibtex-completion-get-value'."
   (let ((res (apply orig-fun args)))
     (if (stringp res) (literef-translate-latex res) res)))
 

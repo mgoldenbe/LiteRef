@@ -1,3 +1,29 @@
+# get_resource.py --- search for paper PDF or BibTeX.
+
+# Copyright(C) 2017-2018 Meir Goldenberg
+
+# This program is free software you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation either version 2, or (at your
+# option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see
+# <http://www.gnu.org/licenses/>.
+
+# Commentary:
+
+"""
+This module handles searching for PDF of a paper in the online sources given by the value of the variables :py:mod:`config.PDF_AUTOMATED_SOURCES` and :py:mod:`config.BIB_AUTOMATED_SOURCES`. 
+"""
+
+# Code:
+
 import config
 import webbrowser
 import os
@@ -18,7 +44,9 @@ from online_sources import *
 # driver = webdriver.Firefox()
 
 chrome_options = Options()  
-chrome_options.add_argument("--headless")  
+chrome_options.add_argument("--headless")
+
+#: The web driver for ``selenium``.
 driver = webdriver.Chrome(chrome_options=chrome_options)
 
 # driver = webdriver.PhantomJS(service_args=['--ignore-ssl-errors=true',
@@ -28,6 +56,10 @@ driver.set_window_size(1124, 850) # Avoid the error of the element not being dis
 def confirmPDF(fileName):
     """
     Open the given PDF and ask the user whether is the one he wanted.
+
+    :param fileName: The name of the PDF file.
+
+    :return: The yes/no answer of the user.
     """
     proc = subprocess.Popen(['evince', fileName])
     # Sleep needed so the message box shoud appear on top.
@@ -41,8 +73,18 @@ def confirmPDF(fileName):
 
 def pdfExists(entry, paperDir):
     """
-    Check whether the needed pdf file is among the pdf files in the drop folder.
+    Check whether the needed PDF file is among the PDF files in the
+    drop folder.
+
+    :param entry: The paper's BibTeX entry. This argument is provided \
+    for consistency of interface, but is not actually used.
+
+    :param paperDir: The folder containing the files associated with \
+    the paper.
+
+    :return: ``True`` if the paper PDF exists and ``False`` otherwise.
     """
+    
     for fileName in dirFiles(config.DROP_DIR, '*.pdf'):
         if confirmPDF(fileName):
             os.rename(fileName, paperDir + "/paper.pdf")
@@ -51,8 +93,15 @@ def pdfExists(entry, paperDir):
 
 def entry2query(entry):
     """
-    Compute a query based based on bibtex entry or search string.
+    Compute a search query based on the given BibTeX entry or search
+    string. If a BibTeX entry is supplied, then extract only the
+    title. In both cases, replace spaces by pluses.
+
+    :param entry: BibTeX entry or search string.
+
+    :return: The computed search query.
     """
+    
     if type(entry) == type(""):
         entryStr = entry
     else:
@@ -61,13 +110,27 @@ def entry2query(entry):
 
 def sourceQueryAddress(source, entry):
     """
-    Get the address corresponding to the query from the given source.
+    Compute the web address containing the query for the given search entry and source.
+
+    :param source: The online source.
+
+    :param entry: BibTeX entry or search string.
+
+    :return: The computed web address.
     """
+    
     return source.queryAddress + entry2query(entry)
 
 def sourceSearchResultsHTML(source, entry):
     """
-    Return the HTML source of the page of search results.
+    Compute the string HTML source of the page of search results.
+
+    :param source: The online source.
+
+    :param entry: BibTeX entry or search string.
+
+    :return: The contents of the HTML page containing the search \
+    results.
     """
     driver.get(sourceQueryAddress(source, entry))
     try:
@@ -77,9 +140,18 @@ def sourceSearchResultsHTML(source, entry):
 
 def firstLink(source, searchType, page):
     """
-    Get the first link to the resource corresponding to searchType
-    from the HTML source page. If the link is just the same page, 
-    return an empty string.
+    Get the first link to the resource corresponding to the given
+    search type (PDF of BibTeX) from the given HTML source page.
+
+    :param source: The online source.
+
+    :param searchType: The search type ("pdf" or "bib").
+
+    :return: The first link to the resource being searched \
+    for. Returns an empty string if the ``afterLinkForPDF`` (or \
+    ``afterLinkForBib``) method of the source (see the documentation \
+    of the :py:mod:`online_sources` module) raises an \
+    exception. Returns ``None`` If the link is not found on the page.
     """
     # pdb.set_trace()
     try:
@@ -97,8 +169,16 @@ def firstLink(source, searchType, page):
 
 def followRedirections(source, searchType, link):
     """
-    Depending on source and searchType, follow redirections beginning 
-    from the given link until a direct link to the resrouce is obtained.
+    Follow ``http`` re-directions beginning from the given *link*
+    until a direct link to the searched for resource is
+    obtained. Different sources and search types are handled
+    appropriately.
+
+    :param source: The online source.
+
+    :param searchType: The search type ("pdf" or "bib").
+
+    :return: The direct link to the searched for resource. 
     """
     if searchType == "bib": return link
     try:
@@ -128,7 +208,14 @@ def followRedirections(source, searchType, link):
 
 def candidatePDFFeedback(link, paperDir):
     """
-    Download the candidate PDF and ask the user whether it is the one.
+    Download the found candidate PDF and ask the user whether it is
+    the one he desired.
+
+    :param link: The direct link to the PDF.
+
+    :paperDir: The folder of the paper whose PDF is requested.
+
+    :return: The reply of the user (yes/no).
     """
     # pdb.set_trace()
     with ProgressBox('Downloading the PDF...'):
@@ -140,7 +227,16 @@ def candidatePDFFeedback(link, paperDir):
 
 def processCandidatePDF(link, paperDir):
     """
-    Process the candidate PDF located at link.
+    Download the found candidate PDF and ask the user whether it is
+    the one he desired. If the user confirms, then add the PDF into
+    the papers database.
+
+    :param link: The direct link to the PDF.
+
+    :paperDir: The folder of the paper whose PDF is requested.
+
+    :return: The reply of the user to the confirmation request \
+    (yes/no).
     """
     answer = candidatePDFFeedback(link, paperDir)
     if answer:
@@ -150,8 +246,14 @@ def processCandidatePDF(link, paperDir):
     
 def candidateBibFeedback(link, source):
     """
-    Get the candidate BibTeX entry and ask the user whether it is the one.
-    If LINK is empty string, the needed link is assumed to be already open.
+    Download the found candidate BibTeX entry and ask the user whether
+    it is the one he desired.
+
+    :param link: The direct link to the BibTeX entry.
+
+    :source: The online source.
+
+    :return: The reply of the user (yes/no).
     """
     if link != "": driver.get(link)
     entry = source.bibEntry(driver)
@@ -163,7 +265,16 @@ def candidateBibFeedback(link, source):
 
 def processCandidateBib(link, source):
     """
-    Process the candidate PDF located at link.
+    Download the found candidate PDF and ask the user whether it is
+    the one he desired. If the user confirms, then add the PDF into
+    the papers database.
+
+    :param link: The direct link to the BibTeX entry.
+
+    :source: The online source.
+
+    :return: The reply of the user to the confirmation request \
+    (yes/no).
     """
     answer, entry = candidateBibFeedback(link, source)
     if answer:
@@ -175,7 +286,21 @@ def processCandidateBib(link, source):
 
 def getResourceAutomated(entry, searchType, paperDir):
     """
-    Obtain the resource for the entry in an automated manner.
+    Search for the requested resource in the online sources given by
+    the value of :py:mod:`config.PDF_AUTOMATED_SOURCES` or
+    :py:mod:`config.BIB_AUTOMATED_SOURCES` depending on the search
+    type.
+
+    :param entry: The paper's BibTeX entry. This argument is provided \
+    for consistency of interface, but is not actually used.
+    
+    :param searchType: The search type ("pdf" or "bib").
+
+    :param paperDir: The folder containing the files associated with \
+    the paper.
+
+    :return: ``True`` if the user confirmed the found resource and \
+    ``False`` otherwise.
     """
     sources = config.PDF_AUTOMATED_SOURCES
     if searchType == "bib":
@@ -216,7 +341,15 @@ def getResourceAutomated(entry, searchType, paperDir):
 
 def getResourceManual(entry, searchType):
     """
-    Obtain the resource for the entry in a manual manner.
+    Obtain the resource for the entry in a manual manner from the
+    online source given by the value of
+    :py:mod:`config.PDF_MANUAL_SOURCE` or
+    :py:mod:`config.BIB_MANUAL_SOURCE` depending on the search type.
+
+    :param entry: The paper's BibTeX entry. This argument is provided \
+    for consistency of interface, but is not actually used.
+    
+    :param searchType: The search type ("pdf" or "bib").
     """
     # pdb.set_trace()
     source = config.PDF_MANUAL_SOURCE

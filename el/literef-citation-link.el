@@ -1,4 +1,4 @@
-;;; literef-citation-link.el --- general-purpose utilities used by the other modules.
+;;; literef-citation-link.el --- functions for handling citation links.
 
 ;; Copyright(C) 2017-2018 Meir Goldenberg
 
@@ -17,47 +17,46 @@
 
 ;;; Commentary:
 ;;
-;; This module contains some helper functions. Some of these, such as
-;; `literef-xor', are not related to LiteRef functionalities per se
-;; and can be used by other projects. Others, such as
-;; `literef-bib-files' are LiteRef-specific, but are used by many
-;; modules and hence are separated out as utilities.
+;; This module contains functions that handle citation links and
+;; operations involving them: hovering over, clicking, splitting,
+;; ordering keys and others.
 
 ;;; Code:
 ;;;; BEGIN: Copying and pasting key(s) --------------------------
 (defun literef-copy-current-key()
-  "Copy the current key for later intelligent yanking."
+  "Save the current key for later intelligent yanking."
   (interactive)
   (let ((key (literef-current-key)))
     (when key (kill-new key))))
 
 (defun literef-after-string-p(string)
-  "Returns t if point is after STRING and nil otherwise."
+  "Return t if point is after STRING and nil otherwise."
   (and (> (point) (length string))
        (equal
 	(buffer-substring (- (point) (length string)) (point))
 	string)))
 
 (defun literef-after-citation-type-p()
-  "Returns t if point is after citation type such as citeauthor: and nil otherwise."
+  "Return t if point is after a citation link of any kind
+(e.g. `citeauthor:') and nil otherwise."
   (let (res)
     (dolist (type org-ref-cite-types res)
       (setq res (or res (literef-after-string-p (concat type ":")))))))
 
 (defun literef-insert-for-yank (orig-fun string)
-  "The version of insert-for-yank that handles the keys being yanked intelligently.
+  "The version of `insert-for-yank' that handles the keys being yanked intelligently.
 
-The string to be yanked is preceeded by the prefix computed as follows:
+The STRING to be yanked is preceeded by the prefix computed as follows:
 
 1. Split the contents being yanked based on commas and analyze the first entry. If it is not a valid key, the prefix is empty. Otherwise, proceed to step 2. 
 
 2. If over a citation key, go to its end and set the prefix to be comma.
 
-3. Otherwise, if right after comma that follows citation key or after citation type, the prefix is empty. 
+3. Otherwise, if the point is right after comma that follows a citation key or after a citation type (e.g. `citeauthor:'), the prefix is empty. 
 
-4. Otherwise, the prefix is 'cite:'.
+4. Otherwise, the prefix is \"cite:\".
 
-Once the original function is called, the current citation link (if the cursor is over one) is sorted subject to the value of `literef-sort-citation-links'. 
+After the original function is called for the prefixed STRING, the current citation link (if the cursor is over one) is sorted subject to the value of the variable `literef-sort-citation-links'. 
 "
   (let* ((key (car (split-string string ",")))
 	 (link (literef-citation-link-under-cursor))
@@ -82,7 +81,8 @@ Once the original function is called, the current citation link (if the cursor i
 (advice-add 'insert-for-yank :around #'literef-insert-for-yank)
 
 (defun literef-bibtex-from-clipboard()
-  "Creates an entry from the BibTeX code saved in the clipboard."
+  "Create an entry in the papers database from the BibTeX entry
+currently in the clipboard."
   (interactive)
   (with-temp-file (concat literef-drop-directory "temp.bib")
     (yank)))
@@ -90,7 +90,7 @@ Once the original function is called, the current citation link (if the cursor i
 
 ;;;; BEGIN: Splitting a citation --------------------------------
 (defun literef-key-string(key)
-  "Compute a string consisting of title and author."
+  "Compute a string consisting of title and author based on the KEY."
   (let* ((entry (bibtex-completion-get-entry key))
 	 (authors
 	  (literef-translate-latex
@@ -101,9 +101,7 @@ Once the original function is called, the current citation link (if the cursor i
     (concat  "\"" title "\" by " authors)))
 
 (defun literef-split-cite-raw(insert-title-author)
-  "Split citation of multiple sources. Insert information about title and author before the key if INSERT-TITLE-AUTHOR is not nil.
-  
-Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line"
+  "Split the first multi-paper citation found on the current line, so that each paper is cited on a separate line, while the text preceeding and succeeding the original citation is duplicated on each line. Insert information about title and author before the key if INSERT-TITLE-AUTHOR is not nil."
   (interactive)
   (let* ((save-point (point)) ; because we'll kill the line
 	 (element (progn
@@ -150,21 +148,17 @@ Splits the first citation of multiple sources found on the current line, so that
 	    (search-forward "END"))))
     (goto-char save-point)))
 
-(defun test()
-  (interactive)
-  (goto-char (literef-link-begin (literef-first-citation-link-on-line))))
+;; (defun test()
+;;   (interactive)
+;;   (goto-char (literef-link-begin (literef-first-citation-link-on-line))))
 
 (defun literef-split-cite-title-author()
-  "Split citation of multiple sources. Insert information about title and author before the key.
-  
-Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line."
+  "Split the first multi-paper citation found on the current line, so that each paper is cited on a separate line, preceeded by the information about title and author. The text preceeding and succeeding the original citation is duplicated on each line. Insert information about title and author before the key."
   (interactive)
   (literef-split-cite-raw t))
 
 (defun literef-split-cite()
-  "Split citation of multiple sources.
-  
-Splits the first citation of multiple sources found on the current line, so that each souce appears on a separate line, while the text preceeding and succeeding the long citation is duplicated on each line."
+  "Like `literef-split-cite-title-author', but without prepending each citation with title and author."
   (interactive)
   (literef-split-cite-raw nil))
 ;;;; END --------------------------------------------------------
@@ -172,7 +166,7 @@ Splits the first citation of multiple sources found on the current line, so that
 ;;;; BEGIN: Sorting keys and citation links ---------------------
 
 (defun literef-sort-keys(keys criteria)
-  "Sort keys according to CRITERIA, which can be either a string of characters as in `literef-char-to-compare' or a list as returned by `literef-criteria-list'."
+  "Sort KEYS according to CRITERIA, which can be either a string or a list of characters as in the variable `literef-citation-link-sorting-criteria'."
   (let (res
 	(literef-criteria
 	 (if (stringp criteria)
@@ -190,7 +184,7 @@ Splits the first citation of multiple sources found on the current line, so that
     (reverse res)))
 
 (defun literef-sort-citation-link(&optional no-read-criteria criteria)
-  "Sort the current citation. The sorting criteria criteria are read from the user. If the optional NO-READ-CRITERIA is set, `literef-citation-link-sorting-criteria' is used as the sorting criteria. In addition, if CRITERIA is set (in which case, NO-READ-CRITERIA should also be set), it is used as the sorting criteria."
+  "Sort keys in the current citation. The sorting criteria are read from the user, unless the optional NO-READ-CRITERIA is set. If NO-READ-CRITERIA is set, then, if CRITERIA is set as well, it is used as the sorting criteria. Otherwise, the value of the variable `literef-citation-link-sorting-criteria' is used as the sorting criteria."
   (interactive)
   (let ((link (literef-citation-link-under-cursor)))
     (when link
@@ -208,7 +202,7 @@ Splits the first citation of multiple sources found on the current line, so that
 	  (replace-match (literef-join-strings keys ",")))))))
 
 (defun literef-sort-citation-links(&optional no-read-criteria)
-  "Sort all citation links in the current buffer. The sorting criteria criteria are read from the user. If the optional NO-READ-CRITERIA is set, `literef-citation-link-sorting-criteria' is used as the sorting criteria."
+  "Sort all citation links in the current buffer. The sorting criteria criteria are read from the user, unless the optional NO-READ-CRITERIA is set, in which case the value of the variable `literef-citation-link-sorting-criteria' is used as the sorting criteria."
   (interactive)
   (save-excursion
     (let ((criteria
@@ -222,7 +216,7 @@ Splits the first citation of multiple sources found on the current line, so that
 ;;;; BEGIN: Clicking citation link ------------------------------
 
 (defun  literef-cite-onclick-function()
-  "Handles following a citation link."
+  "Handle following a citation link by offering a menu of actions that can be performed on the link."
   (let (ans)
     (unwind-protect
 	(progn
